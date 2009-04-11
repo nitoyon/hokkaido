@@ -1,19 +1,24 @@
 package{
 import flash.display.*;
 import flash.events.*;
+import flash.net.SharedObject;
+import flash.utils.ByteArray;
 import flash.ui.Keyboard;
 
 [SWF(backgroundColor="#ffffff", width="450", height="350")]
 public class HokkaidoBox2d extends Sprite{
+	// prefIndex property
 	private var _prefIndex:int = 0;
 	public function get prefIndex():int{return _prefIndex;}
 	public function set prefIndex(value:int):void{
 		if (_prefIndex != value){
 			_prefIndex = value;
+			storage.data.pref = _prefIndex;
 			dispatchEvent(new Event("prefIndexChanged"));
 		}
 	}
 
+	private var storage:SharedObject;
 	private var _started:Boolean = false;
 	public function get started():Boolean{return _started;}
 	public function set started(value:Boolean):void{_started = value;}
@@ -24,17 +29,27 @@ public class HokkaidoBox2d extends Sprite{
 	static public const TITLE_STATE:int = 0;
 	static public const PLAYING_STATE:int = 1;
 
-	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoPro-Medium.otf', fontName='KozGoPro', unicodeRange='U+0041,U+0052,U+0053,U+0054,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
+	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041,U+0052,U+0053,U+0054,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
 	private var Gothic:Class;
 
 	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
 	private var Mincho:Class;
+
+	[Embed(source='out.bin',mimeType="application/octet-stream")]
+	private var PrefClass:Class;
 
 	private var title:Title;
 	private var playing:Playing;
 	private var currentState:IState;
 
 	public function HokkaidoBox2d(){
+		var bytes:ByteArray = new PrefClass();
+		bytes.uncompress();
+		PrefData = bytes.readObject();
+
+		storage = SharedObject.getLocal("pref");
+		prefIndex = storage.data.pref;
+
 		// draw border
 		graphics.lineStyle(1, 0x999999);
 		graphics.drawRect(0, 0, WIDTH, HEIGHT);
@@ -62,10 +77,12 @@ public class HokkaidoBox2d extends Sprite{
 		});
 		stage.addEventListener("keyDown", function(event:KeyboardEvent):void{
 			if (!started) return;
-			if (event.keyCode != Keyboard.LEFT && event.keyCode != Keyboard.RIGHT) return;
-
-			prefIndex = (prefIndex + (event.keyCode == Keyboard.LEFT ? -1 : 1) + 47) % 47;
-			setState(TITLE_STATE);
+			if (event.keyCode == Keyboard.LEFT || event.keyCode == Keyboard.RIGHT){
+				prefIndex = (prefIndex + (event.keyCode == Keyboard.LEFT ? -1 : 1) + 47) % 47;
+				setState(TITLE_STATE);
+			} else if (event.keyCode == Keyboard.ENTER && currentState == title){
+				setState(PLAYING_STATE);
+			}
 		});
 	}
 
@@ -87,6 +104,7 @@ public class HokkaidoBox2d extends Sprite{
 			}
 
 			state.visible = true;
+			stage.focus = state as Sprite;
 			currentState = state;
 			state.start();
 		}
@@ -96,7 +114,7 @@ public class HokkaidoBox2d extends Sprite{
 	public static function createAreaSprite(points:Array, centerX:Number, centerY:Number, zoom:Number):Sprite{
 		var sprite:Sprite = new Sprite();
 		sprite.graphics.lineStyle(1, 0x999999, 1, false, "none");
-		sprite.graphics.beginFill(0xeeeeee);
+		sprite.graphics.beginFill(0xdddddd);
 
 		var moveFlag:Boolean = false;
 		for(var i:int = 0; i < points.length / 2; i++){
@@ -138,6 +156,8 @@ import Box2D.Collision.Shapes.*;
 import Box2D.Common.b2Settings;
 import Box2D.Common.Math.*;
 
+var PrefData:Array;
+
 function assert(f:Boolean, msg:String = ""):void{
 	if (!f) throw new Error(msg);
 }
@@ -168,14 +188,14 @@ class Title extends Sprite implements IState{
 		var prefIndex:int = main.prefIndex;
 		var start:Boolean = !main.started
 
-		var tf:TextField = createText(Prefs[prefIndex]['name'])
+		var tf:TextField = createText(PrefBox2d[prefIndex]['name'])
 		tf.x = W / 2;
 		tf.y = 30 + (!start ? 50 : 0);
 		addChild(tf);
 
 		var preview:Sprite = new Sprite();
-		for each(var area:Object in Prefs[prefIndex]['areas']){
-			var child:Sprite = HokkaidoBox2d.createAreaSprite(area['pt'], 0, 0, 1.0);
+		for each(var area:Object in PrefData[prefIndex]){
+			var child:Sprite = HokkaidoBox2d.createAreaSprite(area.p, 0, 0, 1.0);
 			preview.addChild(child);
 		}
 		var scale:Number = Math.max(preview.width, preview.height);
@@ -207,7 +227,7 @@ class Title extends Sprite implements IState{
 			Tweener.addTween(this, {
 				alpha: 0, 
 				time: 2, 
-				delay: 3,
+				delay: 2.5,
 				onComplete: clickHandler
 			});
 		}
@@ -421,15 +441,15 @@ class Playing extends Sprite implements IState{
 		bodyDef.position.Set(1.5, 0.2);
 
 		var prefSprites:Array = [];
-		var zoom:Number = Prefs[prefIndex]['zoom'];
-		for each(var area:Object in Prefs[prefIndex]['areas']){
+		var zoom:Number = PrefBox2d[prefIndex]['zoom'];
+		for each(var area:Object in PrefData[prefIndex]){
 			// box2d 上に凸包を作成
 			var body:b2Body = world.CreateBody(bodyDef);
-			createBox2dConvex(body, area['convex'], prefIndex);
+			createBox2dConvex(body, area.c, prefIndex);
 
 			// 表示するSprite を作成
 			var center:b2Vec2 = body.GetLocalCenter();
-			body.m_userData = HokkaidoBox2d.createAreaSprite(area['pt'], -center.x * SCALE, -center.y * SCALE, zoom);
+			body.m_userData = HokkaidoBox2d.createAreaSprite(area.p, -center.x * SCALE, -center.y * SCALE, zoom);
 			body.m_userData.buttonMode = true;
 			body.m_userData.addEventListener("mouseDown", mouseDownHandler);
 			body.m_userData.alpha = 0;
@@ -455,10 +475,10 @@ class Playing extends Sprite implements IState{
 	// エリアの凸包を作る
 	private function createBox2dConvex(body:b2Body, convex:Array, prefIndex:int):void{
 		var shapeDef:b2PolygonDef= new b2PolygonDef();
-		var zoom:Number = Prefs[prefIndex]['zoom'];
 		shapeDef.density = 1;
-		shapeDef.restitution = Prefs[prefIndex]['r'] || 0.7;
-		shapeDef.friction = Prefs[prefIndex]['f'] || 0.2;
+		shapeDef.restitution = PrefBox2d[prefIndex]['r'] || 0.7;
+		shapeDef.friction = PrefBox2d[prefIndex]['f'] || 0.2;
+		var zoom:Number = PrefBox2d[prefIndex]['zoom'];
 
 		var counts:int = convex.length / 2;
 		var start:int = 1;
@@ -555,7 +575,7 @@ class SubTitle extends Sprite{
 		var H:int = HokkaidoBox2d.HEIGHT;
 
 		var largeSize:int = 14, smallSize:int = 12;
-		var prefName:String = Prefs[prefIndex]['name'];
+		var prefName:String = PrefBox2d[prefIndex]['name'];
 		var str:String = <>
 			<font face="KozGoPro" size={largeSize}>{prefName}</font><font face="KozMinPro" size={smallSize}>を</font>
 			<font face="KozGoPro" size={largeSize}>落</font><font face="KozMinPro" size={smallSize}>とすと</font><br/>
