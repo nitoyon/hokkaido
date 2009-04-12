@@ -3,7 +3,6 @@ import flash.display.*;
 import flash.events.*;
 import flash.net.SharedObject;
 import flash.utils.ByteArray;
-import flash.ui.Keyboard;
 
 [SWF(backgroundColor="#ffffff", width="450", height="350")]
 public class HokkaidoBox2d extends Sprite{
@@ -13,23 +12,34 @@ public class HokkaidoBox2d extends Sprite{
 	public function set prefIndex(value:int):void{
 		if (_prefIndex != value){
 			_prefIndex = value;
-			storage.data.pref = _prefIndex;
+			if(storage) storage.data.pref = _prefIndex;
 			dispatchEvent(new Event("prefIndexChanged"));
 		}
 	}
 
-	private var storage:SharedObject;
 	private var _started:Boolean = false;
 	public function get started():Boolean{return _started;}
 	public function set started(value:Boolean):void{_started = value;}
+
+	private var _autoPlay:Boolean = true;
+	public function get autoPlay():Boolean{return _autoPlay;}
+	public function set autoPlay(value:Boolean):void{_autoPlay = value;}
 
 	static public const WIDTH:Number = 450;
 	static public const HEIGHT:Number = 350;
 
 	static public const TITLE_STATE:int = 0;
 	static public const PLAYING_STATE:int = 1;
+	static public const INDEX_STATE:int = 2;
 
-	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041,U+0052,U+0053,U+0054,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
+	private var title:Title;
+	private var playing:Playing;
+	private var index:Index;
+	private var currentState:IState;
+
+	private var storage:SharedObject;
+
+	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045-U+0047,U+0049,U+004B,U+004E-U+0050,U+0052,U+0053,U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
 	private var Gothic:Class;
 
 	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
@@ -38,51 +48,33 @@ public class HokkaidoBox2d extends Sprite{
 	[Embed(source='out.bin',mimeType="application/octet-stream")]
 	private var PrefClass:Class;
 
-	private var title:Title;
-	private var playing:Playing;
-	private var currentState:IState;
-
 	public function HokkaidoBox2d(){
 		var bytes:ByteArray = new PrefClass();
 		bytes.uncompress();
 		PrefData = bytes.readObject();
 
-		storage = SharedObject.getLocal("pref");
-		prefIndex = storage.data.pref;
+		//storage = SharedObject.getLocal("pref");
+		//prefIndex = storage.data.pref;
 
 		// draw border
 		graphics.lineStyle(1, 0x999999);
 		graphics.drawRect(0, 0, WIDTH, HEIGHT);
 
-		title = new Title(this);
-		title.visible = false;
-		addChild(title);
-		playing = new Playing(this);
-		playing.visible = false;
-		addChild(playing);
-
+		title = new Title(this); title.visible = false; addChild(title);
+		playing = new Playing(this); playing.visible = false; addChild(playing);
+		index = new Index(this); index.visible = false; addChild(index);
 		setState(TITLE_STATE);
 
 		var lastWheel:Number = 0;
 		stage.addEventListener("mouseWheel", function(event:MouseEvent):void{
-			if (!started) return;
-
 			// avoid firefox 3.0 dup wheel event problem
 			var now:Number = new Date().getTime();
 			if (now == lastWheel) return;
 			lastWheel = now;
-
-			prefIndex = (prefIndex + (event.delta < 0 ? 1 : -1) + 47) % 47;
-			setState(TITLE_STATE);
+			currentState.wheelHandler(event);
 		});
 		stage.addEventListener("keyDown", function(event:KeyboardEvent):void{
-			if (!started) return;
-			if (event.keyCode == Keyboard.LEFT || event.keyCode == Keyboard.RIGHT){
-				prefIndex = (prefIndex + (event.keyCode == Keyboard.LEFT ? -1 : 1) + 47) % 47;
-				setState(TITLE_STATE);
-			} else if (event.keyCode == Keyboard.ENTER && currentState == title){
-				setState(PLAYING_STATE);
-			}
+			currentState.keyHandler(event);
 		});
 	}
 
@@ -90,6 +82,7 @@ public class HokkaidoBox2d extends Sprite{
 		switch(enum){
 			case TITLE_STATE: return title;
 			case PLAYING_STATE: return playing;
+			case INDEX_STATE: return index;
 			default: throw new Error('invalid parameter:' + enum);
 		}
 	}
@@ -114,7 +107,7 @@ public class HokkaidoBox2d extends Sprite{
 	public static function createAreaSprite(points:Array, centerX:Number, centerY:Number, zoom:Number):Sprite{
 		var sprite:Sprite = new Sprite();
 		sprite.graphics.lineStyle(1, 0x999999, 1, false, "none");
-		sprite.graphics.beginFill(0xdddddd);
+		sprite.graphics.beginFill(0xcde0a7);
 
 		var moveFlag:Boolean = false;
 		for(var i:int = 0; i < points.length / 2; i++){
@@ -146,6 +139,7 @@ import flash.events.*;
 import flash.geom.*;
 import flash.text.*;
 import flash.filters.*;
+import flash.ui.Keyboard;
 import flash.utils.setTimeout;
 import flash.utils.clearTimeout;
 import caurina.transitions.Tweener;
@@ -165,6 +159,8 @@ function assert(f:Boolean, msg:String = ""):void{
 interface IState{
 	function start():void;
 	function end():void;
+	function keyHandler(event:KeyboardEvent):void;
+	function wheelHandler(event:MouseEvent):void;
 	function get visible():Boolean;
 	function set visible(value:Boolean):void;
 }
@@ -188,21 +184,26 @@ class Title extends Sprite implements IState{
 		var prefIndex:int = main.prefIndex;
 		var start:Boolean = !main.started
 
-		var tf:TextField = createText(PrefBox2d[prefIndex]['name'])
-		tf.x = W / 2;
-		tf.y = 30 + (!start ? 50 : 0);
-		addChild(tf);
-
 		var preview:Sprite = new Sprite();
 		for each(var area:Object in PrefData[prefIndex]){
 			var child:Sprite = HokkaidoBox2d.createAreaSprite(area.p, 0, 0, 1.0);
 			preview.addChild(child);
 		}
-		var scale:Number = Math.max(preview.width, preview.height);
+		var scale:Number = Math.max(preview.width, preview.height * .8);
 		preview.scaleX = preview.scaleY = W * .4 / scale;
 		preview.x = (W / 2 - preview.width) / 2;
 		preview.y = (H - (start ? 100 : 0) - preview.height) / 2;
 		addChild(preview);
+
+		var tf:TextField = createText(PrefBox2d[prefIndex].name)
+		tf.x = W / 2;
+		tf.y = 30 + (!start ? 41 : 0);
+		addChild(tf);
+
+		if (PrefBox2d[prefIndex].name.length > 3){
+			tf.x -= 15;
+			preview.x -= 8;
+		}
 
 		hitarea = new Sprite();
 		hitarea.graphics.beginFill(0, 0);
@@ -212,7 +213,7 @@ class Title extends Sprite implements IState{
 		hitarea.mouseChildren = false;
 
 		if(start){
-			button = new Button(200, 80, 20);
+			button = new Button(200, 80, 25, "START", 48);
 			button.x = (HokkaidoBox2d.WIDTH - 200) / 2;
 			button.y = HokkaidoBox2d.HEIGHT - 100;
 			addChild(button);
@@ -248,6 +249,26 @@ class Title extends Sprite implements IState{
 		while (numChildren) removeChildAt(0);
 		hitarea = null;
 		button = null;
+	}
+
+	public function keyHandler(event:KeyboardEvent):void{
+		if (!main.started) return;
+		switch (event.keyCode){
+			case Keyboard.LEFT:
+			case Keyboard.RIGHT:
+				main.prefIndex = (main.prefIndex + (event.keyCode == Keyboard.LEFT ? -1 : 1) + 47) % 47;
+				end(); start();
+				break;
+			case Keyboard.ENTER:
+				main.setState(HokkaidoBox2d.PLAYING_STATE);
+				break;
+		}
+	}
+
+	public function wheelHandler(event:MouseEvent):void{
+		if (!main.started) return;
+		main.prefIndex = (main.prefIndex + (event.delta < 0 ? 1 : -1) + 47) % 47;
+		end(); start();
 	}
 
 	private function buttonRollOver(event:Event):void{ button.hover = true; }
@@ -292,6 +313,11 @@ class Playing extends Sprite implements IState{
 	private var mouseJoint:b2MouseJoint;
 	static public const SCALE:Number = 100;
 
+	private var backButton:Button;
+	private var replayButton:Button;
+	private var nextButton:Button;
+	private var prevButton:Button;
+
 	private var timerId:uint;
 
 	public function Playing(_main:HokkaidoBox2d):void{
@@ -313,26 +339,31 @@ class Playing extends Sprite implements IState{
 	}
 
 	public function start():void{
+		if (main.autoPlay){
+			alpha = 0;
+			Tweener.addTween(this, {
+				alpha: 1,
+				time: .8
+			});
+		} else {
+			alpha = 1;
+		}
+
 		var prefIndex:int = main.prefIndex;
 		addBox2dPrefBody(prefIndex);
 
 		var subTitle:SubTitle = new SubTitle(prefIndex);
-		subTitle.alpha = 0;
 		addChild(subTitle);
-		var sprites:Array = [];
-		for (var i:int = 0; i < numChildren; i++) sprites.push(getChildAt(i));
 
 		enterFrameHandler(null);
-		Tweener.addTween(sprites, {
-			alpha: 1,
-			time: .3
-		});
 		timerId = setTimeout(function():void{
 			if (timerId == 0) return;
 			timerId = 0;
-			sprites = null;
 			startBox2dAnimation();
 		}, .5 * 1000);
+
+		if (!main.autoPlay) addButtons();
+		addEventListener("click", clickHandler);
 	}
 
 	public function end():void{
@@ -342,37 +373,96 @@ class Playing extends Sprite implements IState{
 
 		while (numChildren) removeChildAt(0);
 		removeBox2dPrefBody();
+		stage.removeEventListener("mouseMove", mouseMoveHandler);
+		stage.removeEventListener("mouseUp", mouseUpHandler);
+		removeEventListener("click", clickHandler);
 	}
 
+	public function keyHandler(event:KeyboardEvent):void{
+		switch (event.keyCode){
+			case Keyboard.LEFT:
+			case Keyboard.RIGHT:
+				main.prefIndex = (main.prefIndex + (event.keyCode == Keyboard.LEFT ? -1 : 1) + 47) % 47;
+				if (main.autoPlay){
+					main.setState(HokkaidoBox2d.TITLE_STATE);
+				}else{
+					end(); start();
+				}
+				break;
+		}
+	}
+
+	public function wheelHandler(event:MouseEvent):void{
+		main.prefIndex = (main.prefIndex + (event.delta < 0 ? 1 : -1) + 47) % 47;
+		if (main.autoPlay){
+			main.setState(HokkaidoBox2d.TITLE_STATE);
+		} else {
+			end(); start();
+		}
+	}
 
 	private function startBox2dAnimation():void{
 		addEventListener("enterFrame", enterFrameHandler);
+		if (!main.autoPlay) return;
 
 		var likeThis:LikeThis = new LikeThis();
 		likeThis.alpha = 0;
 		addChild(likeThis);
 
-		var sprites:Array = [];
-		for (var i:int = 0; i < numChildren; i++) sprites.push(getChildAt(i));
-
 		Tweener.addTween(likeThis, {
 			alpha: 1,
 			delay: 5,
 			time: 2,
-			transition: 'lenear'
+			transition: 'easeInSine'
 		});
-		Tweener.addTween(sprites, {
+		Tweener.addTween(this, {
 			alpha: 0,
 			delay: 8,
 			time: 2,
 			onComplete: function():void{
-				if (!sprites) return;
-				sprites = null;
-
-				main.prefIndex = (main.prefIndex + 1) % 47;
-				main.setState(HokkaidoBox2d.TITLE_STATE);
+				if (main.prefIndex == 46){
+					main.setState(HokkaidoBox2d.INDEX_STATE);
+				} else {
+					main.prefIndex++;
+					main.setState(HokkaidoBox2d.TITLE_STATE);
+				}
 			}
 		});
+	}
+
+	private const R:int = 30;
+
+	private function addButtons():void{
+		backButton = new Button(80, 30, 10, "BACK", 14);
+		replayButton = new Button(80, 30, 10, "REPLAY", 14);
+		nextButton = new Button(R, R, R);
+		prevButton = new Button(R, R, R);
+
+		backButton.y = replayButton.y = 6;
+		backButton.x = 10; replayButton.x = 100;
+		prevButton.x = 10; nextButton.x = HokkaidoBox2d.WIDTH - 40;
+		prevButton.y = nextButton.y = (HokkaidoBox2d.HEIGHT - 30) / 2;
+
+		var tri1:Sprite = createTriangle(R * .3), tri2:Sprite = createTriangle(R * .3);
+		tri1.x = tri1.y = tri2.x = tri2.y = R / 2;
+		tri2.rotation = 180;
+		prevButton.addChild(tri1);
+		nextButton.addChild(tri2);
+
+		addChild(backButton);
+		addChild(replayButton);
+		addChild(prevButton);
+		addChild(nextButton);
+	}
+
+	private function createTriangle(r:Number):Sprite{
+		var s:Sprite = new Sprite();
+		s.graphics.beginFill(0x6699cc);
+		s.graphics.moveTo(-r, 0);
+		s.graphics.lineTo(r / 2, r * Math.sqrt(3) / 2);
+		s.graphics.lineTo(r / 2, -r * Math.sqrt(3) / 2);
+		s.graphics.endFill();
+		return s;
 	}
 
 	private function enterFrameHandler(event:Event):void{
@@ -384,13 +474,22 @@ class Playing extends Sprite implements IState{
 			sprite.x = b.GetWorldCenter().x * SCALE;
 			sprite.y = b.GetWorldCenter().y * SCALE;
 			sprite.rotation = b.GetAngle() * 180 / Math.PI;
+		}
+	}
 
-			if(b.IsSleeping() && Math.random() < .05){
-/*					var m:Number = b.GetMass();
-				var r1:Number = Math.pow(Math.random() - .5, 2);
-				var r2:Number = Math.pow(Math.random(), 2)
-				b.ApplyForce(new b2Vec2(5000 * r1 * (m / SCALE), (2000) * (m / SCALE)), b.GetLocalCenter());
-*/			}
+	private function clickHandler(event:Event):void{
+		if(event.target is Button){
+			if (event.target == backButton){
+				main.setState(HokkaidoBox2d.INDEX_STATE);
+			} else if (event.target == replayButton){
+				end(); start();
+			} else if (event.target == nextButton){
+				main.prefIndex = (main.prefIndex + 1) % 47;
+				end(); start();
+			} else if (event.target == prevButton){
+				main.prefIndex = (main.prefIndex - 1 + 47) % 47;
+				end(); start();
+			}
 		}
 	}
 
@@ -436,13 +535,24 @@ class Playing extends Sprite implements IState{
 
 	// 都道府県を作る
 	private function addBox2dPrefBody(prefIndex:int):void{
+		var zoom:Number = PrefBox2d[prefIndex]['zoom'];
+
+		// 先に Sprite を作って横幅を調べる
+		var cmin:Number = Infinity, cmax:Number = -Infinity;
+		for each(var area:Object in PrefData[prefIndex]){
+			for (var i:int = 0; i < area.c.length / 2; i++){
+				if(cmin > area.c[i * 2]) cmin = area.c[i * 2];
+				if(cmax < area.c[i * 2]) cmax = area.c[i * 2];
+			}
+		}
+		var w:Number = (cmax - cmin) / SCALE * zoom;
+
 		// 都道府県を作る
 		var bodyDef:b2BodyDef = new b2BodyDef();
-		bodyDef.position.Set(1.5, 0.2);
+		bodyDef.position.Set((4.5 - w) / 2, 0.2);
 
 		var prefSprites:Array = [];
-		var zoom:Number = PrefBox2d[prefIndex]['zoom'];
-		for each(var area:Object in PrefData[prefIndex]){
+		for each(area in PrefData[prefIndex]){
 			// box2d 上に凸包を作成
 			var body:b2Body = world.CreateBody(bodyDef);
 			createBox2dConvex(body, area.c, prefIndex);
@@ -452,7 +562,6 @@ class Playing extends Sprite implements IState{
 			body.m_userData = HokkaidoBox2d.createAreaSprite(area.p, -center.x * SCALE, -center.y * SCALE, zoom);
 			body.m_userData.buttonMode = true;
 			body.m_userData.addEventListener("mouseDown", mouseDownHandler);
-			body.m_userData.alpha = 0;
 			addChild(body.m_userData);
 			prefSprites.push(body.m_userData);
 		}
@@ -475,10 +584,10 @@ class Playing extends Sprite implements IState{
 	// エリアの凸包を作る
 	private function createBox2dConvex(body:b2Body, convex:Array, prefIndex:int):void{
 		var shapeDef:b2PolygonDef= new b2PolygonDef();
-		shapeDef.density = 1;
-		shapeDef.restitution = PrefBox2d[prefIndex]['r'] || 0.7;
-		shapeDef.friction = PrefBox2d[prefIndex]['f'] || 0.2;
-		var zoom:Number = PrefBox2d[prefIndex]['zoom'];
+		shapeDef.density = PrefBox2d[prefIndex].d || 1;
+		shapeDef.restitution = PrefBox2d[prefIndex].r || 0.7;
+		shapeDef.friction = PrefBox2d[prefIndex].f || 0.2;
+		var zoom:Number = PrefBox2d[prefIndex].zoom || 1.0;
 
 		var counts:int = convex.length / 2;
 		var start:int = 1;
@@ -575,7 +684,7 @@ class SubTitle extends Sprite{
 		var H:int = HokkaidoBox2d.HEIGHT;
 
 		var largeSize:int = 14, smallSize:int = 12;
-		var prefName:String = PrefBox2d[prefIndex]['name'];
+		var prefName:String = PrefBox2d[prefIndex].name;
 		var str:String = <>
 			<font face="KozGoPro" size={largeSize}>{prefName}</font><font face="KozMinPro" size={smallSize}>を</font>
 			<font face="KozGoPro" size={largeSize}>落</font><font face="KozMinPro" size={smallSize}>とすと</font><br/>
@@ -617,6 +726,121 @@ class LikeThis extends Sprite{
 	}
 }
 
+class Index extends Sprite implements IState{
+	private var main:HokkaidoBox2d;
+	private var firstTime:Boolean;
+	private var timer:uint = 0;
+
+	private const MARGIN:int = 10;
+	private const BTN_X_COUNT:int = 8;
+	private const BTN_Y_COUNT:int = 7;
+
+	private const WIDTH:Number = HokkaidoBox2d.WIDTH;
+	private const HEIGHT:Number = HokkaidoBox2d.HEIGHT;
+
+	public function Index(_main:HokkaidoBox2d):void{
+		main = _main;
+		firstTime = true;
+	}
+
+	public function start():void{
+		x = WIDTH / 2;
+		y = HEIGHT / 2;
+
+		// タイトル
+		var textField:TextField = createTitleText();
+		textField.x = - textField.width / 2;
+		textField.y = - textField.height / 2;
+		textField.alpha = 0;
+		addChild(textField);
+		Tweener.addTween(textField, {
+			alpha: 1,
+			time: firstTime ? 5 : 1,
+			transition: 'easeInSine'
+		});
+
+		timer = setTimeout(function():void{ timer = 0; showButtons(); }, firstTime ? 3000 : 0);
+
+		addEventListener("click", clickHandler);
+		firstTime = false;
+	}
+
+	public function end():void{
+		while(numChildren) removeChildAt(0);
+		Tweener.removeAllTweens();
+		if(timer != 0) clearTimeout(timer);
+		removeEventListener("click", clickHandler);
+	}
+
+	public function keyHandler(event:KeyboardEvent):void{}
+	public function wheelHandler(event:MouseEvent):void{}
+
+	private function showButtons():void{
+		var w:Number = (WIDTH  - MARGIN) / BTN_X_COUNT;
+		var h:Number = (HEIGHT - MARGIN) / BTN_Y_COUNT;
+
+		var btns:Array = []
+		for (var i:int = 0; i < BTN_Y_COUNT; i++){
+			for (var j:int = 0; j < BTN_X_COUNT; j++){
+				var prefIndex:int = i * BTN_X_COUNT + j;
+				if (prefIndex >= 47) break;
+
+				var btn:Button = new IndexButton(w - 4, h - 4, 10, prefIndex);
+				btn.x = (j - BTN_X_COUNT / 2) * w;
+				btn.y = (i - BTN_Y_COUNT / 2 + (i > 2 ? 1 : 0)) * h;
+				addChild(btn);
+
+				btns.push({
+					b: btn, 
+					d: Math.sqrt(Math.pow(btn.x, 2) + Math.pow(btn.y, 2)) / 50
+				});
+			}
+		}
+
+		var count:int = 0;
+		timer = setTimeout(function():void{
+			timer = 0;
+			for each(var btn:Object in btns){
+				btn.b.alpha = (count - btn.d) / 10;
+			}
+			count++;
+			if (count < 100){
+				timer = setTimeout(arguments.callee, 10);
+			}
+		}, 0);
+	}
+
+	private function createTitleText():TextField{
+		var largeSize:int = 40, smallSize:int = 36;
+		var str:String = <>
+			<font face="KozMinPro" size={smallSize}>どの</font>
+			<font face="KozGoPro" size={largeSize}>都道府県</font>
+			<font face="KozMinPro" size={smallSize}>を</font>
+			<font face="KozGoPro" size={largeSize}>落</font>
+			<font face="KozMinPro" size={smallSize}>としますか？</font>
+			</>.toString();
+
+		var fmt:TextFormat = new TextFormat();
+		fmt.letterSpacing = -3;
+
+		var textField:EmbedTextField = new EmbedTextField();
+		textField.defaultTextFormat = fmt;
+		textField.text = str;
+		textField.autoSize = "left";
+		textField.htmlText = str;
+		return textField;
+	}
+
+	private function clickHandler(event:Event):void{
+		var btn:IndexButton = event.target as IndexButton;
+		if (btn){
+			main.autoPlay = false;
+			main.prefIndex = btn.prefIndex;
+			main.setState(HokkaidoBox2d.PLAYING_STATE);
+		}
+	}
+}
+
 class EmbedTextField extends TextField{
 	public function EmbedTextField(){
 		selectable = false;
@@ -625,10 +849,6 @@ class EmbedTextField extends TextField{
 }
 
 class Button extends Sprite{
-	private const WIDTH:int = 200;
-	private const HEIGHT:int = 100;
-	private const RADIUS:int = 25;
-
 	private static const mono:ColorMatrixFilter = new ColorMatrixFilter([
 		1 / 3, 1 / 3, 1 / 3, 0, 10,
 		1 / 3, 1 / 3, 1 / 3, 0, 10,
@@ -643,11 +863,11 @@ class Button extends Sprite{
 	public function set hover(value:Boolean):void{
 		if(_hover != value){
 			_hover = value;
-			filters = (_hover ? [] : [mono]);
+			filters = (_hover ? null : [mono]);
 		}
 	}
 
-	public function Button(W:Number, H:Number, r:Number){
+	public function Button(W:Number, H:Number, R:Number, label:String = "", size:int = 0){
 		var matrix:Matrix = new Matrix();
 		matrix.createGradientBox(W, H, Math.PI / 2);
 
@@ -655,7 +875,7 @@ class Button extends Sprite{
 
 		bg.graphics.beginGradientFill("linear", [0xDDE9F4, 0xD5E4F1, 0xBAD2E8], [1, 1, 1],
 			[0, 120, 136], matrix);
-		bg.graphics.drawRoundRect(0, 0, W, H, RADIUS, RADIUS);
+		bg.graphics.drawRoundRect(0, 0, W, H, R, R);
 		bg.graphics.endFill();
 
 		bg.filters = [new GlowFilter(0xFFFFBE, .5, 10, 10, 2, 1, true)];
@@ -663,20 +883,86 @@ class Button extends Sprite{
 
 		var line:Sprite = new Sprite();
 		line.graphics.lineStyle(3, 0xBAD2E8);
-		line.graphics.drawRoundRect(0, 0, W, H, RADIUS, RADIUS);
+		line.graphics.drawRoundRect(0, 0, W, H, R, R);
 		addChild(line);
 
 		filters = [mono];
+		buttonMode = true;
+		mouseChildren = false;
 
-		var textField:TextField = new TextField();
-		textField.selectable = false;
-		textField.embedFonts = true;
-		textField.autoSize = "left";
-		textField.scaleX = 1.1;
-		textField.htmlText = "<font size='48' face='KozGoPro' color='#6B8399'>START</font>";
-		textField.x = (W - textField.width) / 2;
-		textField.y = (H - textField.height) / 2 + 5;
-		addChild(textField);
+		if (label != ""){
+			var textField:TextField = new TextField();
+			textField.selectable = false;
+			textField.embedFonts = true;
+			textField.autoSize = "left";
+			textField.scaleX = 1.1;
+			textField.htmlText = <font size={size} face="KozGoPro" color="#6B8399">{label}</font>.toXMLString();
+			textField.x = (W - textField.width) / 2;
+			textField.y = (H - textField.height) / 2 + size / 7;
+			addChild(textField);
+		}
+
+		addEventListener("rollOver", buttonRollOver);
+		addEventListener("rollOut", buttonRollOut);
+		addEventListener("removed", function(event:Event):void{
+			removeEventListener("rollOver", buttonRollOver);
+			removeEventListener("rollOut", buttonRollOut);
+			removeEventListener("removed", arguments.callee);
+		});
+	}
+
+	protected function buttonRollOver(event:Event):void{
+		hover = true;
+	}
+
+	protected function buttonRollOut(event:Event):void{
+		hover = false;
+	}
+}
+
+class IndexButton extends Button{
+	private var label:TextField;
+
+	private var _prefIndex:int;
+	public function get prefIndex():int{
+		return _prefIndex;
+	}
+
+	public function IndexButton(W:Number, H:Number, R:Number, __prefIndex:int):void{
+		super(W, H, R);
+		_prefIndex = __prefIndex;
+
+		var preview:Sprite = new Sprite();
+		var child:Sprite = HokkaidoBox2d.createAreaSprite(PrefData[prefIndex][0].p, 0, 0, 1.0);
+		var rect:Rectangle = child.getRect(child);
+		child.x = -rect.x;
+		child.y = -rect.y;
+		preview.addChild(child);
+
+		var scale:Number = Math.min(width / preview.width, height / preview.height);
+		preview.scaleX = preview.scaleY = scale * .8;
+		preview.x = (width - preview.width) / 2;
+		preview.y = (height - preview.height) / 2;
+		addChild(preview);
+
+		label = new EmbedTextField();
+		label.width = W;
+		label.autoSize = "center";
+		label.htmlText = '<font face="KozGoPro" size="11" color="#336699">' + PrefBox2d[prefIndex].name + '</font>';
+		label.y = (H - label.height) / 2;
+		label.visible = false;
+		label.filters = [new GlowFilter(0xffffff, 1, 3, 3)];
+		addChild(label);
+	}
+
+	protected override function buttonRollOver(event:Event):void{
+		super.buttonRollOver(event);
+		label.visible = true;
+	}
+
+	protected override function buttonRollOut(event:Event):void{
+		super.buttonRollOut(event);
+		label.visible = false;
 	}
 }
 
