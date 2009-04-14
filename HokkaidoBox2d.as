@@ -58,7 +58,7 @@ public class HokkaidoBox2d extends Sprite{
 		//prefIndex = storage.data.pref;
 
 		// draw border
-		graphics.lineStyle(1, 0x999999);
+		graphics.lineStyle(1.5, 0x999999);
 		graphics.beginFill(0xffffff);
 		graphics.drawRect(0, 0, WIDTH, HEIGHT);
 		graphics.endFill();
@@ -66,7 +66,7 @@ public class HokkaidoBox2d extends Sprite{
 		title = new Title(this); title.visible = false; addChild(title);
 		playing = new Playing(this); playing.visible = false; addChild(playing);
 		index = new Index(this); index.visible = false; addChild(index);
-		setState(INDEX_STATE);
+		setState(TITLE_STATE);
 
 		var lastWheel:Number = 0;
 		stage.addEventListener("mouseWheel", function(event:MouseEvent):void{
