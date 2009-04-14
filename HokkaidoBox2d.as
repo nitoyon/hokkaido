@@ -6,7 +6,7 @@ import flash.events.*;
 //import flash.net.SharedObject;
 import flash.utils.ByteArray;
 
-[SWF(backgroundColor="#ffffff", width="450", height="350")]
+[SWF(backgroundColor="#f0f3f9", width="450", height="350")]
 public class HokkaidoBox2d extends Sprite{
 	// prefIndex property
 	private var _prefIndex:int = 0;
@@ -40,8 +40,7 @@ public class HokkaidoBox2d extends Sprite{
 	private var currentState:IState;
 
 	//private var storage:SharedObject;
-
-	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045-U+0047,U+0049,U+004B,U+004E-U+0050,U+0052,U+0053,U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
+	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045,U+004B,U+0050,U+0052,U+0053,U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
 	private var Gothic:Class;
 
 	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
@@ -60,12 +59,14 @@ public class HokkaidoBox2d extends Sprite{
 
 		// draw border
 		graphics.lineStyle(1, 0x999999);
+		graphics.beginFill(0xffffff);
 		graphics.drawRect(0, 0, WIDTH, HEIGHT);
+		graphics.endFill();
 
 		title = new Title(this); title.visible = false; addChild(title);
 		playing = new Playing(this); playing.visible = false; addChild(playing);
 		index = new Index(this); index.visible = false; addChild(index);
-		setState(TITLE_STATE);
+		setState(INDEX_STATE);
 
 		var lastWheel:Number = 0;
 		stage.addEventListener("mouseWheel", function(event:MouseEvent):void{
@@ -177,8 +178,6 @@ class Title extends Sprite implements IState{
 	}
 
 	public function start():void{
-		assert(hitarea == null);
-		assert(button == null);
 		alpha = 1;
 
 		var W:int = HokkaidoBox2d.WIDTH;
@@ -207,26 +206,24 @@ class Title extends Sprite implements IState{
 			preview.x -= 8;
 		}
 
-		hitarea = new Sprite();
-		hitarea.graphics.beginFill(0, 0);
-		hitarea.graphics.drawRect(0, 0, W, H);
-		hitarea.graphics.endFill();
-		hitarea.buttonMode = true;
-		hitarea.mouseChildren = false;
-
 		if(start){
+			hitarea = new Sprite();
+			hitarea.graphics.beginFill(0, 0);
+			hitarea.graphics.drawRect(0, 0, W, H);
+			hitarea.graphics.endFill();
+			hitarea.buttonMode = true;
+			hitarea.mouseChildren = false;
+
 			button = new Button(200, 80, 25, "START", 48);
 			button.x = (HokkaidoBox2d.WIDTH - 200) / 2;
 			button.y = HokkaidoBox2d.HEIGHT - 100;
 			addChild(button);
 			hitarea.addEventListener("rollOver", buttonRollOver);
 			hitarea.addEventListener("rollOut", buttonRollOut);
-		}
 
-		addChild(hitarea);
-
-		addEventListener("click", clickHandler);
-		if (!start){
+			addChild(hitarea);
+			addEventListener("click", clickHandler);
+		} else {
 			Tweener.addTween(this, {
 				alpha: 0, 
 				time: 2, 
@@ -239,11 +236,11 @@ class Title extends Sprite implements IState{
 	}
 
 	public function end():void{
-		assert(hitarea != null);
-
-		hitarea.removeEventListener("rollOver", buttonRollOver);
-		hitarea.removeEventListener("rollOut", buttonRollOut);
-		removeEventListener("click", clickHandler);
+		if (hitarea){
+			hitarea.removeEventListener("rollOver", buttonRollOver);
+			hitarea.removeEventListener("rollOut", buttonRollOut);
+			removeEventListener("click", clickHandler);
+		}
 		main.removeEventListener("prefIndexChanged", prefIndexChangedHandler);
 
 		Tweener.removeAllTweens();
@@ -254,7 +251,7 @@ class Title extends Sprite implements IState{
 	}
 
 	public function keyHandler(event:KeyboardEvent):void{
-		if (!main.started) return;
+		if (!main.started || !event.ctrlKey || !event.shiftKey) return;
 		switch (event.keyCode){
 			case Keyboard.LEFT:
 			case Keyboard.RIGHT:
@@ -268,7 +265,7 @@ class Title extends Sprite implements IState{
 	}
 
 	public function wheelHandler(event:MouseEvent):void{
-		if (!main.started) return;
+		if (!main.started || !event.ctrlKey || !event.shiftKey) return;
 		main.prefIndex = (main.prefIndex + (event.delta < 0 ? 1 : -1) + 47) % 47;
 		end(); start();
 	}
@@ -381,6 +378,8 @@ class Playing extends Sprite implements IState{
 	}
 
 	public function keyHandler(event:KeyboardEvent):void{
+		if (main.autoPlay && (!event.ctrlKey || !event.shiftKey)) return;
+
 		switch (event.keyCode){
 			case Keyboard.LEFT:
 			case Keyboard.RIGHT:
@@ -395,6 +394,8 @@ class Playing extends Sprite implements IState{
 	}
 
 	public function wheelHandler(event:MouseEvent):void{
+		if (main.autoPlay && (!event.ctrlKey || !event.shiftKey)) return;
+
 		main.prefIndex = (main.prefIndex + (event.delta < 0 ? 1 : -1) + 47) % 47;
 		if (main.autoPlay){
 			main.setState(HokkaidoBox2d.TITLE_STATE);
@@ -407,6 +408,7 @@ class Playing extends Sprite implements IState{
 		addEventListener("enterFrame", enterFrameHandler);
 		if (!main.autoPlay) return;
 
+		// こう跳ねます
 		var likeThis:LikeThis = new LikeThis();
 		likeThis.alpha = 0;
 		addChild(likeThis);
@@ -434,6 +436,7 @@ class Playing extends Sprite implements IState{
 
 	private const R:int = 30;
 
+	// ナビゲーションボタンを表示
 	private function addButtons():void{
 		backButton = new Button(80, 30, 10, "BACK", 14);
 		replayButton = new Button(80, 30, 10, "REPLAY", 14);
@@ -450,6 +453,8 @@ class Playing extends Sprite implements IState{
 		tri2.rotation = 180;
 		prevButton.addChild(tri1);
 		nextButton.addChild(tri2);
+
+		backButton.alpha = replayButton.alpha = prevButton.alpha = nextButton.alpha = .6;
 
 		addChild(backButton);
 		addChild(replayButton);
@@ -562,8 +567,10 @@ class Playing extends Sprite implements IState{
 			// 表示するSprite を作成
 			var center:b2Vec2 = body.GetLocalCenter();
 			body.m_userData = HokkaidoBox2d.createAreaSprite(area.p, -center.x * SCALE, -center.y * SCALE, zoom);
-			body.m_userData.buttonMode = true;
-			body.m_userData.addEventListener("mouseDown", mouseDownHandler);
+			if (!main.autoPlay){
+				body.m_userData.buttonMode = true;
+				body.m_userData.addEventListener("mouseDown", mouseDownHandler);
+			}
 			addChild(body.m_userData);
 			prefSprites.push(body.m_userData);
 		}
@@ -761,7 +768,8 @@ class Index extends Sprite implements IState{
 			transition: 'easeInSine'
 		});
 
-		timer = setTimeout(function():void{ timer = 0; showButtons(); }, firstTime ? 3000 : 0);
+		var first:Boolean = firstTime;
+		timer = setTimeout(function():void{ timer = 0; showButtons(first); }, firstTime ? 4000 : 0);
 
 		addEventListener("click", clickHandler);
 		firstTime = false;
@@ -777,7 +785,13 @@ class Index extends Sprite implements IState{
 	public function keyHandler(event:KeyboardEvent):void{}
 	public function wheelHandler(event:MouseEvent):void{}
 
-	private function showButtons():void{
+	private function constrain(v:Number, min:Number, max:Number):Number{
+		if (v < min) return min;
+		if (v > max) return max;
+		return v;
+	}
+
+	private function showButtons(firstTime:Boolean):void{
 		var w:Number = (WIDTH  - MARGIN) / BTN_X_COUNT;
 		var h:Number = (HEIGHT - MARGIN) / BTN_Y_COUNT;
 
@@ -794,19 +808,22 @@ class Index extends Sprite implements IState{
 
 				btns.push({
 					b: btn, 
-					d: Math.sqrt(Math.pow(btn.x, 2) + Math.pow(btn.y, 2)) / 50
+					d: Math.sqrt(Math.pow(btn.x, 2) + Math.pow(btn.y, 2)) / (firstTime ? 6 : 20)
 				});
 			}
 		}
 
 		var count:int = 0;
+		var v:Number = firstTime ? 20 : 10;
 		timer = setTimeout(function():void{
 			timer = 0;
+			var flag:Boolean = true;
 			for each(var btn:Object in btns){
-				btn.b.alpha = (count - btn.d) / 10;
+				btn.b.alpha = constrain((count - btn.d) / v, 0, 1);
+				if (btn.b.alpha != 1) flag = false;
 			}
 			count++;
-			if (count < 100){
+			if (!flag){
 				timer = setTimeout(arguments.callee, 10);
 			}
 		}, 0);
