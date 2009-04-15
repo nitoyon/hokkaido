@@ -40,7 +40,7 @@ public class HokkaidoBox2d extends Sprite{
 	private var currentState:IState;
 
 	//private var storage:SharedObject;
-	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045,U+004B,U+0050,U+0052,U+0053,U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
+	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045,U+0049,U+004B,U+004C,U+0050,U+0052-U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
 	private var Gothic:Class;
 
 	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
@@ -224,6 +224,12 @@ class Title extends Sprite implements IState{
 			addChild(hitarea);
 			addEventListener("click", clickHandler);
 		} else {
+			button = new Button(80, 25, 15, "SKIP", 14);
+			button.x = W - 110;
+			button.y = H - 40;
+			addChild(button);
+			button.addEventListener("click", buttonClickHandler);
+
 			Tweener.addTween(this, {
 				alpha: 0, 
 				time: 2, 
@@ -242,6 +248,7 @@ class Title extends Sprite implements IState{
 			removeEventListener("click", clickHandler);
 		}
 		main.removeEventListener("prefIndexChanged", prefIndexChangedHandler);
+		button.removeEventListener("click", buttonClickHandler);
 
 		Tweener.removeAllTweens();
 
@@ -276,6 +283,10 @@ class Title extends Sprite implements IState{
 	private function clickHandler(event:Event = null):void{
 		main.started = true;
 		main.setState(HokkaidoBox2d.PLAYING_STATE);
+	}
+
+	private function buttonClickHandler(event:Event):void{
+		main.setState(HokkaidoBox2d.INDEX_STATE);
 	}
 
 	private function prefIndexChangedHandler(event:Event):void{
