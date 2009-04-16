@@ -43,7 +43,7 @@ public class HokkaidoBox2d extends Sprite{
 	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozGoStd-Bold.otf', fontName='KozGoPro', unicodeRange='U+0041-U+0043,U+0045,U+0049,U+004B,U+004C,U+0050,U+0052-U+0054,U+0059,U+4E09,U+4E95,U+4EAC,U+4F50,U+5150,U+5175,U+5206,U+5317,U+5343,U+53D6,U+53E3,U+548C,U+57CE,U+57FC,U+5927,U+5948,U+5A9B,U+5BAE,U+5BCC,U+5C71,U+5C90,U+5CA1,U+5CA9,U+5CF6,U+5D0E,U+5DDD,U+5E83,U+5E9C,U+5EAB,U+5F62,U+5FB3,U+611B,U+624B,U+65B0,U+6728,U+672C,U+6771,U+6803,U+6839,U+68A8,U+68EE,U+6B4C,U+6C96,U+6D77,U+6ECB,U+6F5F,U+718A,U+7389,U+7530,U+770C,U+77E5,U+77F3,U+795E,U+798F,U+79CB,U+7E04,U+7FA4,U+826F,U+8328,U+843D,U+8449,U+8CC0,U+8DF3,U+9053,U+90FD,U+91CD,U+91CE,U+9577,U+961C,U+962A,U+9752,U+9759,U+9999,U+99AC,U+9AD8,U+9CE5,U+9E7F')]
 	private var Gothic:Class;
 
-	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
+	[Embed(source='C:/Program Files/Common Files/Adobe/Fonts/KozMinPro-Medium.otf', fontName='KozMinPro', unicodeRange='U+3046,U+304B,U+3053,U+3057,U+3059,U+3068,U+3069,U+306D,U+306E,U+307E,U+308B,U+3092,U+FF1F')]
 	private var Mincho:Class;
 
 	[Embed(source='out.bin',mimeType="application/octet-stream")]
@@ -841,7 +841,7 @@ class Index extends Sprite implements IState{
 	}
 
 	private function createTitleText():TextField{
-		var largeSize:int = 40, smallSize:int = 36;
+		var largeSize:int = 38, smallSize:int = 32;
 		var str:String = <>
 			<font face="KozMinPro" size={smallSize}>どの</font>
 			<font face="KozGoPro" size={largeSize}>都道府県</font>
@@ -851,7 +851,7 @@ class Index extends Sprite implements IState{
 			</>.toString();
 
 		var fmt:TextFormat = new TextFormat();
-		fmt.letterSpacing = -3;
+		fmt.letterSpacing = -2;
 
 		var textField:EmbedTextField = new EmbedTextField();
 		textField.defaultTextFormat = fmt;
