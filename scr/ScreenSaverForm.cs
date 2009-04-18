@@ -22,11 +22,9 @@ namespace hokkaido
 
             SetupScreenSaver();
 
-            String swfPath = "C:\\Documents and Settings\\saita\\My Documents\\program\\as\\hokkaido\\HokkaidoBox2d.swf";//Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "hokkaido.swf";
+            String swfPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "hokkaido.swf";
 
-            ExternalInterfaceProxy proxy = new ExternalInterfaceProxy(flash);
-            proxy.ExternalInterfaceCall += new ExternalInterfaceCallEventHandler(ExternalInterfaceCall);
-
+            flash.FlashVars = "auto_repeat=1&random=" + (Properties.Settings.Default.Order == "random" ? "1" : "0");
             flash.LoadMovie(0, swfPath);
         }
 
