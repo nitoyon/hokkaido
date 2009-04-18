@@ -57,9 +57,9 @@ public class HokkaidoBox2d extends Sprite{
 		bytes.uncompress();
 		PrefData = bytes.readObject();
 
-		if (ExternalInterface.available){
-			autoRepeat = ExternalInterface.call("window._hokkaido_auto_repeat") == true;
-			if (ExternalInterface.call("window._hokkaido_random")){
+		if (stage.loaderInfo.parameters){
+			autoRepeat = stage.loaderInfo.parameters.auto_repeat == "1";
+			if (stage.loaderInfo.parameters.random == "1"){
 				for(var i:int = 0; i < PrefData.length; i++){
 					var n:int = Math.random() * (PrefData.length - i) + i;
 					var tmp:Object = PrefData[i];
