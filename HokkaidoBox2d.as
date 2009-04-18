@@ -5,6 +5,7 @@ import flash.display.*;
 import flash.events.*;
 //import flash.net.SharedObject;
 import flash.utils.ByteArray;
+import flash.external.ExternalInterface;
 
 [SWF(backgroundColor="#f0f3f9", width="450", height="350")]
 public class HokkaidoBox2d extends Sprite{
@@ -26,6 +27,8 @@ public class HokkaidoBox2d extends Sprite{
 	private var _autoPlay:Boolean = true;
 	public function get autoPlay():Boolean{return _autoPlay;}
 	public function set autoPlay(value:Boolean):void{_autoPlay = value;}
+
+	public var autoRepeat:Boolean = false;
 
 	static public const WIDTH:Number = 450;
 	static public const HEIGHT:Number = 350;
@@ -53,6 +56,22 @@ public class HokkaidoBox2d extends Sprite{
 		var bytes:ByteArray = new PrefClass();
 		bytes.uncompress();
 		PrefData = bytes.readObject();
+
+		if (ExternalInterface.available){
+			autoRepeat = ExternalInterface.call("window._hokkaido_auto_repeat") == true;
+			if (ExternalInterface.call("window._hokkaido_random")){
+				for(var i:int = 0; i < PrefData.length; i++){
+					var n:int = Math.random() * (PrefData.length - i) + i;
+					var tmp:Object = PrefData[i];
+					PrefData[i] = PrefData[n];
+					PrefData[n] = tmp;
+					tmp = PrefBox2d[i];
+					PrefBox2d[i] = PrefBox2d[n];
+					PrefBox2d[n] = tmp;
+				}
+			}
+		}
+		started ||= autoRepeat;
 
 		//storage = SharedObject.getLocal("pref");
 		//prefIndex = storage.data.pref;
@@ -224,11 +243,13 @@ class Title extends Sprite implements IState{
 			addChild(hitarea);
 			addEventListener("click", clickHandler);
 		} else {
-			button = new Button(80, 25, 15, "SKIP", 14);
-			button.x = W - 110;
-			button.y = H - 40;
-			addChild(button);
-			button.addEventListener("click", buttonClickHandler);
+			if (!main.autoRepeat){
+				button = new Button(80, 25, 15, "SKIP", 14);
+				button.x = W - 110;
+				button.y = H - 40;
+				addChild(button);
+				button.addEventListener("click", buttonClickHandler);
+			}
 
 			Tweener.addTween(this, {
 				alpha: 0, 
@@ -248,7 +269,7 @@ class Title extends Sprite implements IState{
 			removeEventListener("click", clickHandler);
 		}
 		main.removeEventListener("prefIndexChanged", prefIndexChangedHandler);
-		button.removeEventListener("click", buttonClickHandler);
+		if (button) button.removeEventListener("click", buttonClickHandler);
 
 		Tweener.removeAllTweens();
 
@@ -435,10 +456,10 @@ class Playing extends Sprite implements IState{
 			delay: 8,
 			time: 2,
 			onComplete: function():void{
-				if (main.prefIndex == 46){
+				if (main.prefIndex == 46 && !main.autoRepeat){
 					main.setState(HokkaidoBox2d.INDEX_STATE);
 				} else {
-					main.prefIndex++;
+					main.prefIndex = (main.prefIndex + 1) % 47;
 					main.setState(HokkaidoBox2d.TITLE_STATE);
 				}
 			}
