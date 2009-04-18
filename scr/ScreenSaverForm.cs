@@ -35,8 +35,6 @@ namespace hokkaido
         /// </summary>
         private void SetupScreenSaver()
         {
-            // ダブル バッファを使用して、表示パフォーマンスを改善します。
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             // マウスをキャプチャします。
             this.Capture = true;
 
@@ -45,8 +43,6 @@ namespace hokkaido
             Bounds = Screen.PrimaryScreen.Bounds;
             WindowState = FormWindowState.Maximized;
             ShowInTaskbar = false;
-            DoubleBuffered = true;
-            BackgroundImageLayout = ImageLayout.Stretch;
         }
 
         private object ExternalInterfaceCall(object sender, ExternalInterfaceCallEventArgs e)
