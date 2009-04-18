@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace hokkaido
 {
@@ -50,6 +51,11 @@ namespace hokkaido
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(linkWeb.Text);
         }
     }
 }
