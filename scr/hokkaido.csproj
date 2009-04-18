@@ -59,10 +59,6 @@
       <Lcid>0</Lcid>
       <WrapperTool>primary</WrapperTool>
     </COMReference>
-    <Compile Include="Flash\External\ExternalInterfaceCall.cs" />
-    <Compile Include="Flash\External\ExternalInterfaceCallEventArgs.cs" />
-    <Compile Include="Flash\External\ExternalInterfaceProxy.cs" />
-    <Compile Include="Flash\External\ExternalInterfaceSerializer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
