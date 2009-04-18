@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Flash.External;
 
 namespace hokkaido
 {
@@ -41,19 +40,6 @@ namespace hokkaido
             Bounds = Screen.PrimaryScreen.Bounds;
             WindowState = FormWindowState.Maximized;
             ShowInTaskbar = false;
-        }
-
-        private object ExternalInterfaceCall(object sender, ExternalInterfaceCallEventArgs e)
-        {
-            switch (e.FunctionCall.FunctionName)
-            {
-                case "window._hokkaido_auto_repeat":
-                    return true;
-
-                case "window._hokkaido_random":
-                    return Properties.Settings.Default.Order == "random";
-            }
-            return null;
         }
 
         private void ScreenSaverForm_MouseMove(object sender, MouseEventArgs e)
