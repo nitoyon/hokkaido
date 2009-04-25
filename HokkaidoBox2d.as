@@ -20,15 +20,21 @@ public class HokkaidoBox2d extends Sprite{
 		}
 	}
 
+	// 再生開始したかどうか。START ボタンを表示するかに関わる。
 	private var _started:Boolean = false;
 	public function get started():Boolean{return _started;}
 	public function set started(value:Boolean):void{_started = value;}
 
+	// 通常再生のときに true。１周したらインデックスへ。
 	private var _autoPlay:Boolean = true;
 	public function get autoPlay():Boolean{return _autoPlay;}
 	public function set autoPlay(value:Boolean):void{_autoPlay = value;}
 
+	// スクリーンセーバの自動再生のときに true
 	public var autoRepeat:Boolean = false;
+
+	// 1つだけ再生するときに true
+	public var singlePlay:Boolean = false;
 
 	static public const WIDTH:Number = 450;
 	static public const HEIGHT:Number = 350;
@@ -57,27 +63,15 @@ public class HokkaidoBox2d extends Sprite{
 		bytes.uncompress();
 		PrefData = bytes.readObject();
 
-		if (stage.loaderInfo.parameters){
-			autoRepeat = stage.loaderInfo.parameters.auto_repeat == "1";
-			if (stage.loaderInfo.parameters.random == "1"){
-				for(var i:int = 0; i < PrefData.length; i++){
-					var n:int = Math.random() * (PrefData.length - i) + i;
-					var tmp:Object = PrefData[i];
-					PrefData[i] = PrefData[n];
-					PrefData[n] = tmp;
-					tmp = PrefBox2d[i];
-					PrefBox2d[i] = PrefBox2d[n];
-					PrefBox2d[n] = tmp;
-				}
-			}
-		}
-		started ||= autoRepeat;
+		// パラメータの解釈
+		loadParameters();
+		autoPlay = false;
 
 		//storage = SharedObject.getLocal("pref");
 		//prefIndex = storage.data.pref;
 
 		// draw border
-		graphics.lineStyle(1.5, 0x999999);
+		if (!singlePlay) graphics.lineStyle(1.5, 0x999999);
 		graphics.beginFill(0xffffff);
 		graphics.drawRect(0, 0, WIDTH, HEIGHT);
 		graphics.endFill();
@@ -98,6 +92,31 @@ public class HokkaidoBox2d extends Sprite{
 		stage.addEventListener("keyDown", function(event:KeyboardEvent):void{
 			currentState.keyHandler(event);
 		});
+	}
+
+	private function loadParameters():void{
+		var parameters:Object = stage.loaderInfo.parameters;
+
+		if (parameters.pref != undefined && parameters.pref != ""){
+			prefIndex = parseInt(parameters.pref);
+			singlePlay = true;
+			autoPlay = false;
+		}
+
+		autoRepeat = parameters.auto_repeat == "1";
+		started ||= autoRepeat;
+
+		if (parameters.random == "1"){
+			for(var i:int = 0; i < PrefData.length; i++){
+				var n:int = Math.random() * (PrefData.length - i) + i;
+				var tmp:Object = PrefData[i];
+				PrefData[i] = PrefData[n];
+				PrefData[n] = tmp;
+				tmp = PrefBox2d[i];
+				PrefBox2d[i] = PrefBox2d[n];
+				PrefBox2d[n] = tmp;
+			}
+		}
 	}
 
 	private function getStateObject(enum:int):IState{
@@ -660,6 +679,9 @@ class Playing extends Sprite implements IState{
 
 	// マウス押下時
 	private function mouseDownHandler(event:MouseEvent):void{
+		if (mouseJoint) world.DestroyJoint(mouseJoint);
+		mouseJoint = null;
+
 		var body:b2Body = GetBodyAtMouse(event.stageX, event.stageY);
 		if(body){
 			var md:b2MouseJointDef = new b2MouseJointDef();
@@ -678,12 +700,15 @@ class Playing extends Sprite implements IState{
 
 	// ドラッグ中
 	private function mouseMoveHandler(event:MouseEvent):void{
-		mouseJoint.SetTarget(new b2Vec2(event.stageX / SCALE, event.stageY / SCALE));
+		if (event.buttonDown)
+			mouseJoint.SetTarget(new b2Vec2(event.stageX / SCALE, event.stageY / SCALE));
+		else
+			mouseUpHandler(null);
 	}
 
 	// ドラッグ終了
-	private function mouseUpHandler(event:MouseEvent):void{
-		world.DestroyJoint(mouseJoint);
+	private function mouseUpHandler(event:Event):void{
+		if (mouseJoint) world.DestroyJoint(mouseJoint);
 		mouseJoint = null;
 
 		stage.removeEventListener("mouseMove", mouseMoveHandler);
