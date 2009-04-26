@@ -30,7 +30,7 @@ var PREFS = ['北海道', '青森県', '岩手県', '秋田県', '宮城県', '�
 gadgets.util.registerOnLoadHandler(function(){
   var request = opensocial.newDataRequest();
   request.add(request.newFetchPersonRequest(
-    opensocial.IdSpec.PersonId.VIEWER), "viewer_data");
+    opensocial.IdSpec.PersonId.OWNER), "viewer_data");
   request.send(function(response){
     var item = response.get("viewer_data");
     if (item.hadError()){ err("エラーが発生しました"); return;}
@@ -48,7 +48,7 @@ gadgets.util.registerOnLoadHandler(function(){
         }
       }
     }
-    err("プロフィールからの都道府県 取得に失敗しました<br>公開設定を確認してください");
+    err("プロフィールからの都道府県 取得に失敗しました:" + pref + "<br>公開設定を確認してください");
   });
 
   function embedPref(pref){
@@ -61,7 +61,7 @@ gadgets.util.registerOnLoadHandler(function(){
   function err(msg){
     var elm = document.getElementById("flashcontainer");
     elm.innerHTML = msg;
-  }
+ } 
 });
 </script>
 <noscript>(Flash Player 9 or later required)</noscript>
