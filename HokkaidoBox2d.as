@@ -21,14 +21,10 @@ public class HokkaidoBox2d extends Sprite{
 	}
 
 	// 再生開始したかどうか。START ボタンを表示するかに関わる。
-	private var _started:Boolean = false;
-	public function get started():Boolean{return _started;}
-	public function set started(value:Boolean):void{_started = value;}
+	public var started:Boolean = false;
 
-	// 通常再生のときに true。１周したらインデックスへ。
-	private var _autoPlay:Boolean = true;
-	public function get autoPlay():Boolean{return _autoPlay;}
-	public function set autoPlay(value:Boolean):void{_autoPlay = value;}
+	// 通常再生のときに true(authRepeat が false なら１周でインデックスへ)
+	public var autoPlay:Boolean = true;
 
 	// スクリーンセーバの自動再生のときに true
 	public var autoRepeat:Boolean = false;
@@ -65,7 +61,6 @@ public class HokkaidoBox2d extends Sprite{
 
 		// パラメータの解釈
 		loadParameters();
-		autoPlay = false;
 
 		//storage = SharedObject.getLocal("pref");
 		//prefIndex = storage.data.pref;
@@ -457,6 +452,7 @@ class Playing extends Sprite implements IState{
 
 	private function startBox2dAnimation():void{
 		addEventListener("enterFrame", enterFrameHandler);
+		if (main.singlePlay) return;
 		if (!main.autoPlay) return;
 
 		// こう跳ねます
