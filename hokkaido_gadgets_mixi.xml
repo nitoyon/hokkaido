@@ -48,7 +48,7 @@ gadgets.util.registerOnLoadHandler(function(){
         }
       }
     }
-    err("プロフィールからの都道府県 取得に失敗しました:" + pref + "<br>公開設定を確認してください");
+    err("プロフィールからの都道府県 取得に失敗しました<br>公開設定を確認してください");
   });
 
   function embedPref(pref){
@@ -69,13 +69,30 @@ gadgets.util.registerOnLoadHandler(function(){
 </Content>
 <Content type="html" view="canvas">
 <![CDATA[
-<p>あなたの都道府県を落とします。</p>
+<style>
+p{ 
+  font-size: 90%;
+}
+
+div.body{
+  margin: 1em;
+}
+</style>
+<div class="body">
+<p>自分の都道府県を落としてみよう！</p>
+
+<p>あなたが住んでる都道府県を貼り付けられます。<br/>
+START を押すと落とせます。<br/>
+みんなに自分の都道府県を落としてもらおう！</p>
+
+<p>利用イメージ：<br><img src="http://f.hatena.ne.jp/images/fotolife/n/nitoyon/20090427/20090427012631.png" width="450" height="252"></p>
 
 <p>（例）兵庫県の場合</p>
-<div id="flashcontainer" style="border: 2px solid #999999; width:450px;"><noscript>(Flash が有効になっていません)</noscript>
+<div id="flashcontainer" style="border: 2px solid #999999; width:212px;"><noscript>(Flash が有効になっていません)</noscript>
 </div>
 <script>gadgets.flash.embedCachedFlash("http://tech.nitoyon.com/hokkaido/hokkaido.swf",
-  "flashcontainer", 9, {width: 450, height: 350, flashVars: "pref=27"});</script>
+  "flashcontainer", 9, {width: 212, height: 165, flashVars: "pref=27"});</script>
+</div>
 ]]>
 </Content>
 </Module>
