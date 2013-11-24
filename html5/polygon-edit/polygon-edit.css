@@ -1,0 +1,45 @@
+svg {
+	width: 600px;
+	height: 600px;
+	border: 1px solid black;
+}
+
+path.dragline {
+	stroke: green;
+	stroke-width: 1;
+}
+path.hidden {
+	stroke-width: 0;
+}
+
+polygon.shape {
+	stroke: black;
+	stroke-width: 1;
+	fill: lightgreen;
+}
+
+circle.point{
+	fill: black;
+	cursor: pointer;
+}
+
+circle.point.hover{
+	fill: red;
+	cursor: pointer;
+}
+
+line {
+	stroke: black;
+	stroke-width: 1;
+	cursor: pointer;
+}
+
+line.selected {
+	stroke: red;
+}
+
+.hull polygon {
+	fill: rgba(255,221,221,0.5);
+	stroke: #ff9966;
+	stroke-width: 1;
+}
