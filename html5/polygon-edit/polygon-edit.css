@@ -62,5 +62,18 @@ svg#map {
 
 #dots circle {
   fill: red;
-  r: 10;
+  cursor: pointer;
+}
+
+#dots circle.selected {
+  fill: blue;
+}
+
+#lines line {
+  stroke: black;
+  cursor: pointer;
+}
+
+#lines line.selected {
+  stroke: blue;
 }
