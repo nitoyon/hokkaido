@@ -1,45 +1,66 @@
-svg {
+svg#map {
 	width: 600px;
 	height: 600px;
 	border: 1px solid black;
 }
 
-path.dragline {
-	stroke: green;
-	stroke-width: 1;
-}
-path.hidden {
-	stroke-width: 0;
+.ocean
+{
+	fill: aqua;
 }
 
-polygon.shape {
-	stroke: black;
-	stroke-width: 1;
-	fill: lightgreen;
+.coast
+{
+   stroke-width: 0;
+   stroke:white;
 }
 
-circle.point{
-	fill: black;
-	cursor: pointer;
+/*
+ * Circles around small countries
+ *
+ * Change opacity to 1 to display all circles.
+ *
+ */
+.circle
+{
+   opacity:.2;
+   fill:#b9b9b9;
+   fill-opacity:.5;
+   stroke:black;
+   stroke-width:0.5;
+   stroke-miterlimit:3.97446823;
+   stroke-dasharray:none;
+   stroke-opacity:1;
 }
 
-circle.point.hover{
-	fill: red;
-	cursor: pointer;
+.land
+{
+   fill: #b9b9b9;
+   fill-opacity: 1;
+   stroke:white;
+   stroke-opacity: 1;
+   stroke-width:0.1;
+   stroke-miterlimit: 3.97446823;
+   stroke-dasharray: none;
 }
 
-line {
-	stroke: black;
-	stroke-width: 1;
-	cursor: pointer;
+.lake
+{
+   fill:aqua;
+   fill-opacity:1;
+   stroke:white;
+   stroke-opacity: 1;
+   stroke-width:0;
 }
 
-line.selected {
-	stroke: red;
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-opacity: .5;
+  stroke-width: .5px;
 }
 
-.hull polygon {
-	fill: rgba(255,221,221,0.5);
-	stroke: #ff9966;
-	stroke-width: 1;
+#dots circle {
+  fill: red;
+  r: 10;
 }
