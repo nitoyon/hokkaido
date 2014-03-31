@@ -199,17 +199,11 @@ PointMode.prototype.onClick = function(d, i) {
 		this.app.select(d);
 		this.app.dots.add(d);
 
-		if (this.app.polygons.adding_polygon == null) {
-			this.app.polygons.adding_polygon = new Polygon();
-		}
+		this.app.polygons.create_adding_polygon();
 		this.app.polygons.adding_polygon.add(d);
 	} else if (d instanceof Dot) {
 		// click dot -> connect
-		var create = false;
-		if (this.app.polygons.adding_polygon == null) {
-			this.app.polygons.adding_polygon = new Polygon();
-			create = true;
-		}
+		var create = this.app.polygons.create_adding_polygon();
 		var index = this.app.polygons.adding_polygon.add(d);
 
 		// click first dot -> close
@@ -363,6 +357,14 @@ function PolygonList() {
 	this.adding_polygon = null;
 }
 
+PolygonList.prototype.create_adding_polygon = function() {
+	if (this.adding_polygon == null) {
+		this.adding_polygon = new Polygon(this);
+		return true;
+	}
+	return false;
+};
+
 PolygonList.prototype.add = function(polygon) {
 	this.list.push(polygon);
 };
@@ -371,6 +373,8 @@ PolygonList.prototype.del = function(polygon) {
 	var index = this.list.indexOf(polygon);
 	if (index >= 0) {
 		this.list.splice(index, 1);
+	} else if (polygon == this.adding_polygon) {
+		this.adding_polygon = null;
 	}
 };
 
@@ -382,9 +386,12 @@ PolygonList.prototype.close_adding_polygon = function() {
 };
 
 
-function Polygon() {
+function Polygon(container) {
 	this.list = [];
+	this.container = container;
+	this.id = Polygon.id++;
 }
+Polygon.id = 1;
 Polygon.prototype = {
 	add: function(d) {
 		var index = this.list.indexOf(d);
@@ -394,7 +401,7 @@ Polygon.prototype = {
 
 		this.list.push(d);
 		var self = this;
-		d.on("exit.polygon", function() { self.del(d); });
+		d.on("exit.polygon" + this.id, function() { self.del(d); });
 		return this.list.length - 1;
 	},
 
@@ -402,6 +409,11 @@ Polygon.prototype = {
 		var index = this.list.indexOf(d);
 		if (index >= 0) {
 			this.list.splice(index, 1);
+			d.on("exit.polygon" + this.id, null);
+
+			if (this.list.length == 0) {
+				this.container.del(this);
+			}
 		}
 	},
 
