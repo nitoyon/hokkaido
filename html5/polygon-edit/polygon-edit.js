@@ -15,7 +15,8 @@ MapEditor.prototype = {
 
 	initModel: function() {
 		this.dots = new DotList();
-		this.polygons = new PolygonList();
+		this.lines = new LineList();
+		this.polygons = new PolygonList(this.lines);
 	},
 
 	initElement: function(elm) {
@@ -211,6 +212,12 @@ PointMode.prototype.onClick = function(d, i) {
 			this.app.polygons.close_adding_polygon();
 		}
 		this.app.select(d);
+	} else if (d instanceof Line) {
+		// click line -> add dot
+		var p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
+		var dot = this.app.dots.create(p.x, p.y);
+		this.app.dots.add(dot);
+		this.app.polygons.splitLine(d, dot);
 	}
 }
 
@@ -284,24 +291,17 @@ function PolygonView(app, polygons) {
 }
 PolygonView.prototype = {
 	update: function() {
-		var s = this.view.selectAll("polygon")
-			.data(this.polygons.list);
+		var s = this.view.selectAll("line")
+			.data(this.polygons.lineList.list);
 		s.enter()
-			.append("polygon")
+			.append("line")
 			.call(this.app.drag);
 		s.exit().remove();
 		s
-			.attr("points", function(d) { return d.points(); })
-			.attr("stroke-width", 2 / this.app.zoom.scale);
-
-		var s = this.view.selectAll("polyline")
-			.data(this.polygons.adding_polygon ? [this.polygons.adding_polygon] : []);
-		s.enter()
-			.append("polyline")
-			.call(this.app.drag);
-		s.exit().remove();
-		s
-			.attr("points", function(d) { return d.points(); })
+			.attr("x1", function(d) { return d.d1.x; })
+			.attr("y1", function(d) { return d.d1.y; })
+			.attr("x2", function(d) { return d.d2.x; })
+			.attr("y2", function(d) { return d.d2.y; })
 			.attr("stroke-width", 2 / this.app.zoom.scale);
 	}
 };
@@ -352,14 +352,69 @@ Dot.prototype = {
 };
 
 
-function PolygonList() {
+function LineList() {
 	this.list = [];
+	this.id2line = {};
+}
+
+LineList.prototype.create = function(d1, d2) {
+	var l = new Line(d1, d2);
+	if (l.id in this.id2line) {
+		return this.id2line[l.id];
+	} else {
+		this.list.push(l);
+		this.id2line[l.id] = l;
+		return l;
+	}
+}
+
+LineList.prototype.del_dot = function(d) {
+	for (var i = this.list.length - 1; i >= 0; i--) {
+		var line = this.list[i];
+		if (line.contains(d)) {
+			this.list.splice(i, 1);
+			delete this.id2line[line.id];
+		}
+	}
+};
+
+LineList.prototype.del = function(l) {
+	var index = this.list.indexOf(l);
+	if (index >= 0) {
+		this.list.splice(index, 1);
+		delete this.id2line[l.id];
+	}
+}
+
+
+function Line(d1, d2) {
+	if (d1.id == d2.id) {
+		throw new Error('invalid line');
+	}
+	if (d1.id < d2.id) {
+		this.d1 = d1;
+		this.d2 = d2;
+	} else {
+		this.d1 = d2;
+		this.d2 = d1;
+	}
+	this.id = d1.id + "," + d2.id;
+}
+
+Line.prototype.contains = function(d) {
+	return (this.d1 == d || this.d2 == d);
+}
+
+
+function PolygonList(lineList) {
+	this.list = [];
+	this.lineList = lineList;
 	this.adding_polygon = null;
 }
 
 PolygonList.prototype.create_adding_polygon = function() {
 	if (this.adding_polygon == null) {
-		this.adding_polygon = new Polygon(this);
+		this.adding_polygon = new Polygon(this, this.lineList);
 		return true;
 	}
 	return false;
@@ -378,18 +433,30 @@ PolygonList.prototype.del = function(polygon) {
 	}
 };
 
+PolygonList.prototype.splitLine = function(line, dot) {
+	for (var i = 0; i < this.list.length; i++) {
+		this.list[i].splitLine(line, dot);
+	}
+	this.lineList.del(line);
+};
+
 PolygonList.prototype.close_adding_polygon = function() {
-	if (this.adding_polygon && this.adding_polygon.points() != "") {
+	if (this.adding_polygon && this.adding_polygon.lines.length > 0) {
+		this.adding_polygon.close();
 		this.add(this.adding_polygon);
 	}
 	this.adding_polygon = null;
 };
 
 
-function Polygon(container) {
+function Polygon(container, lineList) {
 	this.list = [];
+	this.lineList = lineList;
+	this.lines = [];
+	this.last_dot = null;
 	this.container = container;
 	this.id = Polygon.id++;
+	this.is_close = false;
 }
 Polygon.id = 1;
 Polygon.prototype = {
@@ -400,6 +467,8 @@ Polygon.prototype = {
 		}
 
 		this.list.push(d);
+		this.updateLines();
+
 		var self = this;
 		d.on("exit.polygon" + this.id, function() { self.del(d); });
 		return this.list.length - 1;
@@ -411,14 +480,62 @@ Polygon.prototype = {
 			this.list.splice(index, 1);
 			d.on("exit.polygon" + this.id, null);
 
+			this.lineList.del_dot(d);
+
 			if (this.list.length == 0) {
 				this.container.del(this);
+				return;
+			} else {
+				this.updateLines();
 			}
 		}
 	},
 
-	points: function() {
-		return this.list.map(function(d) { return [d.x, d.y]; }).join(" ");
+	close: function() {
+		this.is_close = true;
+		this.updateLines();
+	},
+
+	splitLine: function(line, dot) {
+		var index = this.lines.indexOf(line);
+		if (index < 0) {
+			return;
+		}
+
+		var i1 = this.list.indexOf(line.d1);
+		var i2 = this.list.indexOf(line.d2);
+		if (i1 > i2) {
+			var tmp = i2;
+			i2 = i1;
+			i1 = tmp;
+		}
+		if (i1 + 1 == i2) {
+			this.list.splice(i2, 0, dot);
+		} else if (i1 == 0 && i2 == this.list.length - 1) {
+			this.list.push(dot);
+		} else {
+			throw Error('invalid polygon');
+		}
+
+		var self = this;
+		dot.on("exit.polygon" + this.id, function() { self.del(dot); });
+
+		this.updateLines();
+	},
+
+	updateLines: function() {
+		this.lines = [];
+		for (var i = 0; i < this.list.length - 1; i++) {
+			var d1 = this.list[i];
+			var d2 = this.list[i + 1];
+			this.lines.push(this.lineList.create(d1, d2));
+		}
+
+		if (this.is_close && this.list.length > 2) {
+			d1 = this.list[0];
+			d2 = this.list[this.list.length - 1];
+			this.lines.push(this.lineList.create(d1, d2));
+		}
 	}
 };
 
