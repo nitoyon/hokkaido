@@ -15,7 +15,7 @@ MapEditor.prototype = {
 
 	initModel: function() {
 		this.dots = new DotList();
-		this.lines = new LineList(this.dots);
+		this.polygons = new PolygonList();
 	},
 
 	initElement: function(elm) {
@@ -23,14 +23,13 @@ MapEditor.prototype = {
 		this.svg = d3.select(elm);
 		this.canvas = this.svg.append("svg:g").attr("id", "canvas");
 		this.mapContainer = this.canvas.append("svg:g").attr("id", "map_pathes");
-		this.lineView = new LineView(this, this.lines);
+		this.polygonView = new PolygonView(this, this.polygons);
 		this.dotView = new DotView(this, this.dots);
 
 		this.modeView = new ModeView([new PointMode(this), new LineMode(this)]);
 
 		var self = this;
 		this.dots.on('change.view', function() { self.dotView.update(); });
-		this.lines.on('change.view', function() { self.lineView.update(); });
 	},
 
 	initJson: function(json) {
@@ -102,13 +101,14 @@ MapEditor.prototype = {
 
 	updateView: function() {
 		this.dotView.update();
-		this.lineView.update();
+		this.polygonView.update();
 	},
 
 	del: function() {
 		if (this.selectedItem) {
 			this.selectedItem.del();
 			this.selectedItem = null;
+			this.updateView();
 		}
 	},
 
@@ -183,23 +183,40 @@ function PointMode(app) {
 }
 PointMode.prototype = Object.create(Mode.prototype);
 PointMode.prototype.onClick = function(d, i) {
-	var prev = null;
-
-	// add dot
 	var event = d3.event;
-	if (d == null && !event.ctrlKey) {
-		var p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
-		d = this.app.dots.create(p.x, p.y);
-		prev = this.app.select(d);
-		this.app.dots.add(d);
-	} else {
-		prev = this.app.select(d);
+
+	// Ctrl + click -> close
+	if (event.ctrlKey) {
+		this.app.polygons.close_adding_polygon();
+		Mode.prototype.onClick.call(this, d, i);
+		return;
 	}
 
-	// add line
-	if (prev instanceof Dot && d instanceof Dot && prev != d) {
-		console.log("add line");
-		this.app.lines.add(prev, d);
+	if (d == null) {
+		// click none -> add dot
+		var p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
+		d = this.app.dots.create(p.x, p.y);
+		this.app.select(d);
+		this.app.dots.add(d);
+
+		if (this.app.polygons.adding_polygon == null) {
+			this.app.polygons.adding_polygon = new Polygon();
+		}
+		this.app.polygons.adding_polygon.add(d);
+	} else if (d instanceof Dot) {
+		// click dot -> connect
+		var create = false;
+		if (this.app.polygons.adding_polygon == null) {
+			this.app.polygons.adding_polygon = new Polygon();
+			create = true;
+		}
+		var index = this.app.polygons.adding_polygon.add(d);
+
+		// click first dot -> close
+		if (index == 0 && !create) {
+			this.app.polygons.close_adding_polygon();
+		}
+		this.app.select(d);
 	}
 }
 
@@ -208,6 +225,19 @@ function LineMode(app) {
 	this.name = 'line';
 }
 LineMode.prototype = Object.create(Mode.prototype);
+LineMode.prototype.onClick = function(d, i) {
+	var prev = null;
+
+	// add dot
+	var event = d3.event;
+	if (d instanceof Dot) {
+		if (this.line) {
+			this.line.add(d);
+		}
+	} else {
+		this.line = null;
+	}
+}
 
 
 function ModeView(modes) {
@@ -252,26 +282,32 @@ DotView.prototype = {
 	}
 };
 
-function LineView(app, lines) {
+function PolygonView(app, polygons) {
 	this.app = app;
-	this.lines = lines;
+	this.polygons = polygons;
 
 	this.view = app.canvas.append("svg:g").attr("id", "lines");
 }
-LineView.prototype = {
+PolygonView.prototype = {
 	update: function() {
-		var s = this.view.selectAll("line")
-			.data(this.lines.list);
+		var s = this.view.selectAll("polygon")
+			.data(this.polygons.list);
 		s.enter()
-			.append("line")
+			.append("polygon")
 			.call(this.app.drag);
 		s.exit().remove();
 		s
-			.classed("selected", function(d) { return d.isSelected; })
-			.attr("x1", function(d) { return d.d1.x; })
-			.attr("y1", function(d) { return d.d1.y; })
-			.attr("x2", function(d) { return d.d2.x; })
-			.attr("y2", function(d) { return d.d2.y; })
+			.attr("points", function(d) { return d.points(); })
+			.attr("stroke-width", 2 / this.app.zoom.scale);
+
+		var s = this.view.selectAll("polyline")
+			.data(this.polygons.adding_polygon ? [this.polygons.adding_polygon] : []);
+		s.enter()
+			.append("polyline")
+			.call(this.app.drag);
+		s.exit().remove();
+		s
+			.attr("points", function(d) { return d.points(); })
 			.attr("stroke-width", 2 / this.app.zoom.scale);
 	}
 };
@@ -310,86 +346,67 @@ function Dot(x, y, id, container) {
 	this.id = id;
 	this.container = container;
 	this.isSelected = false;
+
+	this.dispatch = d3.dispatch("exit");
+	d3.rebind(this, this.dispatch, "on");
 }
 Dot.prototype = {
 	del: function() {
 		this.container.del(this);
+		this.dispatch.exit();
 	}
 };
 
-function LineList(dots) {
+
+function PolygonList() {
 	this.list = [];
-	this.id2line = {};
-
-	this.dispatch = d3.dispatch("change");
-	d3.rebind(this, this.dispatch, "on");
-
-	var self = this;
-	dots.on("change.lines", function(e) { self.onDotsChange(e); });
+	this.adding_polygon = null;
 }
-LineList.prototype = {
-	add: function(d1, d2) {
-		var id = Line.getId(d1, d2);
-		if (id in this.id2line) {
-			return null;
+
+PolygonList.prototype.add = function(polygon) {
+	this.list.push(polygon);
+};
+
+PolygonList.prototype.del = function(polygon) {
+	var index = this.list.indexOf(polygon);
+	if (index >= 0) {
+		this.list.splice(index, 1);
+	}
+};
+
+PolygonList.prototype.close_adding_polygon = function() {
+	if (this.adding_polygon && this.adding_polygon.points() != "") {
+		this.add(this.adding_polygon);
+	}
+	this.adding_polygon = null;
+};
+
+
+function Polygon() {
+	this.list = [];
+}
+Polygon.prototype = {
+	add: function(d) {
+		var index = this.list.indexOf(d);
+		if (index >= 0) {
+			return index;
 		}
 
-		var line = new Line(d1, d2, this);
-		this.list.push(line);
-		this.id2line[line.id] = line;
-
-		this.dispatch.change({added: line, deleted: null});
-
-		return line;
+		this.list.push(d);
+		var self = this;
+		d.on("exit.polygon", function() { self.del(d); });
+		return this.list.length - 1;
 	},
 
-	del: function(line) {
-		var index = this.list.indexOf(line);
+	del: function(d) {
+		var index = this.list.indexOf(d);
 		if (index >= 0) {
 			this.list.splice(index, 1);
-			this.dispatch.change({ added: null, deleted: line });
 		}
 	},
 
-	onDotsChange: function(e) {
-		var d = e.deleted;
-		if (!d) {
-			return;
-		}
-
-		for (var i = 0; i < this.list.length; i++) {
-			var line = this.list[i];
-			if (line.d1 == d || line.d2 == d) {
-				line.del();
-				i--;
-			}
-		}
-	}
-};
-
-function Line(d1, d2, container) {
-	if (d1 == d2) {
-		throw new Error("same line is specified");
-	}
-
-	// swap
-	if (d1.id > d2.id) {
-		var tmp = d1;
-		d1 = d2;
-		d2 = tmp;
-	}
-
-	this.d1 = d1;
-	this.d2 = d2;
-	this.container = container;
-	this.id = d1.id + "," + d2.id;
-};
-Line.getId = function(d1, d2) {
-	return new Line(d1, d2, null).id;
-}
-Line.prototype = {
-	del: function() {
-		this.container.del(this);
+	points: function() {
+		return this.list.map(function(d) { return [d.x, d.y]; }).join(" ");
 	}
 };
 

@@ -69,8 +69,15 @@ svg#map {
   fill: blue;
 }
 
-#lines line {
+#lines polyline {
   stroke: black;
+  fill: red;
+  fill-opacity: .2;
+}
+
+#lines polygon {
+  stroke: black;
+  fill: none;
   cursor: pointer;
 }
 
