@@ -11,12 +11,18 @@ MapEditor.prototype = {
 		this.initElement(elm);
 		this.initJson(json);
 		this.initEvent();
+		this.updateView();
 	},
 
 	initModel: function() {
 		this.dots = new DotList();
 		this.lines = new LineList();
 		this.polygons = new PolygonList(this.lines);
+
+		if (localStorage["polygon"]) {
+			var data = JSON.parse(localStorage["polygon"]);
+			this.polygons.deserialize(data, this.dots);
+		}
 	},
 
 	initElement: function(elm) {
@@ -60,7 +66,7 @@ MapEditor.prototype = {
 	initEvent: function() {
 		var self = this;
 		d3.select(document).on("keydown", function() {
-			console.log(d3.event.keyCode);
+			//console.log(d3.event.keyCode);
 			switch (d3.event.keyCode) {
 				case 46:  // del
 					self.del();
@@ -82,7 +88,6 @@ MapEditor.prototype = {
 		var dragging = false;
 		this.drag = d3.behavior.drag()
 			.on("dragstart", function(d) {
-				console.log("dragstart");
 				dragging = false;
 				// drag the most foreground draggable object
 				d3.event.sourceEvent.stopPropagation();
@@ -93,7 +98,6 @@ MapEditor.prototype = {
 				}
 			})
 			.on("drag", function(d, i) {
-				console.log("dragging");
 				dragging = true;
 				self.onDrag(d, i, this);
 			});
@@ -103,6 +107,7 @@ MapEditor.prototype = {
 	updateView: function() {
 		this.dotView.update();
 		this.polygonView.update();
+		localStorage["polygon"] = JSON.stringify(this.polygons.serialize());
 	},
 
 	del: function() {
@@ -433,6 +438,32 @@ PolygonList.prototype.del = function(polygon) {
 	}
 };
 
+PolygonList.prototype.serialize = function() {
+	return this.list.map(function(polygon) { return polygon.serialize(); });
+};
+
+PolygonList.prototype.deserialize = function(data, dots) {
+	var dotmap = {};
+	var self = this;
+
+	this.list = data.map(function(entry) {
+		var polygon = new Polygon(self, self.lineList);
+		entry.forEach(function(pos) {
+			var key = pos.join(",");
+			var dot;
+			if (!(key in dotmap)) {
+				dotmap[key] = dots.create(pos[0], pos[1]);
+				dots.add(dotmap[key]);
+			}
+			dot = dotmap[key];
+
+			polygon.add(dot);
+		});
+		polygon.close();
+		return polygon;
+	});
+};
+
 PolygonList.prototype.splitLine = function(line, dot) {
 	for (var i = 0; i < this.list.length; i++) {
 		this.list[i].splitLine(line, dot);
@@ -489,6 +520,12 @@ Polygon.prototype = {
 				this.updateLines();
 			}
 		}
+	},
+
+	serialize: function() {
+		return this.list.map(function(dot) {
+			return [dot.x, dot.y];
+		});
 	},
 
 	close: function() {
