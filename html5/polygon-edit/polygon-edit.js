@@ -85,6 +85,10 @@ MapEditor.prototype = {
 		this.zoom.on('scaleChange', function() {
 			self.onZoomChange();
 		});
+		if (localStorage["zoom"]) {
+			this.zoom.deserialize(JSON.parse(localStorage["zoom"]));
+			this.zoom.update();
+		}
 
 		var dragging = false;
 		this.drag = d3.behavior.drag()
@@ -116,7 +120,9 @@ MapEditor.prototype = {
 		this.dotView.update();
 		this.lineView.update();
 		this.polygonView.update();
+
 		localStorage["polygon"] = JSON.stringify(this.polygons.serialize());
+		localStorage["zoom"] = JSON.stringify(this.zoom.serialize());
 	},
 
 	del: function() {
@@ -307,7 +313,9 @@ function ModeView(app, modes) {
 	this.app = app;
 	this.dispatch = d3.dispatch("change");
 	d3.rebind(this, this.dispatch, "on");
-	this.setMode(modes[0]);
+
+	var lastMode = modes.filter(function(m) { return m.name == localStorage["mode"]; });
+	this.setMode(lastMode.length > 0 ? lastMode[0] : modes[0]);
 
 	var self = this;
 	var inputs = d3.select("#modes").selectAll("input").data(modes).enter()
@@ -330,6 +338,8 @@ ModeView.prototype = {
 		this.currentMode = mode;
 		this.app.svg.attr('class', mode.name);
 		this.dispatch.change();
+
+		localStorage["mode"] = mode.name;
 	}
 };
 
@@ -749,6 +759,16 @@ MapZoom.prototype = {
 	
 	scaleChange: function() {
 		this.dispatch.scaleChange();
+	},
+
+	serialize: function() {
+		return {x: this.x, y: this.y, scale: this.scale };
+	},
+
+	deserialize: function(data) {
+		if (!isNaN(data.x)) this.x = data.x;
+		if (!isNaN(data.y)) this.y = data.y;
+		if (!isNaN(data.scale)) this.scale = data.scale;
 	}
 };
 
