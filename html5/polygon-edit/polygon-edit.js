@@ -31,9 +31,10 @@ MapEditor.prototype = {
 		this.canvas = this.svg.append("svg:g").attr("id", "canvas");
 		this.mapContainer = this.canvas.append("svg:g").attr("id", "map_pathes");
 		this.polygonView = new PolygonView(this, this.polygons);
+		this.lineView = new LineView(this, this.polygons);
 		this.dotView = new DotView(this, this.dots);
 
-		this.modeView = new ModeView([new PointMode(this), new LineMode(this)]);
+		this.modeView = new ModeView(this, [new PointMode(this), new PolygonMode(this)]);
 
 		var self = this;
 		this.dots.on('change.view', function() { self.dotView.update(); });
@@ -95,17 +96,25 @@ MapEditor.prototype = {
 			.on("dragend", function(d, i) {
 				if (!dragging) {
 					self.onClick(d, i, this);
+				} else {
+					self.onDragEnd(d, i, this);
 				}
 			})
 			.on("drag", function(d, i) {
-				dragging = true;
+				if (!dragging) {
+					dragging = true;
+					self.onDragStart(d, i, this);
+				}
 				self.onDrag(d, i, this);
 			});
 		this.svg.call(this.drag);
+
+		this.modeView.on('change', function() { self.updateView(); });
 	},
 
 	updateView: function() {
 		this.dotView.update();
+		this.lineView.update();
 		this.polygonView.update();
 		localStorage["polygon"] = JSON.stringify(this.polygons.serialize());
 	},
@@ -138,8 +147,18 @@ MapEditor.prototype = {
 		return prev;
 	},
 
+	onDragStart: function(d, i, elm) {
+		this.modeView.currentMode.onDragStart(d, i, elm);
+		this.updateView();
+	},
+
 	onDrag: function(d, i, elm) {
 		this.modeView.currentMode.onDrag(d, i, elm);
+		this.updateView();
+	},
+
+	onDragEnd: function(d, i, elm) {
+		this.modeView.currentMode.onDragEnd(d, i, elm);
 		this.updateView();
 	},
 
@@ -168,6 +187,8 @@ Mode.prototype = {
 		}
 	},
 
+	onDragStart: function(d, i) {},
+
 	onDrag: function(d, i) {
 		var event = d3.event;
 		var p = this.app.zoom.clientToWorld(event.x, event.y);
@@ -180,7 +201,9 @@ Mode.prototype = {
 			d.x += event.dx;
 			d.y += event.dy;
 		}
-	}
+	},
+
+	onDragEnd: function(d, i) {}
 };
 
 function PointMode(app) {
@@ -226,28 +249,65 @@ PointMode.prototype.onClick = function(d, i) {
 	}
 }
 
-function LineMode(app) {
+function PolygonMode(app) {
 	this.app = app;
-	this.name = 'line';
+	this.name = 'polygon';
 }
-LineMode.prototype = Object.create(Mode.prototype);
-LineMode.prototype.onClick = function(d, i) {
-	var prev = null;
-
-	// add dot
+PolygonMode.prototype = Object.create(Mode.prototype);
+PolygonMode.prototype.onClick = function(d, i) {
+	// select polygon
 	var event = d3.event;
-	if (d instanceof Dot) {
-		if (this.line) {
-			this.line.add(d);
-		}
+	if (d instanceof Polygon) {
+		this.app.select(d);
 	} else {
-		this.line = null;
+		this.app.unselect();
+	}
+};
+
+PolygonMode.prototype.onDragStart = function(d, i) {
+	if (!(d instanceof Dot)) {
+		return;
+	}
+
+	var p = this.app.selectedItem;
+	p.draggingLine = {
+		d1: d,
+		d2: {x: 0, y: 0}
+	};
+};
+
+PolygonMode.prototype.onDrag = function(d, i) {
+	if (!(d instanceof Dot)) {
+		Mode.prototype.onDrag.call(this, d, i);
+		return;
+	}
+
+	var data = d3.select(d3.event.sourceEvent.target).data();
+	var src;
+	if (data.length > 0 && data[0] instanceof Dot) {
+		src = data[0];
+	} else {
+		src = d3.event;
+	}
+
+	var p = this.app.selectedItem;
+	p.draggingLine.d2.x = src.x
+	p.draggingLine.d2.y = src.y
+}
+
+PolygonMode.prototype.onDragEnd = function(d, i) {
+	if (d instanceof Dot) {
+		var p = this.app.selectedItem;
+		p.draggingLine = null;
 	}
 }
 
 
-function ModeView(modes) {
-	this.currentMode = modes[0];
+function ModeView(app, modes) {
+	this.app = app;
+	this.dispatch = d3.dispatch("change");
+	d3.rebind(this, this.dispatch, "on");
+	this.setMode(modes[0]);
 
 	var self = this;
 	var inputs = d3.select("#modes").selectAll("input").data(modes).enter()
@@ -259,12 +319,19 @@ function ModeView(modes) {
 			"id": function(d) { return "mode-" + d.name; }
 		})
 		.property("checked", function(d) { return self.currentMode == d; })
-		.on("click", function(d) { self.currentMode = d; });
+		.on("click", function(d) { self.setMode(d); });
 
 	inputs.append("label")
 		.attr("for", function(d) { return "mode-" + d.name; })
 		.text(function(d) { return d.name; });
 }
+ModeView.prototype = {
+	setMode: function(mode) {
+		this.currentMode = mode;
+		this.app.svg.attr('class', mode.name);
+		this.dispatch.change();
+	}
+};
 
 function DotView(app, dots) {
 	this.app = app;
@@ -274,8 +341,18 @@ function DotView(app, dots) {
 }
 DotView.prototype = {
 	update: function() {
+		var dots = this.dots.list;
+		if (this.app.modeView.currentMode.name == 'polygon') {
+			var p = this.app.selectedItem;
+			if (p instanceof(Polygon)) {
+				dots = p.list;
+			} else {
+				dots = [];
+			}
+		}
+
 		var s = this.view.selectAll("circle")
-			.data(this.dots.list);
+			.data(dots);
 		s.enter()
 			.append("circle")
 			.call(this.app.drag);
@@ -291,10 +368,49 @@ DotView.prototype = {
 function PolygonView(app, polygons) {
 	this.app = app;
 	this.polygons = polygons;
+	this.view = app.canvas.append("svg:g").attr("id", "polygons");
+}
+PolygonView.prototype = {
+	update: function() {
+		if (this.app.modeView.currentMode.name != "polygon") {
+			this.view.selectAll("polygon").data([]).exit().remove();
+			return;
+		}
+
+		var s = this.view.selectAll("polygon")
+			.data(this.polygons.list);
+		s.enter().append("polygon").call(this.app.drag);
+		s.exit().remove();
+		s
+			.attr("points", function(d) { return d.toPoints(); })
+			.classed("selected", function(d) { return d.isSelected; });
+
+		var line = null;
+		if (this.app.selectedItem instanceof Polygon) {
+			line = this.app.selectedItem.draggingLine;
+		}
+		var l = this.view.selectAll("line")
+			.data(line ? [line] : []);
+		l.enter().append("line");
+		l.exit().remove();
+		l
+			.attr({
+				x1: function(d) { return d.d1.x; },
+				y1: function(d) { return d.d1.y; },
+				x2: function(d) { return d.d2.x; },
+				y2: function(d) { return d.d2.y; },
+				"stroke-width": 2 / this.app.zoom.scale
+			});
+	}
+};
+
+function LineView(app, polygons) {
+	this.app = app;
+	this.polygons = polygons;
 
 	this.view = app.canvas.append("svg:g").attr("id", "lines");
 }
-PolygonView.prototype = {
+LineView.prototype = {
 	update: function() {
 		var s = this.view.selectAll("line")
 			.data(this.polygons.lineList.list);
@@ -520,6 +636,14 @@ Polygon.prototype = {
 				this.updateLines();
 			}
 		}
+	},
+
+	contains: function(d) {
+		return this.list.indexOf(d) >= 0;
+	},
+
+	toPoints: function() {
+		return this.list.map(function(p) { return p.x + "," + p.y; }).join(" ");
 	},
 
 	serialize: function() {
