@@ -361,7 +361,7 @@ DotView.prototype = {
 		if (this.app.modeView.currentMode.name == 'polygon') {
 			var p = this.app.selectedItem;
 			if (p instanceof(Polygon)) {
-				dots = p.list;
+				dots = p.dots;
 			} else {
 				dots = [];
 			}
@@ -613,7 +613,7 @@ PolygonList.prototype.close_adding_polygon = function() {
 
 
 function Polygon(container, lineList) {
-	this.list = [];
+	this.dots = [];
 	this.lineList = lineList;
 	this.lines = [];
 	this.last_dot = null;
@@ -624,28 +624,28 @@ function Polygon(container, lineList) {
 Polygon.id = 1;
 Polygon.prototype = {
 	add: function(d) {
-		var index = this.list.indexOf(d);
+		var index = this.dots.indexOf(d);
 		if (index >= 0) {
 			return index;
 		}
 
-		this.list.push(d);
+		this.dots.push(d);
 		this.updateLines();
 
 		var self = this;
 		d.on("exit.polygon" + this.id, function() { self.del(d); });
-		return this.list.length - 1;
+		return this.dots.length - 1;
 	},
 
 	del: function(d) {
-		var index = this.list.indexOf(d);
+		var index = this.dots.indexOf(d);
 		if (index >= 0) {
-			this.list.splice(index, 1);
+			this.dots.splice(index, 1);
 			d.on("exit.polygon" + this.id, null);
 
 			this.lineList.del_dot(d);
 
-			if (this.list.length == 0) {
+			if (this.dots.length == 0) {
 				this.container.del(this);
 				return;
 			} else {
@@ -655,15 +655,15 @@ Polygon.prototype = {
 	},
 
 	contains: function(d) {
-		return this.list.indexOf(d) >= 0;
+		return this.dots.indexOf(d) >= 0;
 	},
 
 	toPoints: function() {
-		return this.list.map(function(p) { return p.x + "," + p.y; }).join(" ");
+		return this.dots.map(function(p) { return p.x + "," + p.y; }).join(" ");
 	},
 
 	serialize: function() {
-		return this.list.map(function(dot) {
+		return this.dots.map(function(dot) {
 			return [dot.x, dot.y];
 		});
 	},
@@ -679,17 +679,17 @@ Polygon.prototype = {
 			return;
 		}
 
-		var i1 = this.list.indexOf(line.d1);
-		var i2 = this.list.indexOf(line.d2);
+		var i1 = this.dots.indexOf(line.d1);
+		var i2 = this.dots.indexOf(line.d2);
 		if (i1 > i2) {
 			var tmp = i2;
 			i2 = i1;
 			i1 = tmp;
 		}
 		if (i1 + 1 == i2) {
-			this.list.splice(i2, 0, dot);
-		} else if (i1 == 0 && i2 == this.list.length - 1) {
-			this.list.push(dot);
+			this.dots.splice(i2, 0, dot);
+		} else if (i1 == 0 && i2 == this.dots.length - 1) {
+			this.dots.push(dot);
 		} else {
 			throw Error('invalid polygon');
 		}
@@ -702,15 +702,15 @@ Polygon.prototype = {
 
 	updateLines: function() {
 		this.lines = [];
-		for (var i = 0; i < this.list.length - 1; i++) {
-			var d1 = this.list[i];
-			var d2 = this.list[i + 1];
+		for (var i = 0; i < this.dots.length - 1; i++) {
+			var d1 = this.dots[i];
+			var d2 = this.dots[i + 1];
 			this.lines.push(this.lineList.create(d1, d2));
 		}
 
-		if (this.is_close && this.list.length > 2) {
-			d1 = this.list[0];
-			d2 = this.list[this.list.length - 1];
+		if (this.is_close && this.dots.length > 2) {
+			d1 = this.dots[0];
+			d2 = this.dots[this.dots.length - 1];
 			this.lines.push(this.lineList.create(d1, d2));
 		}
 	}
