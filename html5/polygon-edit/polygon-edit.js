@@ -90,15 +90,16 @@ MapEditor.prototype = {
 			this.zoom.update();
 		}
 
-		var dragging = false;
+		var dragging = false, drag_moved = false;
 		this.drag = d3.behavior.drag()
 			.on("dragstart", function(d) {
-				dragging = false;
+				dragging = drag_moved = false;
+
 				// drag the most foreground draggable object
 				d3.event.sourceEvent.stopPropagation();
 			})
 			.on("dragend", function(d, i) {
-				if (!dragging) {
+				if (!drag_moved) {
 					self.onClick(d, i, this);
 				} else {
 					self.onDragEnd(d, i, this);
@@ -106,7 +107,12 @@ MapEditor.prototype = {
 			})
 			.on("drag", function(d, i) {
 				if (!dragging) {
+					// skip first event (triggered on mouse down)
 					dragging = true;
+					return;
+				} else if (!drag_moved) {
+					// trigger onDragStart on first move
+					drag_moved = true;
 					self.onDragStart(d, i, this);
 				}
 				self.onDrag(d, i, this);
