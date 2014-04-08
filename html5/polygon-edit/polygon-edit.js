@@ -429,7 +429,7 @@ function LineView(app, polygons) {
 LineView.prototype = {
 	update: function() {
 		var s = this.view.selectAll("line")
-			.data(this.polygons.lineList.list);
+			.data(this.polygons.allLines.list);
 		s.enter()
 			.append("line")
 			.call(this.app.drag);
@@ -543,15 +543,15 @@ Line.prototype.contains = function(d) {
 }
 
 
-function PolygonList(lineList) {
+function PolygonList(allLines) {
 	this.list = [];
-	this.lineList = lineList;
+	this.allLines = allLines;
 	this.adding_polygon = null;
 }
 
 PolygonList.prototype.create_adding_polygon = function() {
 	if (this.adding_polygon == null) {
-		this.adding_polygon = new Polygon(this, this.lineList);
+		this.adding_polygon = new Polygon(this, this.allLines);
 		return true;
 	}
 	return false;
@@ -579,7 +579,7 @@ PolygonList.prototype.deserialize = function(data, dots) {
 	var self = this;
 
 	this.list = data.map(function(entry) {
-		var polygon = new Polygon(self, self.lineList);
+		var polygon = new Polygon(self, self.allLines);
 		entry.forEach(function(pos) {
 			var key = pos.join(",");
 			var dot;
@@ -600,7 +600,7 @@ PolygonList.prototype.splitLine = function(line, dot) {
 	for (var i = 0; i < this.list.length; i++) {
 		this.list[i].splitLine(line, dot);
 	}
-	this.lineList.del(line);
+	this.allLines.del(line);
 };
 
 PolygonList.prototype.close_adding_polygon = function() {
@@ -612,9 +612,9 @@ PolygonList.prototype.close_adding_polygon = function() {
 };
 
 
-function Polygon(container, lineList) {
+function Polygon(container, allLines) {
 	this.dots = [];
-	this.lineList = lineList;
+	this.allLines = allLines;
 	this.lines = [];
 	this.last_dot = null;
 	this.container = container;
@@ -643,7 +643,7 @@ Polygon.prototype = {
 			this.dots.splice(index, 1);
 			d.on("exit.polygon" + this.id, null);
 
-			this.lineList.del_dot(d);
+			this.allLines.del_dot(d);
 
 			if (this.dots.length == 0) {
 				this.container.del(this);
@@ -705,13 +705,13 @@ Polygon.prototype = {
 		for (var i = 0; i < this.dots.length - 1; i++) {
 			var d1 = this.dots[i];
 			var d2 = this.dots[i + 1];
-			this.lines.push(this.lineList.create(d1, d2));
+			this.lines.push(this.allLines.create(d1, d2));
 		}
 
 		if (this.is_close && this.dots.length > 2) {
 			d1 = this.dots[0];
 			d2 = this.dots[this.dots.length - 1];
-			this.lines.push(this.lineList.create(d1, d2));
+			this.lines.push(this.allLines.create(d1, d2));
 		}
 	}
 };
