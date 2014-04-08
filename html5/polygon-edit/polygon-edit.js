@@ -600,6 +600,9 @@ PolygonList.prototype.splitLine = function(line, dot) {
 	for (var i = 0; i < this.list.length; i++) {
 		this.list[i].splitLine(line, dot);
 	}
+	if (this.adding_polygon) {
+		this.adding_polygon.splitLine(line, dot);
+	}
 	this.allLines.del(line);
 };
 
