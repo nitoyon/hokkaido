@@ -552,6 +552,7 @@ function PolygonList(allLines) {
 PolygonList.prototype.create_adding_polygon = function() {
 	if (this.adding_polygon == null) {
 		this.adding_polygon = new Polygon(this, this.allLines);
+		this.list.push(this.adding_polygon);
 		return true;
 	}
 	return false;
@@ -565,8 +566,6 @@ PolygonList.prototype.del = function(polygon) {
 	var index = this.list.indexOf(polygon);
 	if (index >= 0) {
 		this.list.splice(index, 1);
-	} else if (polygon == this.adding_polygon) {
-		this.adding_polygon = null;
 	}
 };
 
@@ -600,16 +599,12 @@ PolygonList.prototype.splitLine = function(line, dot) {
 	for (var i = 0; i < this.list.length; i++) {
 		this.list[i].splitLine(line, dot);
 	}
-	if (this.adding_polygon) {
-		this.adding_polygon.splitLine(line, dot);
-	}
 	this.allLines.del(line);
 };
 
 PolygonList.prototype.close_adding_polygon = function() {
 	if (this.adding_polygon && this.adding_polygon.lines.length > 0) {
 		this.adding_polygon.close();
-		this.add(this.adding_polygon);
 	}
 	this.adding_polygon = null;
 };
