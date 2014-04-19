@@ -74,6 +74,10 @@ svg#map {
   cursor: pointer;
 }
 
+#lines line.inner {
+  stroke: white;
+}
+
 #polygons polygon {
   fill: blue;
   opacity: .1;

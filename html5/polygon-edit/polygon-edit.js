@@ -294,10 +294,10 @@ PolygonMode.prototype.onDrag = function(d, i) {
 		return;
 	}
 
-	var data = d3.select(d3.event.sourceEvent.target).data();
+	var hover = d3.select(d3.event.sourceEvent.target).datum();
 	var src;
-	if (data.length > 0 && data[0] instanceof Dot) {
-		src = data[0];
+	if (hover instanceof Dot) {
+		src = hover;
 	} else {
 		src = d3.event;
 	}
@@ -308,9 +308,15 @@ PolygonMode.prototype.onDrag = function(d, i) {
 }
 
 PolygonMode.prototype.onDragEnd = function(d, i) {
-	if (d instanceof Dot) {
-		var p = this.app.selectedItem;
-		p.draggingLine = null;
+	if (!(d instanceof Dot)) {
+		return;
+	}
+
+	var p = this.app.selectedItem;
+	p.draggingLine = null;
+	var hover = d3.select(d3.event.sourceEvent.target).datum();
+	if (hover instanceof Dot) {
+		p.addInnerLine(d, hover);
 	}
 }
 
@@ -388,11 +394,20 @@ function PolygonView(app, polygons) {
 }
 PolygonView.prototype = {
 	update: function() {
-		if (this.app.modeView.currentMode.name != "polygon") {
-			this.view.selectAll("polygon").data([]).exit().remove();
-			return;
+		var curModeName = this.app.modeView.currentMode.name;
+		if (curModeName == "polygon") {
+			this.updatePolygonMode();
+		} else if (curModeName == "point") {
+			this.updatePointMode();
 		}
+	},
 
+	updatePointMode: function() {
+		// delete all polygon
+		this.view.selectAll("polygon").data([]).exit().remove();
+	},
+
+	updatePolygonMode: function() {
 		var s = this.view.selectAll("polygon")
 			.data(this.polygons.list);
 		s.enter().append("polygon").call(this.app.drag);
@@ -428,11 +443,51 @@ function LineView(app, polygons) {
 }
 LineView.prototype = {
 	update: function() {
+		var curModeName = this.app.modeView.currentMode.name;
+		if (curModeName == "polygon") {
+			this.updatePolygonMode();
+		} else if (curModeName == "point") {
+			this.updatePointMode();
+		}
+	},
+
+	updatePointMode: function() {
 		var s = this.view.selectAll("line")
-			.data(this.polygons.allLines.list);
+			.data(this.polygons.getOuterLines());
 		s.enter()
 			.append("line")
 			.call(this.app.drag);
+		s.exit().remove();
+		s
+			.attr("x1", function(d) { return d.d1.x; })
+			.attr("y1", function(d) { return d.d1.y; })
+			.attr("x2", function(d) { return d.d2.x; })
+			.attr("y2", function(d) { return d.d2.y; })
+			.attr("stroke-width", 2 / this.app.zoom.scale);
+	},
+
+	updatePolygonMode: function() {
+		if (!(this.app.selectedItem instanceof Polygon)) {
+			this.view.selectAll("line")
+				.data([]).exit().remove();
+			return;
+		}
+
+		var polygon = this.app.selectedItem;
+		var s = this.view.selectAll("line.outer")
+			.data(polygon.lines);
+		s.enter().append("line").classed("outer", true);
+		s.exit().remove();
+		s
+			.attr("x1", function(d) { return d.d1.x; })
+			.attr("y1", function(d) { return d.d1.y; })
+			.attr("x2", function(d) { return d.d2.x; })
+			.attr("y2", function(d) { return d.d2.y; })
+			.attr("stroke-width", 2 / this.app.zoom.scale);
+
+		s = this.view.selectAll("line.inner")
+			.data(polygon.innerLines);
+		s.enter().append("line").classed("inner", true);
 		s.exit().remove();
 		s
 			.attr("x1", function(d) { return d.d1.x; })
@@ -569,6 +624,21 @@ PolygonList.prototype.del = function(polygon) {
 	}
 };
 
+PolygonList.prototype.getOuterLines = function() {
+	var lines = {};
+	this.list.forEach(function(p) {
+		p.lines.forEach(function(l) {
+			lines[l.id] = l;
+		});
+	});
+
+	var ret = [];
+	for (var id in lines) {
+		ret.push(lines[id]);
+	}
+	return ret;
+};
+
 PolygonList.prototype.serialize = function() {
 	return this.list.map(function(polygon) { return polygon.serialize(); });
 };
@@ -614,6 +684,7 @@ function Polygon(container, allLines) {
 	this.dots = [];
 	this.allLines = allLines;
 	this.lines = [];
+	this.innerLines = [];
 	this.lastDot = null;
 	this.container = container;
 	this.id = Polygon.id++;
@@ -696,6 +767,21 @@ Polygon.prototype = {
 		dot.on("exit.polygon" + this.id, function() { self.del(dot); });
 
 		this.updateLines();
+	},
+
+	addInnerLine: function(d1, d2) {
+		var i1 = this.dots.indexOf(d1);
+		var i2 = this.dots.indexOf(d2);
+		if (i1 == -1 || i2 == -1) return;
+
+		if (i1 > i2) {
+			var tmp = i2;
+			i2 = i1;
+			i1 = tmp;
+		}
+		if (i2 - i1 == 1 || i2 - i1 == this.dots.length - 1) return;
+
+		this.innerLines.push(this.allLines.create(d1, d2));
 	},
 
 	updateLines: function() {
