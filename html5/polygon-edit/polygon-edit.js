@@ -90,16 +90,16 @@ MapEditor.prototype = {
 			this.zoom.update();
 		}
 
-		var dragging = false, drag_moved = false;
+		var dragging = false, dragMoved = false;
 		this.drag = d3.behavior.drag()
 			.on("dragstart", function(d) {
-				dragging = drag_moved = false;
+				dragging = dragMoved = false;
 
 				// drag the most foreground draggable object
 				d3.event.sourceEvent.stopPropagation();
 			})
 			.on("dragend", function(d, i) {
-				if (!drag_moved) {
+				if (!dragMoved) {
 					self.onClick(d, i, this);
 				} else {
 					self.onDragEnd(d, i, this);
@@ -110,9 +110,9 @@ MapEditor.prototype = {
 					// skip first event (triggered on mouse down)
 					dragging = true;
 					return;
-				} else if (!drag_moved) {
+				} else if (!dragMoved) {
 					// trigger onDragStart on first move
-					drag_moved = true;
+					dragMoved = true;
 					self.onDragStart(d, i, this);
 				}
 				self.onDrag(d, i, this);
@@ -228,7 +228,7 @@ PointMode.prototype.onClick = function(d, i) {
 
 	// Ctrl + click -> close
 	if (event.ctrlKey) {
-		this.app.polygons.close_adding_polygon();
+		this.app.polygons.closeAddingPolygon();
 		Mode.prototype.onClick.call(this, d, i);
 		return;
 	}
@@ -240,16 +240,16 @@ PointMode.prototype.onClick = function(d, i) {
 		this.app.select(d);
 		this.app.dots.add(d);
 
-		this.app.polygons.create_adding_polygon();
-		this.app.polygons.adding_polygon.add(d);
+		this.app.polygons.createAddingPolygon();
+		this.app.polygons.addingPolygon.add(d);
 	} else if (d instanceof Dot) {
 		// click dot -> connect
-		var create = this.app.polygons.create_adding_polygon();
-		var index = this.app.polygons.adding_polygon.add(d);
+		var create = this.app.polygons.createAddingPolygon();
+		var index = this.app.polygons.addingPolygon.add(d);
 
 		// click first dot -> close
 		if (index == 0 && !create) {
-			this.app.polygons.close_adding_polygon();
+			this.app.polygons.closeAddingPolygon();
 		}
 		this.app.select(d);
 	} else if (d instanceof Line) {
@@ -505,7 +505,7 @@ LineList.prototype.create = function(d1, d2) {
 	}
 }
 
-LineList.prototype.del_dot = function(d) {
+LineList.prototype.delDot = function(d) {
 	for (var i = this.list.length - 1; i >= 0; i--) {
 		var line = this.list[i];
 		if (line.contains(d)) {
@@ -546,13 +546,13 @@ Line.prototype.contains = function(d) {
 function PolygonList(allLines) {
 	this.list = [];
 	this.allLines = allLines;
-	this.adding_polygon = null;
+	this.addingPolygon = null;
 }
 
-PolygonList.prototype.create_adding_polygon = function() {
-	if (this.adding_polygon == null) {
-		this.adding_polygon = new Polygon(this, this.allLines);
-		this.list.push(this.adding_polygon);
+PolygonList.prototype.createAddingPolygon = function() {
+	if (this.addingPolygon == null) {
+		this.addingPolygon = new Polygon(this, this.allLines);
+		this.list.push(this.addingPolygon);
 		return true;
 	}
 	return false;
@@ -602,11 +602,11 @@ PolygonList.prototype.splitLine = function(line, dot) {
 	this.allLines.del(line);
 };
 
-PolygonList.prototype.close_adding_polygon = function() {
-	if (this.adding_polygon && this.adding_polygon.lines.length > 0) {
-		this.adding_polygon.close();
+PolygonList.prototype.closeAddingPolygon = function() {
+	if (this.addingPolygon && this.addingPolygon.lines.length > 0) {
+		this.addingPolygon.close();
 	}
-	this.adding_polygon = null;
+	this.addingPolygon = null;
 };
 
 
@@ -614,10 +614,10 @@ function Polygon(container, allLines) {
 	this.dots = [];
 	this.allLines = allLines;
 	this.lines = [];
-	this.last_dot = null;
+	this.lastDot = null;
 	this.container = container;
 	this.id = Polygon.id++;
-	this.is_close = false;
+	this.isClose = false;
 }
 Polygon.id = 1;
 Polygon.prototype = {
@@ -641,7 +641,7 @@ Polygon.prototype = {
 			this.dots.splice(index, 1);
 			d.on("exit.polygon" + this.id, null);
 
-			this.allLines.del_dot(d);
+			this.allLines.delDot(d);
 
 			if (this.dots.length == 0) {
 				this.container.del(this);
@@ -667,7 +667,7 @@ Polygon.prototype = {
 	},
 
 	close: function() {
-		this.is_close = true;
+		this.isClose = true;
 		this.updateLines();
 	},
 
@@ -706,7 +706,7 @@ Polygon.prototype = {
 			this.lines.push(this.allLines.create(d1, d2));
 		}
 
-		if (this.is_close && this.dots.length > 2) {
+		if (this.isClose && this.dots.length > 2) {
 			d1 = this.dots[0];
 			d2 = this.dots[this.dots.length - 1];
 			this.lines.push(this.allLines.create(d1, d2));
@@ -745,7 +745,7 @@ MapZoom.prototype = {
 		this.scale = val;
 
 		this.update();
-		this.scaleChange({old_scale: old, new_scale: this.scale});
+		this.scaleChange({oldScale: old, newScale: this.scale});
 	},
 
 	clientToWorld: function(x, y) {
