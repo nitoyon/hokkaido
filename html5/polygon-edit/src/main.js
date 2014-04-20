@@ -37,7 +37,6 @@ MapEditor.prototype = {
 		this.modeView = new ModeView(this, [new PointMode(this), new PolygonMode(this)]);
 
 		var self = this;
-		this.dots.on('change.view', function() { self.dotView.update(); });
 	},
 
 	initJson: function(json) {

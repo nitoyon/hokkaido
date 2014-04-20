@@ -1,9 +1,6 @@
 function DotList() {
 	this.list = [];
 	this.id = 1;
-
-	this.dispatch = d3.dispatch("change");
-	d3.rebind(this, this.dispatch, "on");
 }
 DotList.prototype = {
 	create: function(x, y) {
@@ -12,7 +9,6 @@ DotList.prototype = {
 
 	add: function(dot) {
 		this.list.push(dot);
-		this.dispatch.change({ added: dot, deleted: null });
 		return dot;
 	},
 
@@ -20,7 +16,6 @@ DotList.prototype = {
 		var index = this.list.indexOf(dot);
 		if (index >= 0) {
 			this.list.splice(index, 1);
-			this.dispatch.change({ added: null, deleted: dot });
 		}
 	}
 };
