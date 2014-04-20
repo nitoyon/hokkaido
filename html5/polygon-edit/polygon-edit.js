@@ -691,6 +691,20 @@ function Polygon(container, allLines) {
 	this.isClose = false;
 }
 Polygon.id = 1;
+
+Polygon.isNeighborDot = function(dots, d1, d2) {
+	var i1 = dots.indexOf(d1);
+	var i2 = dots.indexOf(d2);
+
+	// not in dots -> exception
+	if (i1 == -1 || i2 == -1) {
+		throw new Error('invalid dot');
+	}
+
+	// neighbor -> true
+	return (Math.abs(i2 - i1) == 1 || Math.abs(i2 - i1) == dots.length - 1);
+};
+
 Polygon.prototype = {
 	add: function(d) {
 		var index = this.dots.indexOf(d);
@@ -760,7 +774,7 @@ Polygon.prototype = {
 		} else if (i1 == 0 && i2 == this.dots.length - 1) {
 			this.dots.push(dot);
 		} else {
-			throw Error('invalid polygon');
+			throw new Error('invalid polygon');
 		}
 
 		var self = this;
@@ -770,16 +784,10 @@ Polygon.prototype = {
 	},
 
 	addInnerLine: function(d1, d2) {
-		var i1 = this.dots.indexOf(d1);
-		var i2 = this.dots.indexOf(d2);
-		if (i1 == -1 || i2 == -1) return;
-
-		if (i1 > i2) {
-			var tmp = i2;
-			i2 = i1;
-			i1 = tmp;
+		if (Polygon.isNeighborDot(this.dots, d1, d2)) {
+			alert('cannot connect neighborhood dots!!');
+			return;
 		}
-		if (i2 - i1 == 1 || i2 - i1 == this.dots.length - 1) return;
 
 		this.innerLines.push(this.allLines.create(d1, d2));
 	},
