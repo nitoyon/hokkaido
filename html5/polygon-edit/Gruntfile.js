@@ -9,7 +9,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['src/main.js', 'src/mode.js', 'src/model.js', 'src/view.js'],
-        dest: '<%= pkg.name %>.js'
+        dest: 'dist/<%= pkg.name %>.js'
       }
     }
   });
