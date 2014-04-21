@@ -1,3 +1,5 @@
+var EventEmitter2 = require('eventemitter2').EventEmitter;
+
 function DotList() {
 	this.list = [];
 	this.id = 1;
@@ -27,14 +29,13 @@ function Dot(x, y, id, container) {
 	this.container = container;
 	this.isSelected = false;
 
-	this.dispatch = d3.dispatch("exit");
-	d3.rebind(this, this.dispatch, "on");
+	EventEmitter2.call(this);
 }
-Dot.prototype = {
-	del: function() {
-		this.container.del(this);
-		this.dispatch.exit();
-	}
+Dot.prototype = Object.create(EventEmitter2.prototype);
+Dot.prototype.constructor = Dot;
+Dot.prototype.del = function() {
+	this.container.del(this);
+	this.emit('exit', this);
 };
 
 
@@ -210,7 +211,7 @@ Polygon.prototype = {
 		this.updateLines();
 
 		var self = this;
-		d.on("exit.polygon" + this.id, function() { self.del(d); });
+		d.on("exit", function() { console.log('called'); self.del(d); });
 		return this.dots.length - 1;
 	},
 
@@ -218,7 +219,7 @@ Polygon.prototype = {
 		var index = this.dots.indexOf(d);
 		if (index >= 0) {
 			this.dots.splice(index, 1);
-			d.on("exit.polygon" + this.id, null);
+			d.removeAllListeners("exit");
 
 			this.allLines.delDot(d);
 
@@ -272,7 +273,7 @@ Polygon.prototype = {
 		}
 
 		var self = this;
-		dot.on("exit.polygon" + this.id, function() { self.del(dot); });
+		dot.on("exit", function() { self.del(dot); });
 
 		this.updateLines();
 	},

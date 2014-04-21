@@ -20,7 +20,16 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       dist: {
-        src: ['src/main.js', 'src/mode.js', 'src/model.js', 'src/view.js'],
+        options: {
+          process: function(src, file) {
+            return '// Source: ' + file + '\n' +
+              src.replace(/(^|\n).*require\(.*/g, '');
+          }
+        },
+        src: [
+          'node_modules/eventemitter2/lib/eventemitter2.js',
+          'src/main.js', 'src/mode.js', 'src/model.js', 'src/view.js'
+        ],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
