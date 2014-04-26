@@ -3,7 +3,7 @@ function ModeView(app, modes) {
 	this.dispatch = d3.dispatch("change");
 	d3.rebind(this, this.dispatch, "on");
 
-	var lastMode = modes.filter(function(m) { return m.name == localStorage["mode"]; });
+	var lastMode = modes.filter(function(m) { return m.name == localStorage.mode; });
 	this.setMode(lastMode.length > 0 ? lastMode[0] : modes[0]);
 
 	var self = this;
@@ -28,7 +28,7 @@ ModeView.prototype = {
 		this.app.svg.attr('class', mode.name);
 		this.dispatch.change();
 
-		localStorage["mode"] = mode.name;
+		localStorage.mode = mode.name;
 	}
 };
 

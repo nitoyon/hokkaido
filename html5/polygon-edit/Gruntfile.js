@@ -12,7 +12,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: ['Gruntfile.js']
+      all: ['Gruntfile.js', 'src/*.js']
     },
 
     concat: {

@@ -19,8 +19,8 @@ MapEditor.prototype = {
 		this.lines = new LineList();
 		this.polygons = new PolygonList(this.lines);
 
-		if (localStorage["polygon"]) {
-			var data = JSON.parse(localStorage["polygon"]);
+		if (localStorage.polygon) {
+			var data = JSON.parse(localStorage.polygon);
 			this.polygons.deserialize(data, this.dots);
 		}
 	},
@@ -43,12 +43,12 @@ MapEditor.prototype = {
 		var geodata = json.features;
 
 	  var projection = d3.geo
-	    .mercator()        //ìäâeñ@ÇÃéwíË
-	    .scale(1200)    //ÉXÉPÅ[ÉãÅiÉYÅ[ÉÄÅjÇÃéwíË
+	    .mercator()        //ÊäïÂΩ±Ê≥ï„ÅÆÊåáÂÆö
+	    .scale(1200)    //„Çπ„Ç±„Éº„É´Ôºà„Ç∫„Éº„É†Ôºâ„ÅÆÊåáÂÆö
 	    .rotate([-150,0,0])
 	    .translate([580, 1100]);
 	 
-	  var path = d3.geo.path().projection(projection); //ìäâe
+	  var path = d3.geo.path().projection(projection); //ÊäïÂΩ±
 	  var color = d3.scale.category20();
 	  
 	  map = this.mapContainer
@@ -60,7 +60,7 @@ MapEditor.prototype = {
 	      "d": path,
 	      "fill-opacity": 0.8
 	    })
-	    .attr("fill", function(i) { return color(i.properties.ObjName); })
+	    .attr("fill", function(i) { return color(i.properties.ObjName); });
 	},
 
 	initEvent: function() {
@@ -84,8 +84,8 @@ MapEditor.prototype = {
 		this.zoom.on('scaleChange', function() {
 			self.onZoomChange();
 		});
-		if (localStorage["zoom"]) {
-			this.zoom.deserialize(JSON.parse(localStorage["zoom"]));
+		if (localStorage.zoom) {
+			this.zoom.deserialize(JSON.parse(localStorage.zoom));
 			this.zoom.update();
 		}
 
@@ -126,8 +126,8 @@ MapEditor.prototype = {
 		this.lineView.update();
 		this.polygonView.update();
 
-		localStorage["polygon"] = JSON.stringify(this.polygons.serialize());
-		localStorage["zoom"] = JSON.stringify(this.zoom.serialize());
+		localStorage.polygon = JSON.stringify(this.polygons.serialize());
+		localStorage.zoom = JSON.stringify(this.zoom.serialize());
 	},
 
 	del: function() {
@@ -150,7 +150,7 @@ MapEditor.prototype = {
 
 	unselect: function() {
 		var prev = null;
-		if (this.selectedItem != null) {
+		if (this.selectedItem !== null) {
 			prev = this.selectedItem;
 			this.selectedItem.isSelected = false;
 		}

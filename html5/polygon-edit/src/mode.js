@@ -5,7 +5,7 @@ function Mode(name, app) {
 Mode.prototype = {
 	onClick: function(d, i) {
 		var prev = this.app.unselect();
-		if (d != null) {
+		if (d !== null) {
 			this.app.select(d);
 		}
 	},
@@ -15,7 +15,7 @@ Mode.prototype = {
 	onDrag: function(d, i) {
 		var event = d3.event;
 		var p = this.app.zoom.clientToWorld(event.x, event.y);
-		if (d == null) {
+		if (d === null) {
 			this.app.zoom.x += event.dx;
 			this.app.zoom.y += event.dy;
 			this.app.zoom.update();
@@ -44,9 +44,10 @@ PointMode.prototype.onClick = function(d, i) {
 		return;
 	}
 
-	if (d == null) {
+	var p;
+	if (d === undefined) {
 		// click none -> add dot
-		var p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
+		p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
 		d = this.app.dots.create(p.x, p.y);
 		this.app.select(d);
 		this.app.dots.add(d);
@@ -59,18 +60,18 @@ PointMode.prototype.onClick = function(d, i) {
 		var index = this.app.polygons.addingPolygon.add(d);
 
 		// click first dot -> close
-		if (index == 0 && !create) {
+		if (index === 0 && !create) {
 			this.app.polygons.closeAddingPolygon();
 		}
 		this.app.select(d);
 	} else if (d instanceof Line) {
 		// click line -> add dot
-		var p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
+		p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
 		var dot = this.app.dots.create(p.x, p.y);
 		this.app.dots.add(dot);
 		this.app.polygons.splitLine(d, dot);
 	}
-}
+};
 
 function PolygonMode(app) {
 	this.app = app;
@@ -114,9 +115,9 @@ PolygonMode.prototype.onDrag = function(d, i) {
 	}
 
 	var p = this.app.selectedItem;
-	p.draggingLine.d2.x = src.x
-	p.draggingLine.d2.y = src.y
-}
+	p.draggingLine.d2.x = src.x;
+	p.draggingLine.d2.y = src.y;
+};
 
 PolygonMode.prototype.onDragEnd = function(d, i) {
 	if (!(d instanceof Dot)) {
@@ -129,4 +130,4 @@ PolygonMode.prototype.onDragEnd = function(d, i) {
 	if (hover instanceof Dot) {
 		p.addInnerLine(d, hover);
 	}
-}
+};

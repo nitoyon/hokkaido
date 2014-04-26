@@ -53,7 +53,7 @@ LineList.prototype.create = function(d1, d2) {
 		this.id2line[l.id] = l;
 		return l;
 	}
-}
+};
 
 LineList.prototype.delDot = function(d) {
 	for (var i = this.list.length - 1; i >= 0; i--) {
@@ -71,7 +71,7 @@ LineList.prototype.del = function(l) {
 		this.list.splice(index, 1);
 		delete this.id2line[l.id];
 	}
-}
+};
 
 
 function Line(d1, d2) {
@@ -90,7 +90,7 @@ function Line(d1, d2) {
 
 Line.prototype.contains = function(d) {
 	return (this.d1 == d || this.d2 == d);
-}
+};
 
 
 function PolygonList(allLines) {
@@ -100,7 +100,7 @@ function PolygonList(allLines) {
 }
 
 PolygonList.prototype.createAddingPolygon = function() {
-	if (this.addingPolygon == null) {
+	if (this.addingPolygon === null) {
 		this.addingPolygon = new Polygon(this, this.allLines);
 		this.list.push(this.addingPolygon);
 		return true;
@@ -223,7 +223,7 @@ Polygon.prototype = {
 
 			this.allLines.delDot(d);
 
-			if (this.dots.length == 0) {
+			if (this.dots.length === 0) {
 				this.container.del(this);
 				return;
 			} else {
@@ -266,7 +266,7 @@ Polygon.prototype = {
 		}
 		if (i1 + 1 == i2) {
 			this.dots.splice(i2, 0, dot);
-		} else if (i1 == 0 && i2 == this.dots.length - 1) {
+		} else if (i1 === 0 && i2 === this.dots.length - 1) {
 			this.dots.push(dot);
 		} else {
 			throw new Error('invalid polygon');
@@ -289,9 +289,10 @@ Polygon.prototype = {
 
 	updateLines: function() {
 		this.lines = [];
+		var d1, d2;
 		for (var i = 0; i < this.dots.length - 1; i++) {
-			var d1 = this.dots[i];
-			var d2 = this.dots[i + 1];
+			d1 = this.dots[i];
+			d2 = this.dots[i + 1];
 			this.lines.push(this.allLines.create(d1, d2));
 		}
 
