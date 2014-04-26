@@ -1,15 +1,16 @@
 (function(exports) {
 'use strict';
 
-function PolygonList(allLines) {
+var LineFactory = require('./line').LineFactory;
+
+function PolygonList() {
 	this.list = [];
-	this.allLines = allLines;
 	this.addingPolygon = null;
 }
 
 PolygonList.prototype.createAddingPolygon = function() {
 	if (this.addingPolygon === null) {
-		this.addingPolygon = new Polygon(this, this.allLines);
+		this.addingPolygon = new Polygon(this);
 		this.list.push(this.addingPolygon);
 		return true;
 	}
@@ -66,7 +67,7 @@ PolygonList.prototype.deserialize = function(data) {
 	var self = this;
 
 	this.list = data.map(function(entry) {
-		var polygon = new Polygon(self, self.allLines);
+		var polygon = new Polygon(self);
 		entry.forEach(function(pos) {
 			var key = pos.join(",");
 			var dot;
@@ -86,7 +87,6 @@ PolygonList.prototype.splitLine = function(line, dot) {
 	for (var i = 0; i < this.list.length; i++) {
 		this.list[i].splitLine(line, dot);
 	}
-	this.allLines.del(line);
 };
 
 PolygonList.prototype.closeAddingPolygon = function() {
@@ -97,9 +97,8 @@ PolygonList.prototype.closeAddingPolygon = function() {
 };
 
 
-function Polygon(container, allLines) {
+function Polygon(container) {
 	this.dots = [];
-	this.allLines = allLines;
 	this.lines = [];
 	this.innerLines = [];
 	this.lastDot = null;
@@ -142,8 +141,6 @@ Polygon.prototype = {
 		if (index >= 0) {
 			this.dots.splice(index, 1);
 			d.removeAllListeners("exit");
-
-			this.allLines.delDot(d);
 
 			if (this.dots.length === 0) {
 				this.container.del(this);
@@ -206,7 +203,7 @@ Polygon.prototype = {
 			return;
 		}
 
-		this.innerLines.push(this.allLines.create(d1, d2));
+		this.innerLines.push(LineFactory.get(d1, d2));
 	},
 
 	updateLines: function() {
@@ -215,13 +212,13 @@ Polygon.prototype = {
 		for (var i = 0; i < this.dots.length - 1; i++) {
 			d1 = this.dots[i];
 			d2 = this.dots[i + 1];
-			this.lines.push(this.allLines.create(d1, d2));
+			this.lines.push(LineFactory.get(d1, d2));
 		}
 
 		if (this.isClose && this.dots.length > 2) {
 			d1 = this.dots[0];
 			d2 = this.dots[this.dots.length - 1];
-			this.lines.push(this.allLines.create(d1, d2));
+			this.lines.push(LineFactory.get(d1, d2));
 		}
 	}
 };

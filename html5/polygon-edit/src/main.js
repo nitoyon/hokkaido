@@ -15,8 +15,7 @@ MapEditor.prototype = {
 	},
 
 	initModel: function() {
-		this.lines = new LineList();
-		this.polygons = new PolygonList(this.lines);
+		this.polygons = new PolygonList();
 
 		if (localStorage.polygon) {
 			var data = JSON.parse(localStorage.polygon);

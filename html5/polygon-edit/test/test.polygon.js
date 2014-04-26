@@ -8,7 +8,7 @@ var assert = require('chai').assert
 
 describe('PolygonList', function() {
   it('should create adding polygon', function() {
-    var list = new PolygonList(new LineList());
+    var list = new PolygonList();
     assert.isTrue(list.createAddingPolygon());
     var polygon = list.addingPolygon;
     assert.isFalse(polygon.isClose);
@@ -16,7 +16,7 @@ describe('PolygonList', function() {
   });
 
   it('should close adding polygon', function() {
-    var list = new PolygonList(new LineList());
+    var list = new PolygonList();
     list.createAddingPolygon();
     var polygon = list.addingPolygon;
 
@@ -31,9 +31,8 @@ describe('PolygonList', function() {
 
 describe('PolygonList', function() {
   it('should update lines', function() {
-    var lines = new LineList();
-    var list = new PolygonList(lines);
-    var polygon = new Polygon(list, lines);
+    var list = new PolygonList();
+    var polygon = new Polygon(list);
 
     polygon.add(new Dot(2, 3));
     polygon.add(new Dot(3, 4));
@@ -53,9 +52,8 @@ describe('PolygonList', function() {
   });
 
   it('should del dot', function() {
-    var lines = new LineList();
-    var list = new PolygonList(lines);
-    var polygon = new Polygon(list, lines);
+    var list = new PolygonList();
+    var polygon = new Polygon(list);
 
     var d = new Dot(2, 3);
     polygon.add(d);
@@ -70,9 +68,8 @@ describe('PolygonList', function() {
   });
 
   it('should split line', function() {
-    var lines = new LineList();
-    var list = new PolygonList(lines);
-    var polygon = new Polygon(list, lines);
+    var list = new PolygonList();
+    var polygon = new Polygon(list);
 
     var d1 = new Dot(2, 3)
       , d2 = new Dot(3, 4)
