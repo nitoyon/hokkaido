@@ -32,15 +32,14 @@ ModeView.prototype = {
 	}
 };
 
-function DotView(app, dots) {
+function DotView(app) {
 	this.app = app;
-	this.dots = dots;
 
 	this.view = app.canvas.append("svg:g").attr("id", "dots");
 }
 DotView.prototype = {
 	update: function() {
-		var dots = this.dots.list;
+		var dots;
 		if (this.app.modeView.currentMode.name == 'polygon') {
 			var p = this.app.selectedItem;
 			if (p instanceof(Polygon)) {
@@ -48,6 +47,8 @@ DotView.prototype = {
 			} else {
 				dots = [];
 			}
+		} else {
+			dots = this.app.polygons.getDots();
 		}
 
 		var s = this.view.selectAll("circle")

@@ -42,11 +42,26 @@ PolygonList.prototype.getOuterLines = function() {
 	return ret;
 };
 
+PolygonList.prototype.getDots = function() {
+	var dots = {};
+	this.list.forEach(function(p) {
+		p.dots.forEach(function(d) {
+			dots[d.id] = d;
+		});
+	});
+
+	var ret = [];
+	for (var id in dots) {
+		ret.push(dots[id]);
+	}
+	return ret;
+};
+
 PolygonList.prototype.serialize = function() {
 	return this.list.map(function(polygon) { return polygon.serialize(); });
 };
 
-PolygonList.prototype.deserialize = function(data, dots) {
+PolygonList.prototype.deserialize = function(data) {
 	var dotmap = {};
 	var self = this;
 
@@ -56,8 +71,7 @@ PolygonList.prototype.deserialize = function(data, dots) {
 			var key = pos.join(",");
 			var dot;
 			if (!(key in dotmap)) {
-				dotmap[key] = dots.create(pos[0], pos[1]);
-				dots.add(dotmap[key]);
+				dotmap[key] = new Dot(pos[0], pos[1]);
 			}
 			dot = dotmap[key];
 

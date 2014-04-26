@@ -1,16 +1,15 @@
 'use strict';
 
 var assert = require('chai').assert
-  , DotList = require('../src/models/dot').DotList
+  , Dot = require('../src/models/dot').Dot
   , line = require('../src/models/line')
   , Line = line.Line
   , LineList = line.LineList;
 
 describe('LineList', function() {
   it('should cache', function() {
-    var dots = new DotList();
-    var d1 = dots.create(2, 3);
-    var d2 = dots.create(4, 5);
+    var d1 = new Dot(2, 3);
+    var d2 = new Dot(4, 5);
 
     var lines = new LineList();
     var l = lines.create(d1, d2);
@@ -24,9 +23,8 @@ describe('LineList', function() {
   });
 
   it('should del line', function() {
-    var dots = new DotList();
-    var d1 = dots.create(2, 3);
-    var d2 = dots.create(4, 5);
+    var d1 = new Dot(2, 3);
+    var d2 = new Dot(4, 5);
 
     var lines = new LineList();
     var l = lines.create(d1, d2);
@@ -37,10 +35,9 @@ describe('LineList', function() {
   });
 
   it('should del dot', function() {
-    var dots = new DotList();
-    var d1 = dots.create(2, 3);
-    var d2 = dots.create(4, 5);
-    var d3 = dots.create(6, 7);
+    var d1 = new Dot(2, 3);
+    var d2 = new Dot(4, 5);
+    var d3 = new Dot(6, 7);
 
     var lines = new LineList();
     lines.create(d1, d2);
@@ -56,10 +53,9 @@ describe('LineList', function() {
 
 describe('Line', function() {
   it('contains', function() {
-    var dots = new DotList();
-    var d1 = dots.create(2, 3);
-    var d2 = dots.create(4, 5);
-    var d3 = dots.create(6, 7);
+    var d1 = new Dot(2, 3);
+    var d2 = new Dot(4, 5);
+    var d3 = new Dot(6, 7);
 
     var lines = new LineList();
     var l = lines.create(d1, d2);

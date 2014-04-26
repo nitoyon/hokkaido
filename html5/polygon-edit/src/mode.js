@@ -48,9 +48,8 @@ PointMode.prototype.onClick = function(d, i) {
 	if (d === undefined) {
 		// click none -> add dot
 		p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
-		d = this.app.dots.create(p.x, p.y);
+		d = new Dot(p.x, p.y);
 		this.app.select(d);
-		this.app.dots.add(d);
 
 		this.app.polygons.createAddingPolygon();
 		this.app.polygons.addingPolygon.add(d);
@@ -67,8 +66,7 @@ PointMode.prototype.onClick = function(d, i) {
 	} else if (d instanceof Line) {
 		// click line -> add dot
 		p = this.app.zoom.clientToWorld(event.offsetX, event.offsetY);
-		var dot = this.app.dots.create(p.x, p.y);
-		this.app.dots.add(dot);
+		var dot = new Dot(p.x, p.y);
 		this.app.polygons.splitLine(d, dot);
 	}
 };

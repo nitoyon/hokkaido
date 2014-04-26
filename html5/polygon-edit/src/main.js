@@ -15,13 +15,12 @@ MapEditor.prototype = {
 	},
 
 	initModel: function() {
-		this.dots = new DotList();
 		this.lines = new LineList();
 		this.polygons = new PolygonList(this.lines);
 
 		if (localStorage.polygon) {
 			var data = JSON.parse(localStorage.polygon);
-			this.polygons.deserialize(data, this.dots);
+			this.polygons.deserialize(data);
 		}
 	},
 
@@ -32,7 +31,7 @@ MapEditor.prototype = {
 		this.mapContainer = this.canvas.append("svg:g").attr("id", "map_pathes");
 		this.polygonView = new PolygonView(this, this.polygons);
 		this.lineView = new LineView(this, this.polygons);
-		this.dotView = new DotView(this, this.dots);
+		this.dotView = new DotView(this);
 
 		this.modeView = new ModeView(this, [new PointMode(this), new PolygonMode(this)]);
 
