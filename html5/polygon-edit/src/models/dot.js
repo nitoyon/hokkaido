@@ -12,9 +12,6 @@ function Dot(x, y) {
 	EventEmitter2.call(this);
 }
 
-Dot.prototype = {};
-Object.create(EventEmitter2.prototype);
-
 Dot.id = 1;
 
 Dot.prototype = Object.create(EventEmitter2.prototype);
