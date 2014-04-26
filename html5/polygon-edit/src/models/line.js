@@ -47,7 +47,7 @@ function Line(d1, d2) {
 		this.d1 = d2;
 		this.d2 = d1;
 	}
-	this.id = d1.id + "," + d2.id;
+	this.id = this.d1.id + "," + this.d2.id;
 }
 
 Line.prototype.contains = function(d) {
@@ -58,4 +58,4 @@ Line.prototype.contains = function(d) {
 exports.LineList = LineList;
 exports.Line = Line;
 
-})(typeof exports === 'undefined'? this : exports);
+})(typeof exports === 'undefined' ? this : exports);
