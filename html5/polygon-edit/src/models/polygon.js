@@ -1,3 +1,6 @@
+(function(exports) {
+'use strict';
+
 function PolygonList(allLines) {
 	this.list = [];
 	this.allLines = allLines;
@@ -208,3 +211,8 @@ Polygon.prototype = {
 		}
 	}
 };
+
+exports.PolygonList = PolygonList;
+exports.Polygon = Polygon;
+
+})(typeof exports === 'undefined' ? this : exports);
