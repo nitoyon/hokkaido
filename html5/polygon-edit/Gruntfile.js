@@ -6,13 +6,27 @@ module.exports = function(grunt) {
 
     watch: {
       src: {
-        files: ['src/*.js', 'Gruntfile.js'],
-        tasks: ['jshint', 'concat']
+        files: ['src/**/*.js', 'test/*.js', 'Gruntfile.js'],
+        tasks: ['build']
       }
     },
 
     jshint: {
-      all: ['Gruntfile.js', 'src/*.js']
+      all: ['Gruntfile.js', 'src/**/*.js', 'test/*.js'],
+      options: {
+        laxcomma: true,
+        node: true,
+        predef: ['describe', 'it']
+      }
+    },
+
+    mochaTest: {
+      test: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/test.*.js']
+      }
     },
 
     concat: {
@@ -28,7 +42,8 @@ module.exports = function(grunt) {
         },
         src: [
           'node_modules/eventemitter2/lib/eventemitter2.js',
-          'src/main.js', 'src/mode.js', 'src/model.js', 'src/view.js'
+          'src/main.js', 'src/models/*.js', 'src/mode.js',
+          'src/model.js', 'src/view.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }
@@ -43,8 +58,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('livereloadx');
 
-  grunt.registerTask('default', ['livereloadx', 'build', 'watch']);
-  grunt.registerTask('build', ['jshint', 'concat']);
+  grunt.registerTask('default', ['livereloadx', 'watch']);
+  grunt.registerTask('build', ['jshint', 'test', 'concat']);
+  grunt.registerTask('test', ['mochaTest']);
 };
