@@ -1,7 +1,8 @@
 (function(exports) {
 'use strict';
 
-var LineFactory = require('./line').LineFactory;
+var LineFactory = require('./line').LineFactory
+  , EventEmitter2 = require('eventemitter2').EventEmitter2;
 
 function PolygonList() {
 	this.list = [];
@@ -11,7 +12,7 @@ function PolygonList() {
 PolygonList.prototype.createAddingPolygon = function() {
 	if (this.addingPolygon === null) {
 		this.addingPolygon = new Polygon(this);
-		this.list.push(this.addingPolygon);
+		this.add(this.addingPolygon);
 		return true;
 	}
 	return false;
@@ -19,6 +20,11 @@ PolygonList.prototype.createAddingPolygon = function() {
 
 PolygonList.prototype.add = function(polygon) {
 	this.list.push(polygon);
+
+	var self = this;
+	polygon.once('exit', function(p) {
+		self.del(p);
+	});
 };
 
 PolygonList.prototype.del = function(polygon) {
@@ -97,16 +103,20 @@ PolygonList.prototype.closeAddingPolygon = function() {
 };
 
 
-function Polygon(container) {
+function Polygon() {
 	this.dots = [];
 	this.lines = [];
 	this.innerLines = [];
 	this.lastDot = null;
-	this.container = container;
 	this.id = Polygon.id++;
 	this.isClose = false;
+
+	EventEmitter2.call(this);
 }
+
 Polygon.id = 1;
+Polygon.prototype = Object.create(EventEmitter2.prototype);
+Polygon.prototype.constructor = Polygon;
 
 Polygon.isNeighborDot = function(dots, d1, d2) {
 	var i1 = dots.indexOf(d1);
@@ -121,105 +131,102 @@ Polygon.isNeighborDot = function(dots, d1, d2) {
 	return (Math.abs(i2 - i1) == 1 || Math.abs(i2 - i1) == dots.length - 1);
 };
 
-Polygon.prototype = {
-	add: function(d) {
-		var index = this.dots.indexOf(d);
-		if (index >= 0) {
-			return index;
-		}
+Polygon.prototype.add = function(d) {
+	var index = this.dots.indexOf(d);
+	if (index >= 0) {
+		return index;
+	}
 
-		this.dots.push(d);
-		this.updateLines();
+	this.dots.push(d);
+	this.updateLines();
 
-		var self = this;
-		d.on("exit", function() { console.log('called'); self.del(d); });
-		return this.dots.length - 1;
-	},
+	var self = this;
+	d.once("exit", function() { self.del(d); });
+	return this.dots.length - 1;
+};
 
-	del: function(d) {
-		var index = this.dots.indexOf(d);
-		if (index >= 0) {
-			this.dots.splice(index, 1);
-			d.removeAllListeners("exit");
+Polygon.prototype.del = function(d) {
+	var index = this.dots.indexOf(d);
+	if (index >= 0) {
+		this.dots.splice(index, 1);
 
-			if (this.dots.length === 0) {
-				this.container.del(this);
-				return;
-			} else {
-				this.updateLines();
-			}
-		}
-	},
-
-	contains: function(d) {
-		return this.dots.indexOf(d) >= 0;
-	},
-
-	toPoints: function() {
-		return this.dots.map(function(p) { return p.x + "," + p.y; }).join(" ");
-	},
-
-	serialize: function() {
-		return this.dots.map(function(dot) {
-			return [dot.x, dot.y];
-		});
-	},
-
-	close: function() {
-		this.isClose = true;
-		this.updateLines();
-	},
-
-	splitLine: function(line, dot) {
-		var index = this.lines.indexOf(line);
-		if (index < 0) {
+		if (this.dots.length <= 2) {
+			this.emit('exit', this);
 			return;
-		}
-
-		var i1 = this.dots.indexOf(line.d1);
-		var i2 = this.dots.indexOf(line.d2);
-		if (i1 > i2) {
-			var tmp = i2;
-			i2 = i1;
-			i1 = tmp;
-		}
-		if (i1 + 1 == i2) {
-			this.dots.splice(i2, 0, dot);
-		} else if (i1 === 0 && i2 === this.dots.length - 1) {
-			this.dots.push(dot);
 		} else {
-			throw new Error('invalid polygon');
+			this.updateLines();
 		}
+	}
+};
 
-		var self = this;
-		dot.on("exit", function() { self.del(dot); });
+Polygon.prototype.contains = function(d) {
+	return this.dots.indexOf(d) >= 0;
+};
 
-		this.updateLines();
-	},
+Polygon.prototype.toPoints = function() {
+	return this.dots.map(function(p) { return p.x + "," + p.y; }).join(" ");
+};
 
-	addInnerLine: function(d1, d2) {
-		if (Polygon.isNeighborDot(this.dots, d1, d2)) {
-			alert('cannot connect neighborhood dots!!');
-			return;
-		}
+Polygon.prototype.serialize = function() {
+	return this.dots.map(function(dot) {
+		return [dot.x, dot.y];
+	});
+};
 
-		this.innerLines.push(LineFactory.get(d1, d2));
-	},
+Polygon.prototype.close = function() {
+	this.isClose = true;
+	this.updateLines();
+};
 
-	updateLines: function() {
-		this.lines = [];
-		var d1, d2;
-		for (var i = 0; i < this.dots.length - 1; i++) {
-			d1 = this.dots[i];
-			d2 = this.dots[i + 1];
-			this.lines.push(LineFactory.get(d1, d2));
-		}
+Polygon.prototype.splitLine = function(line, dot) {
+	var index = this.lines.indexOf(line);
+	if (index < 0) {
+		return;
+	}
 
-		if (this.isClose && this.dots.length > 2) {
-			d1 = this.dots[0];
-			d2 = this.dots[this.dots.length - 1];
-			this.lines.push(LineFactory.get(d1, d2));
-		}
+	var i1 = this.dots.indexOf(line.d1);
+	var i2 = this.dots.indexOf(line.d2);
+	if (i1 > i2) {
+		var tmp = i2;
+		i2 = i1;
+		i1 = tmp;
+	}
+	if (i1 + 1 == i2) {
+		this.dots.splice(i2, 0, dot);
+	} else if (i1 === 0 && i2 === this.dots.length - 1) {
+		this.dots.push(dot);
+	} else {
+		throw new Error('invalid polygon');
+	}
+
+	var self = this;
+	dot.once("exit", function() { self.del(dot); });
+
+	this.updateLines();
+};
+
+Polygon.prototype.addInnerLine = function(d1, d2) {
+	if (Polygon.isNeighborDot(this.dots, d1, d2)) {
+		alert('cannot connect neighborhood dots!!');
+		return;
+	}
+
+	this.innerLines.push(LineFactory.get(d1, d2));
+};
+
+Polygon.prototype.updateLines = function() {
+	this.lines = [];
+	var d1, d2;
+	for (var i = 0; i < this.dots.length - 1; i++) {
+		d1 = this.dots[i];
+		d2 = this.dots[i + 1];
+		this.lines.push(LineFactory.get(d1, d2));
+	}
+
+	if (this.isClose && this.dots.length > 2) {
+		d1 = this.dots[0];
+		d2 = this.dots[this.dots.length - 1];
+		this.lines.push(LineFactory.get(d1, d2));
 	}
 };
 

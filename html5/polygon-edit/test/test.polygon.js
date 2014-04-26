@@ -29,10 +29,9 @@ describe('PolygonList', function() {
   });
 });
 
-describe('PolygonList', function() {
+describe('Polygon', function() {
   it('should update lines', function() {
-    var list = new PolygonList();
-    var polygon = new Polygon(list);
+    var polygon = new Polygon();
 
     polygon.add(new Dot(2, 3));
     polygon.add(new Dot(3, 4));
