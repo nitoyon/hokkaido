@@ -75,8 +75,9 @@ PolygonList.prototype.deserialize = function(data) {
 	var dotmap = {};
 	var self = this;
 
-	this.list = data.map(function(entry) {
-		var polygon = new Polygon(self);
+	data.map(function(entry) {
+		var polygon = new Polygon();
+		if (entry.length === 0) { return null; }
 		entry.forEach(function(pos) {
 			var key = pos.join(",");
 			var dot;
@@ -89,6 +90,10 @@ PolygonList.prototype.deserialize = function(data) {
 		});
 		polygon.close();
 		return polygon;
+	}).forEach(function(polygon) {
+		if (polygon !== null) {
+			self.add(polygon);
+		}
 	});
 };
 

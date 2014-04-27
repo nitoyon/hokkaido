@@ -139,9 +139,11 @@ MapEditor.prototype = {
 	select: function(item) {
 		var prev = this.unselect();
 
-		this.selectedItem = item;
 		if (item) {
+			this.selectedItem = item;
 			item.isSelected = true;
+		} else {
+			this.selectedItem = null;
 		}
 		return prev;
 	},
