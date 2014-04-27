@@ -130,10 +130,11 @@ LineView.prototype = {
 	},
 
 	updatePointMode: function() {
-		var s = this.view.selectAll("line")
+		var s = this.view.selectAll("line.outer")
 			.data(this.polygons.getOuterLines());
 		s.enter()
 			.append("line")
+			.classed("outer", true)
 			.call(this.app.drag);
 		s.exit().remove();
 		s
