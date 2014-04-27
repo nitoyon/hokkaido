@@ -1,0 +1,82 @@
+'use strict'
+
+{assert} = require 'chai'
+{PolygonList} = require '../src/models/polygon'
+{Polygon} = require '../src/models/polygon'
+{Dot} = require '../src/models/dot'
+{LineList} = require '../src/models/line'
+
+describe 'PolygonList', ->
+  it 'should create adding polygon', ->
+    list = new PolygonList()
+    assert.isTrue list.createAddingPolygon()
+    polygon = list.addingPolygon
+    assert.isFalse polygon.isClose
+    assert.equal 1, list.list.length
+
+  it 'should close adding polygon', ->
+    list = new PolygonList()
+    list.createAddingPolygon()
+    polygon = list.addingPolygon
+
+    polygon.add(new Dot(2, 3))
+    polygon.add(new Dot(3, 4))
+    polygon.add(new Dot(4, 5))
+    list.closeAddingPolygon()
+
+    assert.isTrue polygon.isClose
+
+describe 'Polygon', ->
+  it 'should update lines', ->
+    polygon = new Polygon()
+
+    polygon.add(new Dot(2, 3))
+    polygon.add(new Dot(3, 4))
+    assert.equal 1, polygon.lines.length
+
+    polygon.add(new Dot(4, 5))
+    assert.equal 2, polygon.lines.length
+
+    polygon.add(new Dot(6, 7))
+    assert.equal 3, polygon.lines.length
+
+    polygon.close()
+    assert.equal 4, polygon.lines.length
+
+    polygon.add(new Dot(8, 9))
+    assert.equal 5, polygon.lines.length
+
+  it 'should del dot', ->
+    polygon = new Polygon()
+
+    d = new Dot(2, 3)
+    polygon.add(d)
+    polygon.add(new Dot(3, 4))
+    polygon.add(new Dot(4, 5))
+    polygon.add(new Dot(5, 6))
+    polygon.close()
+    assert.equal 4, polygon.lines.length
+
+    polygon.del(d)
+    assert.equal 3, polygon.lines.length
+
+  it 'should split line', ->
+    polygon = new Polygon()
+
+    d1 = new Dot(2, 3)
+    d2 = new Dot(3, 4)
+    d3 = new Dot(4, 5)
+    d4 = new Dot(5, 6)
+    polygon.add(d1)
+    polygon.add(d2)
+    polygon.add(d3)
+    polygon.close()
+    assert.equal 3, polygon.lines.length
+
+    polygon.splitLine(polygon.lines[0], d4)
+    assert.equal 4, polygon.lines.length
+    assert.equal 4, polygon.dots.length
+    assert.strictEqual d1, polygon.dots[0]
+    assert.strictEqual d4, polygon.dots[1]
+    assert.strictEqual d2, polygon.dots[2]
+    assert.strictEqual d3, polygon.dots[3]

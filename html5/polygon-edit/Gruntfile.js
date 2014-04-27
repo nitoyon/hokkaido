@@ -6,7 +6,10 @@ module.exports = function(grunt) {
 
     watch: {
       src: {
-        files: ['src/**/*.js', 'src/**/*.coffee', 'test/*.js', 'Gruntfile.js'],
+        files: [
+          'src/**/*.js', 'src/**/*.coffee',
+          'test/*.js', 'test/*.coffee', 'Gruntfile.js'
+        ],
         tasks: ['build']
       }
     },
@@ -37,7 +40,7 @@ module.exports = function(grunt) {
         options: {
           reporter: 'spec'
         },
-        src: ['test/test.*.js']
+        src: ['test/test.*.js', 'test/test.*.coffee']
       }
     },
 
