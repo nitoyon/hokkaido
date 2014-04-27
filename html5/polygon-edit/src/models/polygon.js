@@ -32,6 +32,9 @@ PolygonList.prototype.del = function(polygon) {
 	if (index >= 0) {
 		this.list.splice(index, 1);
 	}
+	if (this.addingPolygon == polygon) {
+		this.addingPolygon = null;
+	}
 };
 
 PolygonList.prototype.getOuterLines = function() {
