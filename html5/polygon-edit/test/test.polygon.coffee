@@ -26,9 +26,75 @@ describe 'PolygonList', ->
 
     assert.isTrue polygon.isClose
 
+  describe 'serialize', ->
+    it 'should serialize vacant polygons', ->
+      list = new PolygonList()
+      assert.deepEqual [], list.serialize()
+
+    it 'should serialize multiple polygons', ->
+      d1 = new Dot(2, 3)
+
+      list = new PolygonList()
+      list.add(new Polygon(d1, new Dot(3, 4), new Dot(4, 5)))
+      list.add(new Polygon(d1, new Dot(6, 7), new Dot(7, 8)))
+      assert.deepEqual [
+        [[2,3], [3,4], [4,5]],
+        [[2,3], [6,7], [7,8]],
+      ], list.serialize()
+
+  describe 'deserialize', ->
+    it 'should deserialize vacant polygons', ->
+      list = new PolygonList()
+      list.deserialize([])
+      assert.equal 0, list.list.length
+
+    it 'should deserialize multiple polygons', ->
+      list = new PolygonList()
+      list.deserialize [
+        [[2,3], [3,4], [4,5], [5,6], [7,8]],
+        [[2,3], [6,7], [7,8], [8,9]],
+      ]
+      assert.equal 2, list.list.length
+      assert.strictEqual list.list[0].dots[0], list.list[1].dots[0]
+      assert.equal 5, list.list[0].dots.length
+      assert.equal 5, list.list[0].lines.length
+      assert.equal 2, list.list[0].dots[0].x
+      assert.equal 3, list.list[0].dots[0].y
+      assert.equal 4, list.list[1].dots.length
+      assert.equal 4, list.list[1].lines.length
+
 describe 'Polygon', ->
+  describe 'constructor', ->
+    it 'should create vacant polygon', ->
+      p = new Polygon()
+      assert.equal 0, p.dots.length
+
+    it 'should create triangle', ->
+      p = new Polygon(new Dot(2, 3), new Dot(3, 4), new Dot(4, 5))
+      assert.equal 3, p.dots.length
+      assert.equal 3, p.lines.length
+
+  describe 'isNeighborDot', ->
+    it 'should return true on neighbor dots', ->
+      dots = [
+        new Dot(), new Dot(), new Dot(), new Dot()
+      ]
+      assert.isTrue Polygon.isNeighborDot dots, dots[0], dots[1]
+      assert.isTrue Polygon.isNeighborDot dots, dots[1], dots[0]
+      assert.isTrue Polygon.isNeighborDot dots, dots[1], dots[2]
+      assert.isTrue Polygon.isNeighborDot dots, dots[2], dots[3]
+      assert.isTrue Polygon.isNeighborDot dots, dots[3], dots[0]
+
+    it 'should return false on not neighbor dots', ->
+      dots = [
+        new Dot(), new Dot(), new Dot(), new Dot()
+      ]
+      assert.isFalse Polygon.isNeighborDot dots, dots[0], dots[2]
+      assert.isFalse Polygon.isNeighborDot dots, dots[1], dots[3]
+
   it 'should update lines', ->
     polygon = new Polygon()
+    polygon.isClose = false
 
     polygon.add(new Dot(2, 3))
     polygon.add(new Dot(3, 4))

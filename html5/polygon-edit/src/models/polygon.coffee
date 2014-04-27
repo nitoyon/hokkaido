@@ -3,6 +3,8 @@ root = exports ? this
 
 LineFactory = require('./line').LineFactory
 LineFactory ?= @LineFactory
+{Dot} = require('./dot')
+Dot ?= @Dot
 EventEmitter2 = require('eventemitter2').EventEmitter2
 EventEmitter2 ?= @EventEmitter2
 
@@ -16,6 +18,7 @@ class PolygonList
       false
     else
       @addingPolygon = new Polygon()
+      @addingPolygon.isClose = false
       @add(@addingPolygon)
       return true
 
@@ -55,15 +58,9 @@ class PolygonList
 
     data.forEach (entry) =>
       polygon = new Polygon()
-      return null if entry.length == 0
+      return if entry.length == 0
 
-      entry.forEach (pos) ->
-        key = pos.join ","
-        unless key of dotmap
-          dotmap[key] = new Dot(pos[0], pos[1])
-        dot = dotmap[key]
-        polygon.add dot
-      polygon.close()
+      polygon.deserialize entry, dotmap
       @add polygon
 
   splitLine: (line, dot) ->
@@ -79,13 +76,16 @@ class PolygonList
 class Polygon extends EventEmitter2
   @id = 1
 
-  constructor: ->
+  constructor: (dots...)->
     @dots = []
     @lines = []
     @innerLines = []
     @lastDot = null
     @id = @constructor.id++
-    @isClose = false
+    @isClose = true
+
+    @add dot for dot in dots
+    @updateLines()
 
   @isNeighborDot: (dots, d1, d2) ->
     i1 = dots.indexOf d1
@@ -125,9 +125,18 @@ class Polygon extends EventEmitter2
   toPoints: ->
     (@dots.map (p) -> "#{p.x},#{p.y}").join(" ")
 
+  # [ [dot1.x, dot1.y], [dot2.x, dot2.y], ...]
   serialize: ->
     @dots.map (dot) ->
       [dot.x, dot.y]
+
+  deserialize: (dots, dotmap) ->
+    dots.forEach (pos) =>
+      key = pos.join ","
+      unless key of dotmap
+        dotmap[key] = new Dot(pos[0], pos[1])
+      dot = dotmap[key]
+      @add dot
 
   close: ->
     @isClose = true
