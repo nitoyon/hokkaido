@@ -8,19 +8,23 @@ module.exports = function(grunt) {
       src: {
         files: [
           'src/**/*.js', 'src/**/*.coffee',
-          'test/*.js', 'test/*.coffee', 'Gruntfile.js'
+          'test/*.coffee', 'Gruntfile.js'
         ],
         tasks: ['build']
       }
     },
 
     jshint: {
-      all: ['Gruntfile.js', 'src/**/*.js', 'test/*.js'],
+      all: ['Gruntfile.js', 'src/**/*.js'],
       options: {
         laxcomma: true,
         node: true,
         predef: ['describe', 'it']
       }
+    },
+
+    coffeelint: {
+      all: ['src/**/*.coffee', 'test/test.*.coffee']
     },
 
     coffee: {
@@ -40,7 +44,7 @@ module.exports = function(grunt) {
         options: {
           reporter: 'spec'
         },
-        src: ['test/test.*.js', 'test/test.*.coffee']
+        src: ['test/test.*.coffee']
       }
     },
 
@@ -74,10 +78,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-coffeelint');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('livereloadx');
 
   grunt.registerTask('default', ['livereloadx', 'watch']);
-  grunt.registerTask('build', ['coffee', 'jshint', 'test', 'concat']);
+  grunt.registerTask('build', [
+    'coffeelint', 'coffee', 'jshint', 'test', 'concat'
+  ]);
   grunt.registerTask('test', ['mochaTest']);
 };
