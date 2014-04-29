@@ -25,10 +25,12 @@ class Line
       @d2 = d1
     @id = @d1.id + "," + @d2.id
 
-
   contains: (d) ->
     @d1 == d || @d2 == d
 
+  getAnotherDot: (d) ->
+    throw new Error('invalid dot is given') unless @contains d
+    if d == @d1 then @d2 else @d1
 
 root.LineFactory = LineFactory
 root.Line = Line
