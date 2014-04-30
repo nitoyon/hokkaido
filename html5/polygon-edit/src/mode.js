@@ -92,6 +92,9 @@ PolygonMode.prototype.onDragStart = function(d, i) {
 	}
 
 	var p = this.app.selectedItem;
+	p.getInnerLineCandidates(d).forEach(function (dot) {
+		dot.canDrop = true;
+	});
 	p.draggingLine = {
 		d1: d,
 		d2: {x: 0, y: 0}
@@ -125,7 +128,9 @@ PolygonMode.prototype.onDragEnd = function(d, i) {
 	var p = this.app.selectedItem;
 	p.draggingLine = null;
 	var hover = d3.select(d3.event.sourceEvent.target).datum();
-	if (hover instanceof Dot) {
+	if (hover instanceof Dot && hover.canDrop) {
 		p.addInnerLine(d, hover);
 	}
+
+	p.dots.forEach(function(dot) { dot.canDrop = false; });
 };

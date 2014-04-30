@@ -69,6 +69,10 @@ svg#map {
   fill: blue;
 }
 
+#dots circle.can_drop {
+  fill: green;
+}
+
 #lines line {
   stroke: black;
   cursor: pointer;

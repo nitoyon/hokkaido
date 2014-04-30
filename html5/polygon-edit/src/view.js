@@ -59,6 +59,7 @@ DotView.prototype = {
 		s.exit().remove();
 		s
 			.classed("selected", function(d) { return d.isSelected; })
+			.classed("can_drop", function(d) { return d.canDrop; })
 			.attr("cx", function(d) { return d.x; })
 			.attr("cy", function(d) { return d.y; })
 			.attr("r", 5 / this.app.zoom.scale);
