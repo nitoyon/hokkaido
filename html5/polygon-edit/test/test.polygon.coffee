@@ -146,3 +146,66 @@ describe 'Polygon', ->
     assert.strictEqual d4, polygon.dots[1]
     assert.strictEqual d2, polygon.dots[2]
     assert.strictEqual d3, polygon.dots[3]
+
+  describe 'group', ->
+    it 'should be one when no inner lines exist', ->
+      # d1 o-----o d2
+      #    |     |
+      #    |     |
+      # d4 o-----o d3
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4)
+
+      assert.lengthOf polygon.groups, 1
+
+      g = polygon.groups[0]
+      assert.lengthOf g, 4
+      assert.deepEqual [d1, d2, d3, d4], g
+
+    it 'should be two when one inner line exists', ->
+      # d1 o-----o d2
+      #    | ___/|
+      #    |/    |
+      # d5 o--o--o d3
+      #       d4
+      [d1, d2, d3, d4, d5] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5)
+      polygon.addInnerLine(d2, d5)
+
+      assert.lengthOf polygon.groups, 2
+
+      g = polygon.groups[0]
+      assert.lengthOf g, 3
+      assert.deepEqual [d1, d2, d5], g
+
+      g = polygon.groups[1]
+      assert.lengthOf g, 4
+      assert.deepEqual [d2, d3, d4, d5], g
+
+    it 'should be valid when two inner line exists', ->
+      # d1 o---o d2
+      #    | _/|
+      #    |/  |
+      # d5 o---o d3
+      #     \ /
+      #      o d4
+      [d1, d2, d3, d4, d5] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5)
+      polygon.addInnerLine(d2, d5)
+      polygon.addInnerLine(d3, d5)
+
+      assert.lengthOf polygon.groups, 3
+
+      g = polygon.groups[0]
+      assert.lengthOf g, 3
+      assert.deepEqual [d1, d2, d5], g
+
+      g = polygon.groups[1]
+      assert.lengthOf g, 3
+      assert.deepEqual [d2, d3, d5], g
+
+      g = polygon.groups[2]
+      assert.lengthOf g, 3
+      assert.deepEqual [d3, d4, d5], g

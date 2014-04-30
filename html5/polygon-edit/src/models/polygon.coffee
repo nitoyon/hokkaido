@@ -79,13 +79,14 @@ class Polygon extends EventEmitter2
   constructor: (dots...)->
     @dots = []
     @lines = []
+    @groups = []
     @innerLines = []
     @lastDot = null
     @id = @constructor.id++
     @isClose = true
 
-    @add dot for dot in dots
-    @updateLines()
+    @add dot, true for dot in dots
+    @update()
 
   @isNeighborDot: (dots, d1, d2) ->
     i1 = dots.indexOf d1
@@ -98,13 +99,13 @@ class Polygon extends EventEmitter2
     # neighbor -> true
     (Math.abs(i2 - i1) == 1 || Math.abs(i2 - i1) == dots.length - 1)
 
-  add: (d) ->
+  add: (d, preventUpdate) ->
     index = @dots.indexOf(d)
     if index >= 0
       return index
 
     @dots.push d
-    @updateLines()
+    @update() unless preventUpdate
 
     d.once "exit", => @del d
     @dots.length - 1
@@ -117,7 +118,7 @@ class Polygon extends EventEmitter2
       if @dots.length <= 2
         @emit 'exit', this
       else
-        @updateLines()
+        @update()
 
   contains: (d) ->
     @dots.indexOf d >= 0
@@ -140,7 +141,7 @@ class Polygon extends EventEmitter2
 
   close: ->
     @isClose = true
-    @updateLines()
+    @update()
 
   splitLine: (line, dot) ->
     index = @lines.indexOf line
@@ -161,7 +162,7 @@ class Polygon extends EventEmitter2
 
     dot.once "exit", => @del(dot)
 
-    @updateLines()
+    @update()
 
   addInnerLine: (d1, d2) ->
     if @constructor.isNeighborDot @.dots, d1, d2
@@ -169,6 +170,11 @@ class Polygon extends EventEmitter2
       return
 
     @innerLines.push LineFactory.get(d1, d2)
+    @update()
+
+  update: ->
+    @updateLines()
+    @updateGroups()
 
   updateLines: ->
     @lines = []
@@ -183,6 +189,68 @@ class Polygon extends EventEmitter2
       d1 = @dots[0]
       d2 = @dots[@dots.length - 1]
       @lines.push LineFactory.get(d1, d2)
+
+  @getDotsOfLineAscending: (dots, line) ->
+    i1 = dots.indexOf line.d1
+    i2 = dots.indexOf line.d2
+    throw new Error("line is not contains dots") if i1 == -1 or i2 == -1
+    [i1, i2] = [i2, i1] if i1 > i2
+    [i1, i2] = [i2, i1] if i1 == 0 && i2 == dots.length - 1
+    return [dots[i1], dots[i2], i1, i2]
+
+  getConnectedDots: (dot) ->
+    ret = []
+    for line in @lines.concat @innerLines
+      if line.contains dot
+        d = line.getAnotherDot dot
+        ret.push dot: d, index: @dots.indexOf d
+    ret
+
+  findGroup: (line) ->
+    [startDot, curDot, startIndex, curIndex] =
+      @constructor.getDotsOfLineAscending(@dots, line)
+    ret = [startDot]
+    prevDot = startDot
+
+    #console.log "findGroup; ", startDot.id, curDot.id
+    while startDot != curDot
+      ret.push curDot
+
+      # find the next dot
+      connectedDots = @getConnectedDots(curDot).filter (d) -> d.dot != prevDot
+      connectedDots.forEach (d) =>
+        if d.index > startIndex
+          d.distance = startIndex + @dots.length - d.index
+        else
+          d.distance = startIndex - d.index
+      connectedDots.sort (x, y) -> x.distance - y.distance
+      #console.log connectedDots
+      break if connectedDots.length == 0
+
+      prevDot = curDot
+      curDot = connectedDots[0].dot
+
+    ret
+
+  updateGroups: ->
+    @groups = []
+    lines = @lines[..]
+
+    unless @isClose
+      @groups = [@dots[..]]
+      return
+
+    while lines.length > 0
+      # find the group which contains the first line
+      line = lines.shift()
+      group = @findGroup line
+      @groups.push group
+
+      # update remaining lines
+      for dot, i in group
+        line = LineFactory.get(dot, group[(i + 1) % group.length])
+        index = lines.indexOf line
+        lines.splice index, 1 if index >= 0
 
 root.PolygonList = PolygonList
 root.Polygon = Polygon
