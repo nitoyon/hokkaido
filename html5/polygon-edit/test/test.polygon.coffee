@@ -64,6 +64,10 @@ describe 'PolygonList', ->
       assert.equal 4, list.list[1].lines.length
 
 describe 'Polygon', ->
+  beforeEach ->
+    Dot.id = 1
+    LineFactory.id2line = {}
+
   describe 'constructor', ->
     it 'should create vacant polygon', ->
       p = new Polygon()
@@ -204,3 +208,37 @@ describe 'Polygon', ->
       g = polygon.groups[2]
       assert.lengthOf g, 3
       assert.deepEqual [d3, d4, d5], g
+
+  describe 'getInnerLineCandidates', ->
+    it 'should be valid when no inner lines exist', ->
+      # d1  d2  d3
+      #  o---o---o
+      #  |       |
+      #  o---o---o
+      # d6  d5  d4
+      [d1, d2, d3, d4, d5, d6] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5, d6)
+
+      assert.deepEqual [d3, d4, d5], polygon.getInnerLineCandidates(d1), 'd1'
+      assert.deepEqual [d4, d5, d6], polygon.getInnerLineCandidates(d2), 'd2'
+      assert.deepEqual [d1, d5, d6], polygon.getInnerLineCandidates(d3), 'd3'
+
+    it 'should be valid when one inner lines exist', ->
+      # d1  d2  d3
+      #  o---o---o
+      #  | _____/|
+      #  |/      |
+      #  o---o---o
+      # d6  d5  d4
+      [d1, d2, d3, d4, d5, d6] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5, d6)
+      polygon.addInnerLine d3, d6
+
+      assert.deepEqual [d3], polygon.getInnerLineCandidates(d1), 'd1'
+      assert.deepEqual [d6], polygon.getInnerLineCandidates(d2), 'd2'
+      assert.deepEqual [d1, d5], polygon.getInnerLineCandidates(d3), 'd3'
+      assert.deepEqual [d6], polygon.getInnerLineCandidates(d4), 'd4'
+      assert.deepEqual [d3], polygon.getInnerLineCandidates(d5), 'd5'
+      assert.deepEqual [d2, d4], polygon.getInnerLineCandidates(d6), 'd6'

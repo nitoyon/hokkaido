@@ -164,6 +164,16 @@ class Polygon extends EventEmitter2
 
     @update()
 
+  getInnerLineCandidates: (d) ->
+    ret = []
+
+    groups = @groups.filter (g) -> g.indexOf(d) != -1
+    groups.forEach (group) ->
+      dots = group.filter (dot) ->
+        d != dot && !Polygon.isNeighborDot group, d, dot
+      ret = ret.concat dots
+    return ret
+
   addInnerLine: (d1, d2) ->
     if @constructor.isNeighborDot @.dots, d1, d2
       alert 'cannot connect neighborhood dots!!'
