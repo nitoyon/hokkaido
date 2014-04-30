@@ -15,7 +15,7 @@ Mode.prototype = {
 	onDrag: function(d, i) {
 		var event = d3.event;
 		var p = this.app.zoom.clientToWorld(event.x, event.y);
-		if (d === null) {
+		if (d === undefined) {
 			this.app.zoom.x += event.dx;
 			this.app.zoom.y += event.dy;
 			this.app.zoom.update();
