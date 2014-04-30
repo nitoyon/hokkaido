@@ -4,7 +4,7 @@
 {PolygonList} = require '../src/models/polygon'
 {Polygon} = require '../src/models/polygon'
 {Dot} = require '../src/models/dot'
-{LineList} = require '../src/models/line'
+{LineFactory} = require '../src/models/line'
 
 describe 'PolygonList', ->
   it 'should create adding polygon', ->
@@ -93,59 +93,54 @@ describe 'Polygon', ->
       assert.isFalse Polygon.isNeighborDot dots, dots[1], dots[3]
 
   it 'should update lines', ->
+    [d1, d2, d3, d4, d5] =
+      [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
     polygon = new Polygon()
     polygon.isClose = false
 
-    polygon.add(new Dot(2, 3))
-    polygon.add(new Dot(3, 4))
-    assert.equal 1, polygon.lines.length
-
-    polygon.add(new Dot(4, 5))
-    assert.equal 2, polygon.lines.length
-
-    polygon.add(new Dot(6, 7))
-    assert.equal 3, polygon.lines.length
-
-    polygon.close()
-    assert.equal 4, polygon.lines.length
-
-    polygon.add(new Dot(8, 9))
-    assert.equal 5, polygon.lines.length
-
-  it 'should del dot', ->
-    polygon = new Polygon()
-
-    d = new Dot(2, 3)
-    polygon.add(d)
-    polygon.add(new Dot(3, 4))
-    polygon.add(new Dot(4, 5))
-    polygon.add(new Dot(5, 6))
-    polygon.close()
-    assert.equal 4, polygon.lines.length
-
-    polygon.del(d)
-    assert.equal 3, polygon.lines.length
-
-  it 'should split line', ->
-    polygon = new Polygon()
-
-    d1 = new Dot(2, 3)
-    d2 = new Dot(3, 4)
-    d3 = new Dot(4, 5)
-    d4 = new Dot(5, 6)
     polygon.add(d1)
     polygon.add(d2)
+    assert.lengthOf polygon.lines, 1
+    assert.strictEqual LineFactory.get(d1, d2), polygon.lines[0], 'd1-d2'
+
     polygon.add(d3)
+    assert.lengthOf polygon.lines, 2
+    assert.strictEqual LineFactory.get(d2, d3), polygon.lines[1], 'd2-d3'
+
+    polygon.add(d4)
+    assert.lengthOf polygon.lines, 3
+    assert.strictEqual LineFactory.get(d3, d4), polygon.lines[2], 'd3-d4'
+
     polygon.close()
-    assert.equal 3, polygon.lines.length
+    assert.lengthOf polygon.lines, 4
+    assert.strictEqual LineFactory.get(d4, d1), polygon.lines[3], 'd4-d1'
+
+    polygon.add(d5)
+    assert.lengthOf polygon.lines, 5
+    assert.strictEqual LineFactory.get(d4, d5), polygon.lines[3], 'd4-d5'
+    assert.strictEqual LineFactory.get(d5, d1), polygon.lines[4], 'd5-d1'
+
+  it 'should del dot', ->
+    d = new Dot()
+    polygon = new Polygon(d, new Dot(), new Dot(), new Dot())
+
+    assert.lengthOf polygon.dots, 4
+    assert.lengthOf polygon.lines, 4
+
+    polygon.del(d)
+    assert.lengthOf polygon.dots, 3
+    assert.lengthOf polygon.lines, 3
+
+  it 'should split line', ->
+    [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+    polygon = new Polygon(d1, d2, d3)
+    assert.lengthOf polygon.dots, 3
+    assert.lengthOf polygon.lines, 3
 
     polygon.splitLine(polygon.lines[0], d4)
-    assert.equal 4, polygon.lines.length
-    assert.equal 4, polygon.dots.length
-    assert.strictEqual d1, polygon.dots[0]
-    assert.strictEqual d4, polygon.dots[1]
-    assert.strictEqual d2, polygon.dots[2]
-    assert.strictEqual d3, polygon.dots[3]
+    assert.lengthOf polygon.lines, 4
+    assert.lengthOf polygon.dots, 4
+    assert.deepEqual [d1, d4, d2, d3], polygon.dots
 
   describe 'group', ->
     it 'should be one when no inner lines exist', ->
