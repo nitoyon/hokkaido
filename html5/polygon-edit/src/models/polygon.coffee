@@ -175,9 +175,8 @@ class Polygon extends EventEmitter2
     return ret
 
   addInnerLine: (d1, d2) ->
-    if @constructor.isNeighborDot @.dots, d1, d2
-      alert 'cannot connect neighborhood dots!!'
-      return
+    if @getInnerLineCandidates(d1).indexOf(d2) == -1
+      throw new Error('cannot connect neighborhood dots!!')
 
     @innerLines.push LineFactory.get(d1, d2)
     @update()

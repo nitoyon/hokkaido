@@ -146,6 +146,26 @@ describe 'Polygon', ->
     assert.lengthOf polygon.dots, 4
     assert.deepEqual [d1, d4, d2, d3], polygon.dots
 
+  describe 'addInnerLine', ->
+    it 'should split into 2 groups', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4)
+      assert.lengthOf polygon.groups, 1
+
+      polygon.addInnerLine d1, d3
+      assert.lengthOf polygon.groups, 2
+
+    it 'should fail when neighbor 2 dots are given', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4)
+      assert.throws -> polygon.addInnerLine d1, d2
+
+    it 'should fail when inner line interacts', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4)
+      polygon.addInnerLine d1, d3
+      assert.throws -> polygon.addInnerLine d2, d4
+
   describe 'group', ->
     it 'should be one when no inner lines exist', ->
       # d1 o-----o d2
