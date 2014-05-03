@@ -85,7 +85,7 @@ class Polygon extends EventEmitter2
     @id = @constructor.id++
     @isClose = true
 
-    @add dot, true for dot in dots
+    @addDot dot, true for dot in dots
     @update()
 
   @isNeighborDot: (dots, d1, d2) ->
@@ -99,7 +99,7 @@ class Polygon extends EventEmitter2
     # neighbor -> true
     (Math.abs(i2 - i1) == 1 || Math.abs(i2 - i1) == dots.length - 1)
 
-  add: (d, preventUpdate) ->
+  addDot: (d, preventUpdate) ->
     index = @dots.indexOf(d)
     if index >= 0
       return index
@@ -107,10 +107,10 @@ class Polygon extends EventEmitter2
     @dots.push d
     @update() unless preventUpdate
 
-    d.once "exit", => @del d
+    d.once "exit", => @delDot d
     @dots.length - 1
 
-  del: (d) ->
+  delDot: (d) ->
     index = @dots.indexOf d
     if index >= 0
       @dots.splice index, 1
@@ -137,7 +137,8 @@ class Polygon extends EventEmitter2
       unless key of dotmap
         dotmap[key] = new Dot(pos[0], pos[1])
       dot = dotmap[key]
-      @add dot
+      @addDot dot, true
+    @update()
 
   close: ->
     @isClose = true

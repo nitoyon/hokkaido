@@ -20,9 +20,9 @@ describe 'PolygonList', ->
     list.createAddingPolygon()
     polygon = list.addingPolygon
 
-    polygon.add(new Dot(2, 3))
-    polygon.add(new Dot(3, 4))
-    polygon.add(new Dot(4, 5))
+    polygon.addDot(new Dot(2, 3))
+    polygon.addDot(new Dot(3, 4))
+    polygon.addDot(new Dot(4, 5))
     list.closeAddingPolygon()
 
     assert.isTrue polygon.isClose
@@ -103,16 +103,16 @@ describe 'Polygon', ->
     polygon = new Polygon()
     polygon.isClose = false
 
-    polygon.add(d1)
-    polygon.add(d2)
+    polygon.addDot(d1)
+    polygon.addDot(d2)
     assert.lengthOf polygon.lines, 1
     assert.strictEqual LineFactory.get(d1, d2), polygon.lines[0], 'd1-d2'
 
-    polygon.add(d3)
+    polygon.addDot(d3)
     assert.lengthOf polygon.lines, 2
     assert.strictEqual LineFactory.get(d2, d3), polygon.lines[1], 'd2-d3'
 
-    polygon.add(d4)
+    polygon.addDot(d4)
     assert.lengthOf polygon.lines, 3
     assert.strictEqual LineFactory.get(d3, d4), polygon.lines[2], 'd3-d4'
 
@@ -120,7 +120,7 @@ describe 'Polygon', ->
     assert.lengthOf polygon.lines, 4
     assert.strictEqual LineFactory.get(d4, d1), polygon.lines[3], 'd4-d1'
 
-    polygon.add(d5)
+    polygon.addDot(d5)
     assert.lengthOf polygon.lines, 5
     assert.strictEqual LineFactory.get(d4, d5), polygon.lines[3], 'd4-d5'
     assert.strictEqual LineFactory.get(d5, d1), polygon.lines[4], 'd5-d1'
@@ -132,7 +132,7 @@ describe 'Polygon', ->
     assert.lengthOf polygon.dots, 4
     assert.lengthOf polygon.lines, 4
 
-    polygon.del(d)
+    polygon.delDot(d)
     assert.lengthOf polygon.dots, 3
     assert.lengthOf polygon.lines, 3
 
