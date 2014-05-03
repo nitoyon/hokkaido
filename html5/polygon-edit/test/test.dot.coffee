@@ -1,4 +1,5 @@
 'use strict'
+require('source-map-support').install()
 
 {assert} = require 'chai'
 {Dot} = require '../src/models/dot'

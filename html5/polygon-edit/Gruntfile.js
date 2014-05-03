@@ -15,7 +15,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: ['Gruntfile.js', 'src/**/*.js'],
+      all: ['Gruntfile.js', 'src/*.js'],
       options: {
         laxcomma: true,
         node: true,
@@ -29,11 +29,14 @@ module.exports = function(grunt) {
 
     coffee: {
       all: {
+        options: {
+          sourceMap: true
+        },
         expand: true,
         flatten: true,
         cwd: 'src/models',
         src: '*.coffee',
-        dest: 'compiled/',
+        dest: 'src/models',
         ext: '.js'
       }
     },
@@ -61,7 +64,7 @@ module.exports = function(grunt) {
         },
         src: [
           'node_modules/eventemitter2/lib/eventemitter2.js',
-          'src/main.js', 'src/models/*.js', 'compiled/*.js', 'src/mode.js',
+          'src/main.js', 'src/models/*.js', 'src/mode.js',
           'src/model.js', 'src/view.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'

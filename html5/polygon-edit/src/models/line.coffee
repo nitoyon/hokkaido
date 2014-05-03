@@ -1,4 +1,6 @@
 'use strict'
+require('source-map-support').install()
+
 root = exports ? this
 
 LineFactory =

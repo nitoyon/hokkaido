@@ -9,6 +9,7 @@
     "livereloadx": "~0.3.2",
     "grunt-mocha-test": "~0.10.2",
     "chai": "~1.9.1",
-    "eventemitter2": "~0.4.13"
+    "eventemitter2": "~0.4.13",
+    "source-map-support": "~0.2.6"
   }
 }
