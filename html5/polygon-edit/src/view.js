@@ -156,7 +156,9 @@ LineView.prototype = {
 		var polygon = this.app.selectedItem;
 		var s = this.view.selectAll("line.outer")
 			.data(polygon.lines);
-		s.enter().append("line").classed("outer", true);
+		s.enter().append("line")
+			.classed("outer", true)
+			.call(this.app.drag);
 		s.exit().remove();
 		s
 			.attr("x1", function(d) { return d.d1.x; })
@@ -167,9 +169,12 @@ LineView.prototype = {
 
 		s = this.view.selectAll("line.inner")
 			.data(polygon.innerLines);
-		s.enter().append("line").classed("inner", true);
+		s.enter().append("line")
+			.classed("inner", true)
+			.call(this.app.drag);
 		s.exit().remove();
 		s
+			.classed("selected", function(d) { return d.isSelected; })
 			.attr("x1", function(d) { return d.d1.x; })
 			.attr("y1", function(d) { return d.d1.y; })
 			.attr("x2", function(d) { return d.d2.x; })

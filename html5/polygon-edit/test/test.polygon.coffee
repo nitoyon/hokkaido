@@ -263,3 +263,20 @@ describe 'Polygon', ->
       assert.deepEqual [d6], polygon.getInnerLineCandidates(d4), 'd4'
       assert.deepEqual [d3], polygon.getInnerLineCandidates(d5), 'd5'
       assert.deepEqual [d2, d4], polygon.getInnerLineCandidates(d6), 'd6'
+
+  describe 'deleteInnerLine', ->
+    it 'should delete inner line', ->
+      # d1 o-----o d2
+      #    | ___/|
+      #    |/    |
+      # d4 o-----o d3
+      [d1, d2, d3, d4] =
+        [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4)
+      polygon.addInnerLine(d2, d4)
+      assert.lengthOf polygon.groups, 2, 'group'
+      assert.lengthOf polygon.innerLines, 1, 'inner lines'
+
+      polygon.deleteInnerLine polygon.innerLines[0]
+      assert.lengthOf polygon.groups, 1, 'group'
+      assert.lengthOf polygon.innerLines, 0, 'inner lines'

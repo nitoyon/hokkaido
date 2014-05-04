@@ -82,6 +82,10 @@ svg#map {
   stroke: white;
 }
 
+#lines line.inner.selected {
+  stroke: red;
+}
+
 #polygons polygon {
   fill: blue;
   opacity: .1;
@@ -95,3 +99,4 @@ svg#map {
 #polygons line {
   stroke: black;
 }
+

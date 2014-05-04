@@ -81,6 +81,12 @@ PolygonMode.prototype.onClick = function(d, i) {
 	var event = d3.event;
 	if (d instanceof Polygon) {
 		this.app.select(d);
+		this.app.selectedItem.unselectInnerLine();
+	} else if (d instanceof Line) {
+		var polygon = this.app.selectedItem;
+		if (polygon.containsInnerLine(d)) {
+			polygon.selectInnerLine(d);
+		}
 	} else {
 		this.app.unselect();
 	}

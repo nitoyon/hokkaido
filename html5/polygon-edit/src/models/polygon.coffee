@@ -81,6 +81,7 @@ class Polygon extends EventEmitter2
     @lines = []
     @groups = []
     @innerLines = []
+    @selectedInnerLine = null
     @lastDot = null
     @id = @constructor.id++
     @isClose = true
@@ -115,13 +116,21 @@ class Polygon extends EventEmitter2
     if index >= 0
       @dots.splice index, 1
 
+      @clearInnerLines()
+
       if @dots.length <= 2
         @emit 'exit', this
       else
         @update()
 
+  del: ->
+    @deleteInnerLine @selectedInnerLine if @selectedInnerLine?
+
   contains: (d) ->
     @dots.indexOf d >= 0
+
+  containsInnerLine: (l) ->
+    @innerLines.indexOf l >= 0
 
   toPoints: ->
     (@dots.map (p) -> "#{p.x},#{p.y}").join(" ")
@@ -181,6 +190,26 @@ class Polygon extends EventEmitter2
 
     @innerLines.push LineFactory.get(d1, d2)
     @update()
+
+  deleteInnerLine: (l) ->
+    throw new Error 'not an inner line' unless @containsInnerLine l
+    index = @innerLines.indexOf l
+    @innerLines.splice index, 1
+    @update()
+
+  clearInnerLines: ->
+    @unselectInnerLine()
+    @innerLines = []
+
+  selectInnerLine: (l) ->
+    throw new Error 'not an inner line' unless @containsInnerLine l
+    @unselectInnerLine()
+    l.isSelected = true
+    @selectedInnerLine = l
+
+  unselectInnerLine: ->
+    @selectedInnerLine?.isSelected = false
+    @selectedInnerLine = null
 
   update: ->
     @updateLines()
