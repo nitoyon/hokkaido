@@ -39,8 +39,8 @@ describe 'PolygonList', ->
       list.add(new Polygon(d1, new Dot(3, 4), new Dot(4, 5)))
       list.add(new Polygon(d1, new Dot(6, 7), new Dot(7, 8)))
       assert.deepEqual [
-        [[2,3], [3,4], [4,5]],
-        [[2,3], [6,7], [7,8]],
+        { dots: [[2,3], [3,4], [4,5]], inner: [] }
+        { dots: [[2,3], [6,7], [7,8]], inner: [] }
       ], list.serialize()
 
   describe 'deserialize', ->
@@ -52,8 +52,8 @@ describe 'PolygonList', ->
     it 'should deserialize multiple polygons', ->
       list = new PolygonList()
       list.deserialize [
-        [[2,3], [3,4], [4,5], [5,6], [7,8]],
-        [[2,3], [6,7], [7,8], [8,9]],
+        { dots: [[2,3], [3,4], [4,5], [5,6], [7,8]], inner: [] }
+        { dots: [[2,3], [6,7], [7,8], [8,9]], inner: [] }
       ]
       assert.equal 2, list.list.length
       assert.strictEqual list.list[0].dots[0], list.list[1].dots[0]
@@ -280,3 +280,30 @@ describe 'Polygon', ->
       polygon.deleteInnerLine polygon.innerLines[0]
       assert.lengthOf polygon.groups, 1, 'group'
       assert.lengthOf polygon.innerLines, 0, 'inner lines'
+
+  describe 'serialize', ->
+    it 'should contain dot information', ->
+      p = new Polygon new Dot(2, 3), new Dot(3, 4), new Dot(4, 5)
+      assert.deepEqual(
+        dots: [[2, 3], [3, 4], [4, 5]], inner: []
+        p.serialize())
+
+    it 'should contain inner line information', ->
+      [d1, d2, d3, d4] =
+        [new Dot(2, 3), new Dot(3, 4), new Dot(4, 5), new Dot(5, 6)]
+
+      p = new Polygon d1, d2, d3, d4
+      p.addInnerLine d1, d3
+      assert.deepEqual(
+        { dots: [[2, 3], [3, 4], [4, 5], [5, 6]], inner: [ [0, 2] ] }
+        p.serialize())
+
+  describe 'deserialize', ->
+    it 'should create a polygon with inner line', ->
+      p = new Polygon()
+      p.deserialize(
+        {dots: [[2, 3], [3, 4], [4, 5], [5, 6]], inner: [ [0, 2] ]},
+        {})
+
+      assert.lengthOf p.dots, 4
+      assert.lengthOf p.innerLines, 1

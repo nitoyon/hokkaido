@@ -135,18 +135,44 @@ class Polygon extends EventEmitter2
   toPoints: ->
     (@dots.map (p) -> "#{p.x},#{p.y}").join(" ")
 
-  # [ [dot1.x, dot1.y], [dot2.x, dot2.y], ...]
+  # {
+  #   dots:
+  #   [
+  #     [dot1.x, dot1.y], [dot2.x, dot2.y], ...
+  #   ],
+  #   inner:
+  #   [
+  #     [line1_start, line1_end], [line2_start, line2_end], ...
+  #   ],
+  # }
   serialize: ->
-    @dots.map (dot) ->
+    dots = @dots.map (dot) ->
       [dot.x, dot.y]
+    inner = @innerLines.map (line) =>
+      [@dots.indexOf(line.d1), @dots.indexOf line.d2]
+    { dots: dots, inner: inner }
 
-  deserialize: (dots, dotmap) ->
-    dots.forEach (pos) =>
+  deserialize: (data, dotmap) ->
+    @dots = []
+    @innerLines = []
+
+    data.dots ?= []
+    data.dots.forEach (pos) =>
       key = pos.join ","
       unless key of dotmap
         dotmap[key] = new Dot(pos[0], pos[1])
       dot = dotmap[key]
       @addDot dot, true
+
+    # we should create a default group
+    @update()
+
+    data.inner ?= []
+    data.inner.forEach (indices) =>
+      d1 = @dots[indices[0]]
+      d2 = @dots[indices[1]]
+      @addInnerLine d1, d2
+
     @update()
 
   close: ->
