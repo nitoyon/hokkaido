@@ -52,11 +52,11 @@ PointMode.prototype.onClick = function(d, i) {
 		this.app.select(d);
 
 		this.app.polygons.createAddingPolygon();
-		this.app.polygons.addingPolygon.add(d);
+		this.app.polygons.addingPolygon.addDot(d);
 	} else if (d instanceof Dot) {
 		// click dot -> connect
 		var create = this.app.polygons.createAddingPolygon();
-		var index = this.app.polygons.addingPolygon.add(d);
+		var index = this.app.polygons.addingPolygon.addDot(d);
 
 		// click first dot -> close
 		if (index === 0 && !create) {
