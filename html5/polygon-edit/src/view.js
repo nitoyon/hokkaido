@@ -149,6 +149,8 @@ LineView.prototype = {
 			.attr("x2", function(d) { return d.d2.x; })
 			.attr("y2", function(d) { return d.d2.y; })
 			.attr("stroke-width", 2 / this.app.zoom.scale);
+
+		this.view.selectAll("line.inner").remove();
 	},
 
 	updatePolygonMode: function() {
