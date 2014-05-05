@@ -61,7 +61,7 @@ class PolygonList
       return if entry.length == 0
 
       polygon.deserialize entry, dotmap
-      @add polygon
+      @add polygon if polygon.dots.length >= 3
 
   splitLine: (line, dot) ->
     for p in @list
@@ -103,6 +103,8 @@ class Polygon extends EventEmitter2
 
   @getConvexHull: (dots) ->
     throw new Error 'dots is not an Array' unless dots instanceof Array
+    throw new Error 'dot count is too small' if dots.length < 3
+
     start = _.max dots, (d) -> d.y
 
     cur = null
@@ -111,6 +113,10 @@ class Polygon extends EventEmitter2
     while start != cur
       cur = start unless cur?
       ret.push cur
+
+      if ret.length > dots.length
+        console.warn 'invalid convex hull', dots
+        break
 
       nextDot = _.max dots, (dot) ->
         if dot == cur
@@ -186,6 +192,7 @@ class Polygon extends EventEmitter2
     @innerLines = []
 
     data.dots ?= []
+    return if data.dots.length < 3
     data.dots.forEach (pos) =>
       key = pos.join ","
       unless key of dotmap
