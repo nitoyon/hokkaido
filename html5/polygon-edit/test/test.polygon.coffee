@@ -138,6 +138,19 @@ describe 'Polygon', ->
       assert.isFalse Polygon.isNeighborDot dots, dots[0], dots[2]
       assert.isFalse Polygon.isNeighborDot dots, dots[1], dots[3]
 
+  describe 'getConvexHull', ->
+    it 'should throw an error when array is not given', ->
+      assert.throws -> Polygon.getConvexHull new Dot(0, 0)
+
+    it 'should return itself if three dots are given', ->
+      [d1, d2, d3] = [new Dot(0, 0), new Dot(10, 0), new Dot(10, 10)]
+      assert.deepEqual [d3, d2, d1], Polygon.getConvexHull([d1, d2, d3])
+
+    it 'should return subset', ->
+      [d1, d2, d3, d4] = [new Dot(0, 0), new Dot(10, 0), new Dot(10, 10),
+        new Dot(4, 2), new Dot(8, 3)]
+      assert.deepEqual [d3, d2, d1], Polygon.getConvexHull([d1, d2, d3])
+
   it 'should update lines', ->
     [d1, d2, d3, d4, d5] =
       [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]

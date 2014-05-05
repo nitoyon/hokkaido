@@ -100,6 +100,34 @@ class Polygon extends EventEmitter2
     # neighbor -> true
     (Math.abs(i2 - i1) == 1 || Math.abs(i2 - i1) == dots.length - 1)
 
+  @getConvexHull: (dots) ->
+    throw new Error 'dots is not an Array' unless dots instanceof Array
+    start = _.max dots, (d) -> d.y
+
+    cur = null
+    ret = []
+    vec = x: 1, y: 0
+    while start != cur
+      cur = start unless cur?
+      ret.push cur
+
+      nextDot = _.max dots, (dot) ->
+        if dot == cur
+          -1
+        else
+          # calc cos(theta) by calculating inner product
+          ((dot.x - cur.x) * vec.x + (dot.y - cur.y) * vec.y) /
+            Math.sqrt (dot.x - cur.x) ** 2 + (dot.y - cur.y) ** 2
+
+      # update vec and cur
+      vec = x: nextDot.x - cur.x, y: nextDot.y - cur.y
+      d = Math.sqrt vec.x ** 2 + vec.y ** 2
+      vec.x /= d
+      vec.y /= d
+      cur = nextDot
+
+    ret
+
   addDot: (d, preventUpdate) ->
     index = @dots.indexOf(d)
     if index >= 0
