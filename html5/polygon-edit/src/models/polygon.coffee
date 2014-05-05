@@ -81,6 +81,7 @@ class Polygon extends EventEmitter2
     @lines = []
     @groups = []
     @innerLines = []
+    @innerDots = []
     @selectedInnerLine = null
     @lastDot = null
     @id = @constructor.id++
@@ -344,6 +345,12 @@ class Polygon extends EventEmitter2
         line = LineFactory.get(dot, group[(i + 1) % group.length])
         index = lines.indexOf line
         lines.splice index, 1 if index >= 0
+
+    @innerDots = []
+    for group in @groups
+      dots = _.difference group, @constructor.getConvexHull group
+      @innerDots = _.union @innerDots, dots
+    null
 
 root.PolygonList = PolygonList
 root.Polygon = Polygon

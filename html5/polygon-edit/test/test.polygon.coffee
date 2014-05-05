@@ -335,6 +335,24 @@ describe 'Polygon', ->
       assert.lengthOf polygon.groups, 1, 'group'
       assert.lengthOf polygon.innerLines, 0, 'inner lines'
 
+  describe 'inner dots', ->
+    it 'should contain a dot which is in convex hull', ->
+      # d1 o-----o d2
+      #  d5 ~o-_ |
+      #     d4  o|
+      #          o d3
+      [d1, d2, d3, d4, d5] = [new Dot(0, 0), new Dot(10, 0), new Dot(10, 10),
+        new Dot(8, 2), new Dot(1, 1)]
+      polygon = new Polygon(d1, d2, d3, d4, d5)
+      assert.deepEqual [d4, d5], polygon.innerDots
+
+    it 'should consider groups', ->
+      [d1, d2, d3, d4, d5] = [new Dot(0, 0), new Dot(10, 0), new Dot(10, 10),
+        new Dot(8, 2), new Dot(1, 1)]
+      polygon = new Polygon(d1, d2, d3, d4, d5)
+      polygon.addInnerLine(d2, d5)
+      assert.deepEqual [d4], polygon.innerDots
+
   describe 'serialize', ->
     it 'should contain dot information', ->
       p = new Polygon new Dot(2, 3), new Dot(3, 4), new Dot(4, 5)

@@ -60,6 +60,11 @@ DotView.prototype = {
 		s
 			.classed("selected", function(d) { return d.isSelected; })
 			.classed("can_drop", function(d) { return d.canDrop; })
+			.classed("is_inner", function(d) {
+				if (p !== undefined) {
+					return p.innerDots.indexOf(d) >= 0;
+				}
+			})
 			.attr("cx", function(d) { return d.x; })
 			.attr("cy", function(d) { return d.y; })
 			.attr("r", 5 / this.app.zoom.scale);

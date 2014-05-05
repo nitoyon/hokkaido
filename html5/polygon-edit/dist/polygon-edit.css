@@ -73,6 +73,10 @@ svg#map {
   fill: green;
 }
 
+#dots circle.is_inner {
+  fill: yellow;
+}
+
 #lines line {
   stroke: black;
   cursor: pointer;
