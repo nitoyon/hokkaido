@@ -64,6 +64,7 @@ module.exports = function(grunt) {
         },
         src: [
           'node_modules/eventemitter2/lib/eventemitter2.js',
+          'node_modules/underscore/underscore-min.js',
           'src/main.js', 'src/models/*.js', 'src/mode.js',
           'src/model.js', 'src/view.js'
         ],

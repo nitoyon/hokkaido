@@ -64,6 +64,47 @@ describe 'PolygonList', ->
       assert.equal 4, list.list[1].dots.length
       assert.equal 4, list.list[1].lines.length
 
+  describe 'getOuterLines', ->
+    it 'should return nothing when no polygon exists', ->
+      list = new PolygonList()
+      assert.lengthOf list.getOuterLines(), 0
+
+    it 'should return outer lines', ->
+      [d1, d2, d3, d4, d5] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      p1 = new Polygon(d1, d2, d3, d4)
+      p2 = new Polygon(d1, d2, d3, d5)
+
+      list = new PolygonList()
+      list.add p1
+      list.add p2
+
+      assert.sameMembers [
+        LineFactory.get d1, d2
+        LineFactory.get d2, d3
+        LineFactory.get d3, d4
+        LineFactory.get d4, d1
+        LineFactory.get d3, d5
+        LineFactory.get d5, d1
+      ], list.getOuterLines()
+
+  describe 'getDots', ->
+    it 'should return nothing when no polygon exists', ->
+      list = new PolygonList()
+      assert.lengthOf list.getDots(), 0
+
+    it 'should return all dots', ->
+      [d1, d2, d3, d4, d5] =
+        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+      p1 = new Polygon(d1, d2, d3)
+      p2 = new Polygon(d2, d3, d5)
+
+      list = new PolygonList()
+      list.add p1
+      list.add p2
+
+      assert.sameMembers [d1, d2, d3, d5], list.getDots()
+
 describe 'Polygon', ->
   beforeEach ->
     Dot.id = 1

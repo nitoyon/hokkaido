@@ -7,6 +7,8 @@ LineFactory ?= @LineFactory
 Dot ?= @Dot
 EventEmitter2 = require('eventemitter2').EventEmitter2
 EventEmitter2 ?= @EventEmitter2
+_ = require('underscore')
+_ ?= @_
 
 class PolygonList
   constructor: ->
@@ -35,20 +37,18 @@ class PolygonList
       @addingPolygon = null
 
   getOuterLines: ->
-    lines = {}
-    @list.forEach (p) ->
-      p.lines.forEach (l) ->
-        lines[l.id] = l
-
-    (value for key, value of lines)
+    _.chain @list
+      .map (p) -> p.lines
+      .flatten()
+      .uniq()
+      .value()
 
   getDots: ->
-    dots = {}
-    @list.forEach (p) ->
-      p.dots.forEach (d) ->
-        dots[d.id] = d
-
-    (value for key, value of dots)
+    _.chain @list
+      .map (p) -> p.dots
+      .flatten()
+      .uniq()
+      .value()
 
   serialize: ->
     @list.map (polygon) -> polygon.serialize()
