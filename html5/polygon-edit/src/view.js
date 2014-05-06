@@ -136,6 +136,9 @@ LineView.prototype = {
 	},
 
 	updatePointMode: function() {
+		var highlightLines = this.polygons.addingPolygon ?
+			this.polygons.addingPolygon.lines : [];
+
 		var s = this.view.selectAll("line.outer")
 			.data(this.polygons.getOuterLines());
 		s.enter()
@@ -144,6 +147,7 @@ LineView.prototype = {
 			.call(this.app.drag);
 		s.exit().remove();
 		s
+			.classed("adding", function(d) { return highlightLines.indexOf(d) >= 0; })
 			.attr("x1", function(d) { return d.d1.x; })
 			.attr("y1", function(d) { return d.d1.y; })
 			.attr("x2", function(d) { return d.d2.x; })

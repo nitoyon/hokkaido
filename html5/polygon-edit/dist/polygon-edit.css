@@ -82,6 +82,10 @@ svg#map {
   cursor: pointer;
 }
 
+#lines line.adding {
+  stroke: red;
+}
+
 #lines line.inner {
   stroke: white;
 }
