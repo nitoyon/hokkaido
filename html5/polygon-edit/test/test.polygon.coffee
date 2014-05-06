@@ -33,14 +33,14 @@ describe 'PolygonList', ->
       assert.deepEqual [], list.serialize()
 
     it 'should serialize multiple polygons', ->
-      d1 = new Dot(2, 3)
+      d1 = new Dot(0, 0)
 
       list = new PolygonList()
-      list.add(new Polygon(d1, new Dot(3, 4), new Dot(4, 5)))
-      list.add(new Polygon(d1, new Dot(6, 7), new Dot(7, 8)))
+      list.add(new Polygon(d1, new Dot(5, 0), new Dot(5, 5)))
+      list.add(new Polygon(d1, new Dot(3, 0), new Dot(3, 3)))
       assert.deepEqual [
-        { dots: [[2,3], [3,4], [4,5]], inner: [] }
-        { dots: [[2,3], [6,7], [7,8]], inner: [] }
+        { dots: [[0,0], [5,0], [5,5]], inner: [] }
+        { dots: [[0,0], [3,0], [3,3]], inner: [] }
       ], list.serialize()
 
   describe 'deserialize', ->
@@ -52,15 +52,15 @@ describe 'PolygonList', ->
     it 'should deserialize multiple polygons', ->
       list = new PolygonList()
       list.deserialize [
-        { dots: [[2,3], [3,4], [4,5], [5,6], [7,8]], inner: [] }
-        { dots: [[2,3], [6,7], [7,8], [8,9]], inner: [] }
+        { dots: [[0,0], [1,0], [2,1], [1,2], [0,1]], inner: [] }
+        { dots: [[0,0], [1,1], [1,2], [0,3]], inner: [] }
       ]
       assert.equal 2, list.list.length
       assert.strictEqual list.list[0].dots[0], list.list[1].dots[0]
       assert.equal 5, list.list[0].dots.length
       assert.equal 5, list.list[0].lines.length
-      assert.equal 2, list.list[0].dots[0].x
-      assert.equal 3, list.list[0].dots[0].y
+      assert.equal 0, list.list[0].dots[0].x
+      assert.equal 0, list.list[0].dots[0].y
       assert.equal 4, list.list[1].dots.length
       assert.equal 4, list.list[1].lines.length
 
@@ -362,19 +362,19 @@ describe 'Polygon', ->
 
     it 'should contain inner line information', ->
       [d1, d2, d3, d4] =
-        [new Dot(2, 3), new Dot(3, 4), new Dot(4, 5), new Dot(5, 6)]
+        [new Dot(0, 0), new Dot(2, 0), new Dot(2, 2), new Dot(0, 2)]
 
       p = new Polygon d1, d2, d3, d4
       p.addInnerLine d1, d3
       assert.deepEqual(
-        { dots: [[2, 3], [3, 4], [4, 5], [5, 6]], inner: [ [0, 2] ] }
+        {dots: [[0, 0], [2, 0], [2, 2], [0, 2]], inner: [ [0, 2] ]},
         p.serialize())
 
   describe 'deserialize', ->
     it 'should create a polygon with inner line', ->
       p = new Polygon()
       p.deserialize(
-        {dots: [[2, 3], [3, 4], [4, 5], [5, 6]], inner: [ [0, 2] ]},
+        {dots: [[0, 0], [2, 0], [2, 2], [0, 2]], inner: [ [0, 2] ]},
         {})
 
       assert.lengthOf p.dots, 4
