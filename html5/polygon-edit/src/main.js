@@ -45,20 +45,37 @@ MapEditor.prototype = {
 	    .scale(1200)    //スケール（ズーム）の指定
 	    .rotate([-150,0,0])
 	    .translate([580, 1100]);
-	 
-	  var path = d3.geo.path().projection(projection); //投影
-	  var color = d3.scale.category20();
-	  
-	  map = this.mapContainer
-	    .selectAll("path")
-	    .data(geodata)
-	    .enter()
-	    .append("svg:path")
-	    .attr({
-	      "d": path,
-	      "fill-opacity": 0.8
-	    })
-	    .attr("fill", function(i) { return color(i.properties.ObjName); });
+
+		var path = d3.geo.path().projection(projection); //投影
+		var color = d3.scale.category20();
+
+		var pathes = [];
+		var self = this;
+		geodata.forEach(function(data) {
+			// MultiPolygon -> array of Polygons
+			var pathes = [];
+			if (data.geometry.type == "MultiPolygon") {
+				data.geometry.type = "Polygon";
+				var coordinates = data.geometry.coordinates;
+				for (var i = 0; i < coordinates.length; i++) {
+					data.geometry.coordinates = coordinates[i];
+					pathes.push(path(data));
+				}
+			} else if (data.geometry.type == "Polygon") {
+				pathes.push(path(data));
+			}
+
+			self.mapContainer.append("g")
+				.attr("class", data.properties.ObjName_1)
+				.selectAll("path")
+				.data(pathes)
+				.enter()
+				.append("svg:path")
+				.attr({
+					"d": function(d) { return d; }
+				})
+				.attr("fill", color(data.properties.ObjName));
+		});
 	},
 
 	initEvent: function() {
