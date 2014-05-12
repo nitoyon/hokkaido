@@ -15,7 +15,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: ['Gruntfile.js', 'src/*.js'],
+      all: ['Gruntfile.js'],
       options: {
         laxcomma: true,
         node: true,
@@ -34,9 +34,9 @@ module.exports = function(grunt) {
         },
         expand: true,
         flatten: true,
-        cwd: 'src/models',
+        cwd: 'src',
         src: '*.coffee',
-        dest: 'src/models',
+        dest: 'src',
         ext: '.js'
       }
     },
