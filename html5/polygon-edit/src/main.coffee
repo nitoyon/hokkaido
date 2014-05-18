@@ -46,7 +46,7 @@ class MapEditor
     new Vue
       el: "#main"
       data:
-        prefs: @prefs.list
+        prefs: @prefs
         selectedRegion: null
       computed:
         selectedIds:
@@ -61,7 +61,7 @@ class MapEditor
             if _selectedIds.length > 0
               id = _selectedIds[0]
               [prefName, index] = id.split "-"
-              pref = _.find @prefs, (pref) -> pref.name == prefName
+              pref = _.find @prefs.list, (pref) -> pref.name == prefName
               @selectedRegion = _.find pref.regions, (region) ->
                 region.id == id
             else

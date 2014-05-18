@@ -12,7 +12,7 @@
   <button disabled="{{selectedRegion ? '' : 'disabled'}}">A<u>d</u>d</button>
 </div>
 <select id="pref_list" multiple v-model="selectedIds">
-  <optgroup v-repeat="prefs" label="{{name}}">
+  <optgroup v-repeat="prefs.list" label="{{name}}">
     <option v-repeat="regions" value="{{id}}">{{name}} ({{count}})</option>
   </optgroup>
 </select>
@@ -20,7 +20,7 @@
 <svg id="map">
   <g id="canvas">
     <g id="map_pathes">
-      <g v-repeat="pref:prefs" class="{{name}}">
+      <g v-repeat="pref:prefs.list" class="{{name}}">
         <path v-repeat="region:pref.regions"
           v-class="selected : region.isSelected"
           v-attr="d:region.path"
