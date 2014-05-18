@@ -1,19 +1,8 @@
 class MapEditor
   constructor: (@elm, json) ->
-    # Array of object:
-    #   polygons: [
-    #     name: xxx
-    #     count: N
-    #     path: "..."
-    #     isSelected: false
-    #   ]
-    #   name: "name of pref"
-    #   index: "JIS index"
-    #   color: "#0123456"
-    @prefs = {}
     @selectedItem = null
     @modes = []
-    @prefs = @initJson json
+    @initJson json
 
     @initModel()
     @initElement()
@@ -39,8 +28,6 @@ class MapEditor
     @modeView = new ModeView(@, [new PointMode(@), new PolygonMode(@)])
 
   initJson: (json) ->
-    geodata = json.features
-
     projection = d3.geo
     .mercator()
     .scale 1200    # scale
@@ -48,35 +35,10 @@ class MapEditor
     .translate [580, 1100]
 
     path = d3.geo.path().projection projection
-    color = d3.scale.category20()
 
-    pathes = []
-    self = @
-    prefs = geodata.map (data) ->
-      # MultiPolygon -> array of Polygons
-      pathes = []
-      if data.geometry.type == "MultiPolygon"
-        data.geometry.type = "Polygon"
-        coordinates = data.geometry.coordinates
-        for coordinate in coordinates
-          data.geometry.coordinates = coordinate
-          pathes.push(path data)
-      else if data.geometry.type == "Polygon"
-        pathes.push(path data)
-
-      {
-        polygons: pathes.map (path, i) ->
-          name: data.properties.ObjName_1 + "-" + (i + 1)
-          count: path.split(/L|M/).length
-          path: path
-          id: data.properties.ObjName_1 + "-" + (i + 1)
-          isSelected: false
-        name: data.properties.ObjName_1
-        index: data.properties["JIS-CODE"]
-        color: color(data.properties.ObjName)
-      }
-
-    prefs.sort (a, b) -> return a.index - b.index
+    @prefs = new PrefList()
+    @prefs.parseJson json, path
+    null
 
   initViewModel: () ->
     _selectedIds = []
@@ -84,8 +46,8 @@ class MapEditor
     new Vue
       el: "#main"
       data:
-        prefs: @prefs
-        selectedPolygon: null
+        prefs: @prefs.list
+        selectedRegion: null
       computed:
         selectedIds:
           $get: () -> _selectedIds
@@ -93,24 +55,24 @@ class MapEditor
             _selectedIds = val
 
             # unselect previsious selected pref
-            @selectedPolygon?.isSelected = false
+            @selectedRegion?.isSelected = false
 
             # update new selected pref
             if _selectedIds.length > 0
               id = _selectedIds[0]
               [prefName, index] = id.split "-"
               pref = _.find @prefs, (pref) -> pref.name == prefName
-              @selectedPolygon = _.find pref.polygons, (polygon) ->
-                polygon.id == id
+              @selectedRegion = _.find pref.regions, (region) ->
+                region.id == id
             else
-              @selectedPolygon = null
+              @selectedRegion = null
 
             # select it
-            @selectedPolygon?.isSelected = true
+            @selectedRegion?.isSelected = true
       methods:
         onRename: () ->
-          newName = prompt "new Name", @selectedPolygon.name
-          @selectedPolygon.name = newName if newName?
+          newName = prompt "new Name", @selectedRegion.name
+          @selectedRegion.name = newName if newName?
           d3.select("#pref_list").node().focus()
 
   initEvent: () ->
