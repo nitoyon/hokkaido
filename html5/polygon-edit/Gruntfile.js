@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     },
 
     coffee: {
-      all: {
+      src: {
         options: {
           sourceMap: true
         },
@@ -37,6 +37,17 @@ module.exports = function(grunt) {
         cwd: 'src',
         src: '*.coffee',
         dest: 'src',
+        ext: '.js'
+      },
+      models: {
+        options: {
+          sourceMap: true
+        },
+        expand: true,
+        flatten: true,
+        cwd: 'src/models',
+        src: '*.coffee',
+        dest: 'src/models',
         ext: '.js'
       }
     },
