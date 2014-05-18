@@ -7,7 +7,10 @@
 <div id="modes"></div>
 <div id="main">
 <div id="left">
-<div><button>Rename</button><button>Add</button></div>
+<div>
+  <button disabled="{{selectedPolygon ? '' : 'disabled'}}" accesskey="R" v-on="click: onRename"><u>R</u>ename</button>
+  <button disabled="{{selectedPolygon ? '' : 'disabled'}}">A<u>d</u>d</button>
+</div>
 <select id="pref_list" multiple v-model="selectedIds">
   <optgroup v-repeat="prefs" label="{{name}}">
     <option v-repeat="polygons" value="{{id}}">{{name}} ({{count}})</option>

@@ -107,6 +107,11 @@ class MapEditor
 
             # select it
             @selectedPolygon?.isSelected = true
+      methods:
+        onRename: () ->
+          newName = prompt "new Name", @selectedPolygon.name
+          @selectedPolygon.name = newName if newName?
+          d3.select("#pref_list").node().focus()
 
   initEvent: () ->
     d3.select(document).on "keydown", () =>
