@@ -5,7 +5,29 @@
 <body>
 
 <div id="modes"></div>
-<svg id="map"></svg>
+<div id="main">
+<div id="left">
+<div><button>Rename</button><button>Add</button></div>
+<select id="pref_list" multiple v-model="selectedIds">
+  <optgroup v-repeat="prefs" label="{{name}}">
+    <option v-repeat="polygons" value="{{id}}">{{name}} ({{count}})</option>
+  </optgroup>
+</select>
+</div>
+<svg id="map">
+  <g id="canvas">
+    <g id="map_pathes">
+      <g v-repeat="pref:prefs" class="{{name}}">
+        <path v-repeat="polygon:pref.polygons"
+          v-class="selected : polygon.isSelected"
+          v-attr="d:polygon.path"
+          fill="{{pref.color}}"/>
+      </g>
+    </g>
+  </g>
+</svg>
+</div>
 
+<script src="vue.js"></script>
 <script src="polygon-edit.js"></script>
 </body>

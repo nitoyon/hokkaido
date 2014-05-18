@@ -1,12 +1,23 @@
 class MapEditor
   constructor: (@elm, json) ->
-    @data = null
+    # Array of object:
+    #   polygons: [
+    #     name: xxx
+    #     count: N
+    #     path: "..."
+    #     isSelected: false
+    #   ]
+    #   name: "name of pref"
+    #   index: "JIS index"
+    #   color: "#0123456"
+    @prefs = {}
     @selectedItem = null
     @modes = []
+    @prefs = @initJson json
 
     @initModel()
     @initElement()
-    @initJson json
+    @initViewModel()
     @initEvent()
     @updateView()
 
@@ -19,8 +30,8 @@ class MapEditor
 
   initElement: () ->
     @svg = d3.select(@elm)
-    @canvas = @svg.append("svg:g").attr("id", "canvas")
-    @mapContainer = @canvas.append("svg:g").attr("id", "map_pathes")
+    @canvas = @svg.select "#canvas"
+    @mapContainer = @canvas.select "#map_pathes"
     @polygonView = new PolygonView(@, @polygons)
     @lineView = new LineView(@, @polygons)
     @dotView = new DotView(@)
@@ -41,7 +52,7 @@ class MapEditor
 
     pathes = []
     self = @
-    geodata.forEach (data) =>
+    prefs = geodata.map (data) ->
       # MultiPolygon -> array of Polygons
       pathes = []
       if data.geometry.type == "MultiPolygon"
@@ -53,15 +64,49 @@ class MapEditor
       else if data.geometry.type == "Polygon"
         pathes.push(path data)
 
-      @mapContainer.append "g"
-      .attr "class", data.properties.ObjName_1
-      .selectAll("path")
-      .data pathes
-      .enter()
-      .append "svg:path"
-      .attr
-        "d": (d) -> d
-      .attr "fill", color(data.properties.ObjName)
+      {
+        polygons: pathes.map (path, i) ->
+          name: data.properties.ObjName_1 + "-" + (i + 1)
+          count: path.split(/L|M/).length
+          path: path
+          id: data.properties.ObjName_1 + "-" + (i + 1)
+          isSelected: false
+        name: data.properties.ObjName_1
+        index: data.properties["JIS-CODE"]
+        color: color(data.properties.ObjName)
+      }
+
+    prefs.sort (a, b) -> return a.index - b.index
+
+  initViewModel: () ->
+    _selectedIds = []
+
+    new Vue
+      el: "#main"
+      data:
+        prefs: @prefs
+        selectedPolygon: null
+      computed:
+        selectedIds:
+          $get: () -> _selectedIds
+          $set: (val) ->
+            _selectedIds = val
+
+            # unselect previsious selected pref
+            @selectedPolygon?.isSelected = false
+
+            # update new selected pref
+            if _selectedIds.length > 0
+              id = _selectedIds[0]
+              [prefName, index] = id.split "-"
+              pref = _.find @prefs, (pref) -> pref.name == prefName
+              @selectedPolygon = _.find pref.polygons, (polygon) ->
+                polygon.id == id
+            else
+              @selectedPolygon = null
+
+            # select it
+            @selectedPolygon?.isSelected = true
 
   initEvent: () ->
     d3.select(document).on "keydown", () =>
