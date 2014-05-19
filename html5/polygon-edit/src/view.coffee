@@ -1,34 +1,5 @@
 root = exports ? this
 
-class ModeView
-  constructor: (@app, modes) ->
-    @dispatch = d3.dispatch "change"
-    d3.rebind this, @dispatch, "on"
-
-    lastMode = modes.filter (m) -> m.name == localStorage.mode
-    @setMode if lastMode.length > 0 then lastMode[0] else modes[0]
-
-    inputs = d3.select("#modes").selectAll("input").data(modes).enter()
-    .append("span")
-    inputs.append("input")
-    .attr
-      "type": "radio"
-      "name": "mode"
-      "id": (d) -> "mode-" + d.name
-    .property "checked", (d) => @currentMode == d
-    .on "click", (d) => @setMode d
-
-    inputs.append "label"
-    .attr "for", (d) -> "mode-" + d.name
-    .text (d) -> d.name
-
-  setMode: (mode) ->
-    @currentMode = mode
-    @app.svg.attr 'class', mode.name
-    @dispatch.change()
-
-    localStorage.mode = mode.name
-
 class DotView
   constructor: (@app) ->
     @view = app.canvas.append("svg:g").attr("id", "dots")
@@ -214,7 +185,6 @@ class MapZoom
     @y = data.y unless isNaN data.y
     @scale = data.scale unless isNaN data.scale
 
-root.ModeView = ModeView
 root.DotView = DotView
 root.PolygonView = PolygonView
 root.LineView = LineView

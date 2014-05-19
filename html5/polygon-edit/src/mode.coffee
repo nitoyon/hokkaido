@@ -31,30 +31,28 @@ class PointMode extends Mode
   onClick: (d, i) ->
     event = d3.event
 
-    # Ctrl + click -> close
-    if event.ctrlKey
-      @app.polygons.closeAddingPolygon()
-      Mode.prototype.onClick.call @, d, i
-      return
-
     p = null
     unless d?
+      return unless @app.viewModel.adding
+
       # click none -> add dot
       p = @app.zoom.clientToWorld event.offsetX, event.offsetY
       d = new Dot p.x, p.y
       @app.select d
 
-      @app.polygons.createAddingPolygon()
-      @app.polygons.addingPolygon.addDot d
+      @app.viewModel.selectedRegion.polygon.addDot d
     else if d instanceof Dot
+      @app.select d
+
+      return unless @app.viewModel.adding
+
       # click dot -> connect
       create = @app.polygons.createAddingPolygon()
       index = @app.polygons.addingPolygon.addDot d
 
       # click first dot -> close
       if index == 0 && !create
-        @app.polygons.closeAddingPolygon()
-      @app.select d
+        @app.viewModel.selectedRegion.polygon.isClose = false
     else if d instanceof Line
       # click line -> add dot
       p = @app.zoom.clientToWorld event.offsetX, event.offsetY

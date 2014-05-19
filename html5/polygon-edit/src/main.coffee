@@ -1,7 +1,6 @@
 class MapEditor
   constructor: (@elm, json) ->
     @selectedItem = null
-    @modes = []
     @initJson json
 
     @initModel()
@@ -25,7 +24,8 @@ class MapEditor
     @lineView = new LineView(@, @polygons)
     @dotView = new DotView(@)
 
-    @modeView = new ModeView(@, [new PointMode(@), new PolygonMode(@)])
+    @modes = [new PointMode(@), new PolygonMode(@)]
+    @currentMode = @modes[0]
 
   initJson: (json) ->
     projection = d3.geo
@@ -43,11 +43,13 @@ class MapEditor
   initViewModel: () ->
     _selectedIds = []
 
-    new Vue
+    @viewModel = new Vue
       el: "#main"
       data:
         prefs: @prefs
         selectedRegion: null
+        adding: false
+        message: ""
       computed:
         selectedIds:
           $get: () -> _selectedIds
@@ -74,6 +76,16 @@ class MapEditor
           newName = prompt "new Name", @selectedRegion.name
           @selectedRegion.name = newName if newName?
           d3.select("#pref_list").node().focus()
+
+        onAdd: ->
+          @adding = true
+          @selectedRegion.polygon = new Polygon()
+          @selectedRegion.polygon.isClose = false
+
+        onDone: ->
+          console.log "done"
+        onCancel: ->
+          @adding = false
 
   initEvent: () ->
     d3.select(document).on "keydown", () =>
@@ -119,8 +131,6 @@ class MapEditor
 
     @svg.call @drag
 
-    @modeView.on 'change', () => @updateView()
-
   updateView: () ->
     @dotView.update()
     @lineView.update()
@@ -154,21 +164,21 @@ class MapEditor
     prev
 
   onDragStart: (d, i, elm) ->
-    @modeView.currentMode.onDragStart d, i, elm
+    @currentMode.onDragStart d, i, elm
     @updateView()
 
   onDrag: (d, i, elm) ->
-    @modeView.currentMode.onDrag d, i, elm
+    @currentMode.onDrag d, i, elm
     @updateView()
 
   onDragEnd: (d, i, elm) ->
-    @modeView.currentMode.onDragEnd d, i, elm
+    @currentMode.onDragEnd d, i, elm
     @updateView()
 
   onClick: (d, i, elm, event) ->
     prevEvent = d3.event
     d3.event = d3.event.sourceEvent
-    @modeView.currentMode.onClick d, i
+    @currentMode.onClick d, i
     d3.event = prevEvent
     @updateView()
 
