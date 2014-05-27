@@ -19,8 +19,8 @@ class MapEditor
 
   initElement: () ->
     @svg = d3.select(@elm)
-    @canvas = @svg.append("svg:g").attr("id", "canvas")
-    @mapContainer = @canvas.append("svg:g").attr("id", "map_pathes")
+    @canvas = @svg.select "#canvas"
+    @mapContainer = @canvas.select "#map_pathes"
     @polygonView = new PolygonView(@, @polygons)
     @lineView = new LineView(@, @polygons)
     @dotView = new DotView(@)
@@ -52,16 +52,6 @@ class MapEditor
           pathes.push(path data)
       else if data.geometry.type == "Polygon"
         pathes.push(path data)
-
-      @mapContainer.append "g"
-      .attr "class", data.properties.ObjName_1
-      .selectAll("path")
-      .data pathes
-      .enter()
-      .append "svg:path"
-      .attr
-        "d": (d) -> d
-      .attr "fill", color(data.properties.ObjName)
 
   initEvent: () ->
     d3.select(document).on "keydown", () =>

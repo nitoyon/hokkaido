@@ -49,6 +49,17 @@ module.exports = function(grunt) {
         src: '*.coffee',
         dest: 'src/models',
         ext: '.js'
+      },
+      controllers: {
+        options: {
+          sourceMap: true
+        },
+        expand: true,
+        flatten: true,
+        cwd: 'src/controllers',
+        src: '*.coffee',
+        dest: 'src/controllers',
+        ext: '.js'
       }
     },
 
@@ -76,7 +87,7 @@ module.exports = function(grunt) {
         src: [
           'node_modules/eventemitter2/lib/eventemitter2.js',
           'node_modules/underscore/underscore.js',
-          'src/*.js', 'src/models/*.js'
+          'src/*.js', 'src/models/*.js', 'src/controllers/*.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }

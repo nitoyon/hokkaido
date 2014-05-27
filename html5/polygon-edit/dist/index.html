@@ -1,11 +1,35 @@
 <!DOCTYPE html>
+<head>
 <meta charset="utf-8">
 <script src="d3.v3.js"></script>
+<script src="angular/angular.js"></script>
 <link rel="stylesheet" type="text/css" href="polygon-edit.css"/>
-<body>
+</head>
+<body ng-app="PolygonEdit">
 
-<div id="modes"></div>
-<svg id="map"></svg>
+<div id="header"><button>Rename</button><button>Add</button></div>
+
+<div id="main" ng-controller="ListCtrl">
+  <div id="left">
+    <select id="pref_list" multiple ng-model="selectedIds">
+      <optgroup ng-repeat="pref in prefs.list" label="{{pref.name}}">
+        <option ng-repeat="region in pref.regions" value="{{region.id}}">{{region.name}} ({{region.count}})</option>
+      </optgroup>
+    </select>
+  </div>
+  <svg id="map">
+    <g id="canvas">
+      <g id="map_pathes">
+        <g ng-repeat="pref in prefs.list" ng-class="pref.name">
+          <path ng-repeat="region in pref.regions"
+            ng-class="{selected : region.isSelected}"
+            ng-attr-d="{{region.path}}"
+            fill="{{pref.color}}"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
 
 <script src="polygon-edit.js"></script>
 </body>
