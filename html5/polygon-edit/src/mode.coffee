@@ -33,6 +33,7 @@ class PointMode extends Mode
 
     p = null
     unless d?
+      console.log @app.viewModel.adding
       return unless @app.viewModel.adding
 
       # click none -> add dot
@@ -40,6 +41,7 @@ class PointMode extends Mode
       d = new Dot p.x, p.y
       @app.select d
 
+      console.log @app.viewModel.selectedRegion.polygon.addDot
       @app.viewModel.selectedRegion.polygon.addDot d
     else if d instanceof Dot
       @app.select d

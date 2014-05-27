@@ -6,7 +6,7 @@ class DotView
 
   update: () ->
     dots = null
-    if @app.modeView.currentMode.name == 'polygon'
+    if @app.currentMode.name == 'polygon'
       p = @app.selectedItem
       if p instanceof Polygon
         dots = p.dots
@@ -36,7 +36,7 @@ class PolygonView
     @view = app.canvas.append("svg:g").attr("id", "polygons")
 
   update: () ->
-    curModeName = @app.modeView.currentMode.name
+    curModeName = @app.currentMode.name
     if curModeName == "polygon"
       @updatePolygonMode()
     else if curModeName == "point"
@@ -75,7 +75,7 @@ class LineView
     @view = app.canvas.append("svg:g").attr("id", "lines")
 
   update: () ->
-    curModeName = @app.modeView.currentMode.name
+    curModeName = @app.currentMode.name
     if curModeName == "polygon"
       @updatePolygonMode()
     else if curModeName == "point"

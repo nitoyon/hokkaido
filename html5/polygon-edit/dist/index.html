@@ -32,6 +32,9 @@
           fill="{{pref.color}}"/>
       </g>
     </g>
+    <g v-show="selectedRegion.polygon">
+      <circle v-repeat="selectedRegion.polygon.dots" cx="{{x}}" cy="{{y}}" r="5"/>
+    </g>
   </g>
 </svg>
 </div>

@@ -77,12 +77,12 @@ class MapEditor
           @selectedRegion.name = newName if newName?
           d3.select("#pref_list").node().focus()
 
-        onAdd: ->
+        onAdd: () ->
           @adding = true
           @selectedRegion.polygon = new Polygon()
           @selectedRegion.polygon.isClose = false
 
-        onDone: ->
+        onDone: () ->
           console.log "done"
         onCancel: ->
           @adding = false
