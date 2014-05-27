@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="d3.v3.js"></script>
+<link rel="stylesheet" type="text/css" href="polygon-edit.css"/>
+<body>
+
+<div id="main">
+<div id="header">
+  <button disabled="{{selectedRegion ? '' : 'disabled'}}" accesskey="R" v-on="click: onRename"><u>R</u>ename</button>
+  <button disabled="{{selectedRegion ? '' : 'disabled'}}" accesskey="D" v-on="click: onAdd">A<u>d</u>d</button>
+  <span v-show="adding">
+    Click map to create a polygon for physics engine.
+    <button v-on="click: onDone">Done</button>
+    <button v-on="click: onCancel">Cancel</button>
+  </span>
+</div>
+
+<div id="left">
+<select id="pref_list" multiple v-model="selectedIds">
+  <optgroup v-repeat="prefs.list" label="{{name}}">
+    <option v-repeat="regions" value="{{id}}">{{name}} ({{count}})</option>
+  </optgroup>
+</select>
+</div>
+<svg id="map">
+  <g id="canvas">
+    <g id="map_pathes">
+      <g v-repeat="pref:prefs.list" class="{{name}}">
+        <path v-repeat="region:pref.regions"
+          v-class="selected : region.isSelected"
+          v-attr="d:region.path"
+          fill="{{pref.color}}"/>
+      </g>
+    </g>
+    <g v-show="selectedRegion.polygon">
+      <circle v-repeat="selectedRegion.polygon.dots" cx="{{x}}" cy="{{y}}" r="5"/>
+    </g>
+  </g>
+</svg>
+</div>
+
+<script src="vue.js"></script>
+<script src="polygon-edit.js"></script>
+</body>

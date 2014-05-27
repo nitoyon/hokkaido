@@ -1,0 +1,16 @@
+{
+  "name": "polygon-edit",
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-concat": "~0.4.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-contrib-jshint": "~0.10.0",
+    "livereloadx": "~0.3.2",
+    "grunt-mocha-test": "~0.10.2",
+    "chai": "~1.9.1",
+    "eventemitter2": "~0.4.13",
+    "source-map-support": "~0.2.6",
+    "underscore": "~1.6.0"
+  }
+}

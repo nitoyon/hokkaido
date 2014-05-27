@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	paddingLeft="0"
+	paddingTop="0"
+	paddingBottom="0"
+	paddingRight="0"
+	applicationComplete="applicationCompleteHandler(event)">
+
+	<mx:Script source="LightenPrefsImpl.as"/>
+
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:VBox width="60%" height="100%" backgroundColor="#ffffff">
+			<mx:Label text="Points: {ptSlider.value.toFixed(2)}%"/>
+			<mx:HSlider id="ptSlider" maximum="100" value="100"
+				tickInterval="10"/>
+			<mx:Label text="Convex: {cvSlider.value.toFixed(2)}%"/>
+			<mx:HSlider id="cvSlider"
+				maximum="100" value="100" tickInterval="10"/>
+			<mx:Button label="save" click="save()"/>
+
+			<mx:DataGrid id="list" width="100%" height="100%"
+				change="prefsChangeHandler(event)">
+				<mx:columns>
+					<mx:DataGridColumn dataField="name" headerText="名前"/>
+					<mx:DataGridColumn dataField="count" headerText="番号"/>
+					<mx:DataGridColumn dataField="pt" headerText="頂点数"/>
+					<mx:DataGridColumn dataField="pts" headerText="頂点数"/>
+					<mx:DataGridColumn dataField="convex" headerText="凸包"/>
+					<mx:DataGridColumn dataField="convexs" headerText="凸包"/>
+				</mx:columns>
+			</mx:DataGrid>
+
+		</mx:VBox>
+		<mx:Canvas width="100%" height="100%" backgroundColor="#ffffff"
+			id="canvas1">
+		</mx:Canvas>
+		<mx:Canvas width="100%" height="100%" backgroundColor="#ffffff"
+			id="canvas2">
+		</mx:Canvas>
+	</mx:HDividedBox>
+</mx:Application>  

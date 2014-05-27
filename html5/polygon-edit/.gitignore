@@ -1,0 +1,5 @@
+node_modules
+polygon-edit.js
+src/*.js
+src/models/*.js
+*.map

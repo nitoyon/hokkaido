@@ -1,0 +1,141 @@
+div#main {
+	position: relative;
+}
+
+div#header button {
+	height: 20px;
+}
+
+#map_pathes path {
+	opacity: .1;
+}
+
+#map_pathes path.selected {
+	opacity: 1;
+}
+
+div#left {
+	position: absolute;
+	top: 20px;
+	width: 200px;
+	height: 602px;
+}
+
+select#pref_list {
+	width: 100%;
+	height: 600px;
+}
+
+svg#map {
+	position: absolute;
+	top: 20px;
+	left: 210px;
+	width: 600px;
+	height: 600px;
+	border: 1px solid black;
+}
+
+.ocean
+{
+	fill: aqua;
+}
+
+.coast
+{
+   stroke-width: 0;
+   stroke:white;
+}
+
+/*
+ * Circles around small countries
+ *
+ * Change opacity to 1 to display all circles.
+ *
+ */
+.circle
+{
+   opacity:.2;
+   fill:#b9b9b9;
+   fill-opacity:.5;
+   stroke:black;
+   stroke-width:0.5;
+   stroke-miterlimit:3.97446823;
+   stroke-dasharray:none;
+   stroke-opacity:1;
+}
+
+.land
+{
+   fill: #b9b9b9;
+   fill-opacity: 1;
+   stroke:white;
+   stroke-opacity: 1;
+   stroke-width:0.1;
+   stroke-miterlimit: 3.97446823;
+   stroke-dasharray: none;
+}
+
+.lake
+{
+   fill:aqua;
+   fill-opacity:1;
+   stroke:white;
+   stroke-opacity: 1;
+   stroke-width:0;
+}
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-opacity: .5;
+  stroke-width: .5px;
+}
+
+#dots circle {
+  fill: red;
+  cursor: pointer;
+}
+
+#dots circle.selected {
+  fill: blue;
+}
+
+#dots circle.can_drop {
+  fill: green;
+}
+
+#dots circle.is_inner {
+  fill: yellow;
+}
+
+#lines line {
+  stroke: black;
+  cursor: pointer;
+}
+
+#lines line.adding {
+  stroke: red;
+}
+
+#lines line.inner {
+  stroke: white;
+}
+
+#lines line.inner.selected {
+  stroke: red;
+}
+
+#polygons polygon {
+  fill: blue;
+  opacity: .1;
+}
+
+#polygons polygon.selected {
+  fill: blue;
+  opacity: 1;
+}
+
+#polygons line {
+  stroke: black;
+}
+
