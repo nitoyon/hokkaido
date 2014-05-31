@@ -9,9 +9,9 @@
 
 <div id="header"><button>Rename</button><button>Add</button></div>
 
-<div id="main" ng-controller="ListCtrl">
+<div id="main">
   <div id="left">
-    <select id="pref_list" multiple ng-model="selectedIds">
+    <select ng-controller="ListCtrl" id="pref_list" multiple ng-model="selectedIds">
       <optgroup ng-repeat="pref in prefs.list" label="{{pref.name}}">
         <option ng-repeat="region in pref.regions" value="{{region.id}}">{{region.name}} ({{region.count}})</option>
       </optgroup>
@@ -19,7 +19,7 @@
   </div>
   <svg id="map">
     <g id="canvas">
-      <g id="map_pathes">
+      <g id="map_pathes" ng-controller="MapCtrl">
         <g ng-repeat="pref in prefs.list" ng-class="pref.name">
           <path ng-repeat="region in pref.regions"
             ng-class="{selected : region.isSelected}"
