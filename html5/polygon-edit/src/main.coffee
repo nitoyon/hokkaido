@@ -4,12 +4,6 @@ class MapEditor
     @selectedItem = null
     @modes = []
 
-    @initModel()
-    @initElement()
-    @initJson json
-    @initEvent()
-    @updateView()
-
   initModel: ->
     @polygons = new PolygonList()
 
@@ -41,7 +35,7 @@ class MapEditor
 
     pathes = []
     self = @
-    geodata.forEach (data) =>
+    geodata.forEach (data) ->
       # MultiPolygon -> array of Polygons
       pathes = []
       if data.geometry.type == "MultiPolygon"
