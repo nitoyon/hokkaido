@@ -13,11 +13,7 @@
   <div id="left">
     <region-list ng-controller="ListCtrl"/>
   </div>
-  <svg id="map">
-    <g id="canvas">
-      <g id="map_pathes" ng-controller="MapCtrl" region-map />
-    </g>
-  </svg>
+  <region-map ng-controller="MapCtrl"/>
 </div>
 
 <script src="polygon-edit.js"></script>

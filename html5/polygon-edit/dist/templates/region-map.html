@@ -1,6 +1,12 @@
-<g ng-repeat="pref in prefs.list" ng-class="pref.name">
-  <path ng-repeat="region in pref.regions"
-    ng-class="{selected : region.isSelected}"
-    ng-attr-d="{{region.path}}"
-    fill="{{pref.color}}"/>
-</g>
+<svg id="map">
+  <g id="canvas">
+    <g id="map_pathes">
+      <g ng-repeat="pref in prefs.list" ng-class="pref.name">
+        <path ng-repeat="region in pref.regions"
+          ng-class="{selected : region.isSelected}"
+          ng-attr-d="{{region.path}}"
+          fill="{{pref.color}}"/>
+      </g>
+    </g>
+  </g>
+</svg>
