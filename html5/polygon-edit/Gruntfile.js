@@ -60,9 +60,30 @@ module.exports = function(grunt) {
         src: '*.coffee',
         dest: 'src/controllers',
         ext: '.js'
+      },
+      directives: {
+        options: {
+          sourceMap: true
+        },
+        expand: true,
+        flatten: true,
+        cwd: 'src/directives',
+        src: '*.coffee',
+        dest: 'src/directives',
+        ext: '.js'
+      },
+      services: {
+        options: {
+          sourceMap: true
+        },
+        expand: true,
+        flatten: true,
+        cwd: 'src/services',
+        src: '*.coffee',
+        dest: 'src/services',
+        ext: '.js'
       }
     },
-
 
     mochaTest: {
       test: {
@@ -87,7 +108,7 @@ module.exports = function(grunt) {
         src: [
           'node_modules/eventemitter2/lib/eventemitter2.js',
           'node_modules/underscore/underscore.js',
-          'src/*.js', 'src/models/*.js', 'src/controllers/*.js'
+          'src/*.js', 'src/*/*.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }

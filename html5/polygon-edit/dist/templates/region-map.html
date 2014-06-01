@@ -1,5 +1,5 @@
-<svg id="map">
-  <g id="canvas">
+<svg id="map" draggable draggable-ondrag="mapDrag()">
+  <g id="canvas" ng-attr-transform="translate({{zoom.x}},{{zoom.y}}) scale({{zoom.scale}})">
     <g id="map_pathes">
       <g ng-repeat="pref in prefs.list" ng-class="pref.name">
         <path ng-repeat="region in pref.regions"
