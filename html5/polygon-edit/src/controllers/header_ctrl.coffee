@@ -9,7 +9,10 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
     (val) -> $scope.selectedRegion = val)
 
   $scope.rename = () ->
-    alert('rename')
+    region = $scope.selectedRegion
+    newName = window.prompt 'Enter new name', region.name
+    if newName != null
+      region.name = newName
 
   $scope.add = () ->
     alert('add')
