@@ -1,2 +1,7 @@
-<button ng-click="rename()" ng-disabled="!selectedRegion" accesskey="R"><u>R</u>ename</button>
-<button ng-click="add()" ng-disabled="!selectedRegion">Add</button>
+<div ng-show="!data.addingNewPolygon">
+  <button ng-click="rename()" ng-disabled="!data.selectedRegion" accesskey="R"><u>R</u>ename</button>
+  <button ng-click="add()" ng-disabled="!data.selectedRegion" accesskey="A"><u>A</u>dd</button>
+</div>
+<div ng-show="data.addingNewPolygon">
+  Click map to add polygon <button ng-click="cancel()" accesskey="C"><u>C</u>ancel</button>
+</div>
