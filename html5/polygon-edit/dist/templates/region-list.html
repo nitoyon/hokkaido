@@ -1,0 +1,5 @@
+<select id="pref_list" multiple ng-model="selectedIds">
+  <optgroup ng-repeat="pref in prefs.list" label="{{pref.name}}">
+    <option ng-repeat="region in pref.regions" value="{{region.id}}">{{region.name}} ({{region.count}})</option>
+  </optgroup>
+</selecct>
