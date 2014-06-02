@@ -125,17 +125,17 @@ svg#map {
   stroke: red;
 }
 
-#polygons polygon {
-  fill: blue;
-  opacity: .1;
+#selected_polygon circle {
+  fill: red;
 }
 
-#polygons polygon.selected {
-  fill: blue;
-  opacity: 1;
+#selected_polygon polyline {
+  fill: none;
+  stroke: #777;
 }
 
-#polygons line {
-  stroke: black;
+#selected_polygon polygon {
+  fill: none;
+  stroke: #777;
 }
 

@@ -1,7 +1,7 @@
 app = angular.module 'PolygonEdit'
 
 app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
-  $scope.prefs = CommonData.prefs
+  $scope.data = CommonData
   $scope.zoom = Zoom
 
   # drag map handler
@@ -11,6 +11,14 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     $scope.$apply () ->
       $scope.zoom.x += event.dx
       $scope.zoom.y += event.dy
+
+  $scope.mapClick = () -> $scope.$apply () ->
+    return unless CommonData.addingNewPolygon
+
+    event = d3.event.sourceEvent
+    p = Zoom.clientToWorld event.offsetX, event.offsetY
+    d = new Dot p.x, p.y
+    CommonData.selectedRegion.polygon.addDot d
 
   # keyboard shortcut for '+' & '-'
   $document.bind 'keydown', (event) ->

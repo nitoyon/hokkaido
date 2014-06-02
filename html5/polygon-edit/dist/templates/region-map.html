@@ -1,12 +1,27 @@
-<svg id="map" draggable draggable-ondrag="mapDrag()">
+<svg id="map" draggable draggable-ondrag="mapDrag()" draggable-onclick="mapClick()">
   <g id="canvas" ng-attr-transform="translate({{zoom.x}},{{zoom.y}}) scale({{zoom.scale}})">
     <g id="map_pathes">
-      <g ng-repeat="pref in prefs.list" ng-class="pref.name">
+      <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
         <path ng-repeat="region in pref.regions"
           ng-class="{selected : region.isSelected}"
           ng-attr-d="{{region.path}}"
           fill="{{pref.color}}"/>
       </g>
+    </g>
+
+    <g id="selected_polygon" ng-show="data.selectedRegion.polygon">
+      <polygon
+        ng-show="data.selectedRegion.polygon.isClose"
+        points="{{data.selectedRegion.polygon.toPoints()}}"
+        stroke-width="{{1 / zoom.scale}}"/>
+      <polyline
+        ng-show="!data.selectedRegion.polygon.isClose"
+        points="{{data.selectedRegion.polygon.toPoints()}}"
+        stroke-width="{{1 / zoom.scale}}"/>
+      <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
+        ng-attr-cx="{{dot.x}}"
+        ng-attr-cy="{{dot.y}}"
+        ng-attr-r="{{5 / zoom.scale}}"/>
     </g>
   </g>
 </svg>

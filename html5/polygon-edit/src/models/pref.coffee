@@ -4,6 +4,14 @@ root = exports ? this
 class Pref
   constructor: (@name, @index) ->
     @color = "#999999"
+
+    # prefName: "Hokkaido"
+    # name: "Hokkaido-1"
+    # count: "5"  # size of RegionOutlinePath
+    # path: "..." # RegionOutlinePath
+    # id: "Hokkaido-1"
+    # isSelected: false
+    # polygon: new Polygon(...)
     @regions = []
 
   @createFromJson: (json, path) ->
@@ -28,6 +36,7 @@ class Pref
       path: path
       id: name + "-" + (i + 1)
       isSelected: false
+      polygon: null
 
     return ret
 
