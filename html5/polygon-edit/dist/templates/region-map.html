@@ -12,11 +12,11 @@
     <g id="selected_polygon" ng-show="data.selectedRegion.polygon">
       <polygon
         ng-show="data.selectedRegion.polygon.isClose"
-        points="{{data.selectedRegion.polygon.toPoints()}}"
+        ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
         stroke-width="{{1 / zoom.scale}}"/>
       <polyline
         ng-show="!data.selectedRegion.polygon.isClose"
-        points="{{data.selectedRegion.polygon.toPoints()}}"
+        ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
         stroke-width="{{1 / zoom.scale}}"/>
       <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
         ng-attr-cx="{{dot.x}}"
