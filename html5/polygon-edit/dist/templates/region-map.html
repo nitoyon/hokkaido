@@ -20,6 +20,8 @@
         ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
         stroke-width="{{1 / zoom.scale}}"/>
       <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
+        draggable draggable-ondrag="dotDrag(dot)"
+        ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1}"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
         ng-attr-r="{{5 / zoom.scale}}"/>

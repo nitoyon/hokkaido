@@ -127,6 +127,11 @@ svg#map {
 
 #selected_polygon circle {
   fill: red;
+  cursor: pointer;
+}
+
+#selected_polygon circle.inner {
+  fill: blue;
 }
 
 #selected_polygon polyline {
