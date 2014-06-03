@@ -16,7 +16,7 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
     $scope.data.selectedRegion.polygon = p
 
   $scope.ok = () ->
-    $scope.data.selectedRegion.polygon.isClose = true
+    $scope.data.selectedRegion.polygon.close()
     $scope.data.addingNewPolygon = false
 
   $scope.cancel = () ->

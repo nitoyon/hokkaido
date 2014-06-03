@@ -134,7 +134,7 @@ svg#map {
   stroke: #777;
 }
 
-#selected_polygon polygon {
+#selected_polygon line {
   fill: none;
   stroke: #777;
 }
