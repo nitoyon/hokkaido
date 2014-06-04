@@ -17,6 +17,7 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     dot.x += d3.event.dx
     dot.y += d3.event.dy
     $scope.data.selectedRegion.polygon.updateGroups()
+    CommonData.save()
 
   $scope.mapClick = () -> $scope.$apply () ->
     return unless CommonData.addingNewPolygon

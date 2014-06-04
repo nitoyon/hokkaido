@@ -14,6 +14,17 @@ class PrefList
     .flatten()
     .value()
 
+  serialize: ->
+    ret = {}
+    @list.forEach (pref) -> ret[pref.name] = pref.serialize()
+    ret
+
+  deserialize: (data) ->
+    dotmap = {}
+    for pref in @list
+      if pref.name of data
+        pref.deserialize data[pref.name], dotmap
+
   parseJson: (json, path) ->
     @list = json.features
     .map (data) ->

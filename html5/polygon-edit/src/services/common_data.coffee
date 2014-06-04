@@ -18,6 +18,12 @@ app.service 'CommonData', ($http) ->
       @selectedRegion = if p.length > 0 then p[0] else null
     @selectedRegion?.isSelected = true
 
+  @save = () =>
+    localStorage.prefs = JSON.stringify(@prefs.serialize())
+
+  @load = () =>
+    @prefs.deserialize JSON.parse localStorage.prefs if localStorage.prefs?
+
   $http.get 'out.geojson'
   .success (data) =>
     projection = d3.geo
@@ -29,5 +35,6 @@ app.service 'CommonData', ($http) ->
     path = d3.geo.path().projection projection
 
     @prefs.parseJson data, path
+    @load()
 
   null

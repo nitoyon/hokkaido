@@ -8,6 +8,7 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
     newName = window.prompt 'Enter new name', region.name
     if newName != null
       region.name = newName
+      CommonData.save()
 
   $scope.add = () ->
     $scope.data.addingNewPolygon = true
@@ -18,10 +19,12 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
   $scope.ok = () ->
     $scope.data.selectedRegion.polygon.close()
     $scope.data.addingNewPolygon = false
+    CommonData.save()
 
   $scope.cancel = () ->
     $scope.data.addingNewPolygon = false
     $scope.data.selectedRegion.polygon = null
+    CommonData.save()
 
 app.directive 'headerToolbar', () ->
   templateUrl: 'templates/header-toolbar.html'
