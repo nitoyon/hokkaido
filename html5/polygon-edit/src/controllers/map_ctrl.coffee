@@ -19,6 +19,13 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     $scope.data.selectedRegion.polygon.updateGroups()
     CommonData.save()
 
+  # line click handler
+  $scope.lineClick = (line, event) ->
+    p = Zoom.clientToWorld event.offsetX, event.offsetY
+    d = new Dot p.x, p.y
+    for region in CommonData.prefs.getAllRegions()
+      region.polygon?.splitLine line, d
+
   $scope.mapClick = () -> $scope.$apply () ->
     return unless CommonData.addingNewPolygon
 

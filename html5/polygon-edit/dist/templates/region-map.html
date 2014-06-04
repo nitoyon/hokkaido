@@ -12,6 +12,7 @@
     <g id="selected_polygon" ng-show="data.selectedRegion.polygon">
       <g ng-show="data.selectedRegion.polygon.isClose">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"
+          ng-click="lineClick(l, $event)"
           ng-attr-x1="{{l.d1.x}}" ng-attr-y1="{{l.d1.y}}"
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
       </g>

@@ -142,5 +142,6 @@ svg#map {
 #selected_polygon line {
   fill: none;
   stroke: #777;
+  cursor: pointer;
 }
 
