@@ -9,8 +9,8 @@
       </g>
     </g>
 
-    <g id="selected_polygon" ng-show="data.selectedRegion.polygon">
-      <g ng-show="data.selectedRegion.polygon.isClose">
+    <g id="selected_polygon" ng-if="data.selectedRegion.polygon">
+      <g ng-if="data.selectedRegion.polygon.isClose">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"
           ng-click="lineClick(l, $event)"
           stroke-width="{{1 / zoom.scale}}"
@@ -18,7 +18,7 @@
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
       </g>
       <polyline
-        ng-show="!data.selectedRegion.polygon.isClose"
+        ng-if="!data.selectedRegion.polygon.isClose"
         ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
         stroke-width="{{1 / zoom.scale}}"/>
       <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
