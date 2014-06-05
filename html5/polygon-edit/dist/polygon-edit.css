@@ -134,6 +134,10 @@ svg#map {
   fill: blue;
 }
 
+#selected_polygon circle.selected {
+  stroke: black;
+}
+
 #selected_polygon polyline {
   fill: none;
   stroke: #777;

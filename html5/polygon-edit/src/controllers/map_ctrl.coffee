@@ -3,6 +3,7 @@ app = angular.module 'PolygonEdit'
 app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.data = CommonData
   $scope.zoom = Zoom
+  $scope.selectedDot = null
 
   # drag map handler
   $scope.mapDrag = () ->
@@ -12,16 +13,21 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
       $scope.zoom.move event.dx, event.dy
 
   # drag dot handler
-  $scope.dotDrag = (dot) -> $scope.$apply () ->
+  $scope.dotMove = (dot) -> $scope.$apply () ->
     dot.x += d3.event.dx
     dot.y += d3.event.dy
     $scope.data.selectedRegion.polygon.updateGroups()
     CommonData.save()
 
+  # click dot handler
+  $scope.dotSelect = (dot) -> $scope.$apply () ->
+    $scope.selectedDot = dot
+
   # line click handler
   $scope.lineClick = (line, event) ->
     p = Zoom.clientToWorld event.offsetX, event.offsetY
     d = new Dot p.x, p.y
+    $scope.selectedDot = d
     for region in CommonData.prefs.getAllRegions()
       region.polygon?.splitLine line, d
 
