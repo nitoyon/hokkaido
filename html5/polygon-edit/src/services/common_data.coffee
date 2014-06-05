@@ -6,7 +6,6 @@ app.service 'CommonData', ($http) ->
   @addingNewPolygon = false
 
   @updateSelectedRegion = (selectedIds) =>
-    @selectedRegion?.isSelected = false
     if selectedIds.length == 0
       @selectedRegion = null
     else
@@ -16,7 +15,6 @@ app.service 'CommonData', ($http) ->
       p = _.filter @prefs.getAllRegions(), (region) ->
         region.id == id
       @selectedRegion = if p.length > 0 then p[0] else null
-    @selectedRegion?.isSelected = true
 
   @save = () =>
     localStorage.prefs = JSON.stringify(@prefs.serialize())

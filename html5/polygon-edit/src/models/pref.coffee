@@ -10,7 +10,6 @@ class Pref
     # count: "5"  # size of RegionOutlinePath
     # path: "..." # RegionOutlinePath
     # id: "Hokkaido-1"
-    # isSelected: false
     # polygon: new Polygon(...)
     @regions = []
 
@@ -54,7 +53,6 @@ class Pref
       count: path.split(/L|M/).length
       path: path
       id: name + "-" + (i + 1)
-      isSelected: false
       polygon: null
 
     return ret
