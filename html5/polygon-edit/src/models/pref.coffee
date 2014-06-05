@@ -4,13 +4,6 @@ root = exports ? this
 class Pref
   constructor: (@name, @index) ->
     @color = "#999999"
-
-    # prefName: "Hokkaido"
-    # name: "Hokkaido-1"
-    # count: "5"  # size of RegionOutlinePath
-    # path: "..." # RegionOutlinePath
-    # id: "Hokkaido-1"
-    # polygon: new Polygon(...)
     @regions = []
 
   serialize: ->
@@ -47,13 +40,7 @@ class Pref
     name = json.properties.ObjName_1
     index = json.properties["JIS-CODE"]
     ret = new Pref name, index
-    ret.regions = pathes.map (path, i) ->
-      prefName: name,
-      name: name + "-" + (i + 1)
-      count: path.split(/L|M/).length
-      path: path
-      id: name + "-" + (i + 1)
-      polygon: null
+    ret.regions = pathes.map (path, i) -> new Region name, i, path
 
     return ret
 

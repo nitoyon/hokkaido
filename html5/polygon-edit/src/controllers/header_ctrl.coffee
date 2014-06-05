@@ -12,9 +12,7 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
 
   $scope.add = () ->
     $scope.data.addingNewPolygon = true
-    p = new Polygon()
-    p.isClose = false
-    $scope.data.selectedRegion.polygon = p
+    $scope.data.selectedRegion.createPolygon()
 
   $scope.ok = () ->
     $scope.data.selectedRegion.polygon.close()
