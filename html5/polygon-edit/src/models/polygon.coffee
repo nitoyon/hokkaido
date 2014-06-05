@@ -143,10 +143,12 @@ class Polygon extends EventEmitter2
     @dots.push d
     @update() unless preventUpdate
 
-    d.once "exit", => @delDot d
+    d.once "exit", => @_delDot d
     @dots.length - 1
 
-  delDot: (d) ->
+  # private method
+  # Use dot.del() instead
+  _delDot: (d) ->
     index = @dots.indexOf d
     if index >= 0
       @dots.splice index, 1
@@ -232,7 +234,7 @@ class Polygon extends EventEmitter2
     else
       throw new Error('invalid polygon')
 
-    dot.once "exit", => @del(dot)
+    dot.once "exit", => @_delDot(dot)
 
     @update()
 

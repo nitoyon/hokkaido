@@ -179,27 +179,55 @@ describe 'Polygon', ->
     assert.strictEqual LineFactory.get(d4, d5), polygon.lines[3], 'd4-d5'
     assert.strictEqual LineFactory.get(d5, d1), polygon.lines[4], 'd5-d1'
 
-  it 'should del dot', ->
-    d = new Dot()
-    polygon = new Polygon(d, new Dot(), new Dot(), new Dot())
+  describe 'del dot', ->
+    it 'should del dot', ->
+      d = new Dot()
+      polygon = new Polygon(d, new Dot(), new Dot(), new Dot())
 
-    assert.lengthOf polygon.dots, 4
-    assert.lengthOf polygon.lines, 4
+      assert.lengthOf polygon.dots, 4
+      assert.lengthOf polygon.lines, 4
 
-    polygon.delDot(d)
-    assert.lengthOf polygon.dots, 3
-    assert.lengthOf polygon.lines, 3
+      called = false
+      polygon.once 'exit', () -> called = true
 
-  it 'should split line', ->
-    [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
-    polygon = new Polygon(d1, d2, d3)
-    assert.lengthOf polygon.dots, 3
-    assert.lengthOf polygon.lines, 3
+      d.del()
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+      assert.isFalse called
 
-    polygon.splitLine(polygon.lines[0], d4)
-    assert.lengthOf polygon.lines, 4
-    assert.lengthOf polygon.dots, 4
-    assert.deepEqual [d1, d4, d2, d3], polygon.dots
+    it 'should del triangle', ->
+      d = new Dot()
+      polygon = new Polygon(d, new Dot(), new Dot())
+
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+
+      called = false
+      polygon.once 'exit', () -> called = true
+
+      d.del()
+      assert.isTrue called
+
+  describe 'splitLine', ->
+    it 'should add dot', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3)
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+
+      polygon.splitLine(polygon.lines[0], d4)
+      assert.lengthOf polygon.lines, 4
+      assert.lengthOf polygon.dots, 4
+      assert.deepEqual [d1, d4, d2, d3], polygon.dots
+
+    it 'should add dot and new dot should be able to delete', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3)
+      polygon.splitLine(polygon.lines[0], d4)
+      d4.del()
+
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
 
   describe 'addInnerLine', ->
     it 'should split into 2 groups', ->
