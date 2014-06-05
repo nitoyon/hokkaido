@@ -12,5 +12,9 @@ class Region
     throw new Error 'polygon is not null' if @polygon?
     @polygon = new Polygon()
     @polygon.isClose = false
+    @polygon.once 'exit', => @_delPolygon()
+
+  _delPolygon: ->
+    @polygon = null
 
 root.Region = Region

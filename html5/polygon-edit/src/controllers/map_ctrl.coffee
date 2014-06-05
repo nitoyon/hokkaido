@@ -22,6 +22,8 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   # click dot handler
   $scope.dotSelect = (dot) -> $scope.$apply () ->
     $scope.selectedDot = dot
+  $scope.$watch 'data.selectedRegion', () ->
+    $scope.selectedDot = null
 
   # line click handler
   $scope.lineClick = (line, event) ->
@@ -39,13 +41,19 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     d = new Dot p.x, p.y
     CommonData.selectedRegion.polygon.addDot d
 
-  # keyboard shortcut for '+' & '-'
+  # keyboard shortcut
   $document.bind 'keydown', (event) ->
     switch event.keyCode
       when 187 # +
         $scope.$apply () -> $scope.zoom.zoomUp()
       when 189 # -
         $scope.$apply () -> $scope.zoom.zoomDown()
+      when 46  # del
+        region = $scope.data.selectedRegion
+        if $scope.data.selectedRegion && $scope.selectedDot?
+          $scope.$apply () ->
+            $scope.selectedDot.del()
+            CommonData.save()
 
 
 app.directive 'regionMap', () ->
