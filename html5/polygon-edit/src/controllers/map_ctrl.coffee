@@ -9,8 +9,7 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     event = d3.event
     p = Zoom.clientToWorld event.x, event.y
     $scope.$apply () ->
-      $scope.zoom.x += event.dx
-      $scope.zoom.y += event.dy
+      $scope.zoom.move event.dx, event.dy
 
   # drag dot handler
   $scope.dotDrag = (dot) -> $scope.$apply () ->
