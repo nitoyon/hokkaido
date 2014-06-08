@@ -9,6 +9,15 @@
       </g>
     </g>
 
+    <g id="all_polygon">
+      <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
+        <polygon ng-repeat="region in pref.regions"
+          ng-if="region.polygon"
+          stroke-width="{{1 / zoom.scale}}"
+          ng-attr-points="{{region.polygon.toPoints()}}"/>
+      </g>
+    </g>
+
     <g id="selected_polygon" ng-if="data.selectedRegion.polygon">
       <g ng-if="data.selectedRegion.polygon.isClose">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"

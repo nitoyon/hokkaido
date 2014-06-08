@@ -133,6 +133,11 @@ svg#map {
   stroke: red;
 }
 
+#all_polygon polygon {
+  stroke: #6699ff;
+  fill: none;
+}
+
 #selected_polygon circle {
   fill: red;
   cursor: pointer;
