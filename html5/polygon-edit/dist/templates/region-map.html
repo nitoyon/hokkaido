@@ -13,7 +13,8 @@
       <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
         <polygon ng-repeat="region in pref.regions"
           ng-if="region.polygon"
-          stroke-width="{{1 / zoom.scale}}"
+          vector-effect="non-scaling-stroke"
+          stroke-width="1"
           ng-attr-points="{{region.polygon.toPoints()}}"/>
       </g>
     </g>
@@ -22,7 +23,8 @@
       <circle ng-repeat="dot in data.prefs.getAllDots()"
         ng-class="{'selected': selectedItem == dot}"
         draggable draggable-ondrag="dotDrag(dot)" draggable-onclick="dotClick(dot)"
-        stroke-width="{{3 / zoom.scale}}"
+        vector-effect="non-scaling-stroke"
+        stroke-width="3"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
         ng-attr-r="{{2 / zoom.scale}}"/>
@@ -33,24 +35,28 @@
         <line ng-repeat="l in data.selectedRegion.polygon.innerLines"
           ng-click="innerLineClick(l)"
           ng-class="{'selected': selectedItem == l}"
-          stroke-width="{{1 / zoom.scale}}"
+          vector-effect="non-scaling-stroke"
+          stroke-width="1"
           ng-attr-x1="{{l.d1.x}}" ng-attr-y1="{{l.d1.y}}"
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
       </g>
       <g ng-if="data.selectedRegion.polygon.isClose" class="outer">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"
           ng-click="outerLineClick(l, $event)"
-          stroke-width="{{1 / zoom.scale}}"
+          vector-effect="non-scaling-stroke"
+          stroke-width="1"
           ng-attr-x1="{{l.d1.x}}" ng-attr-y1="{{l.d1.y}}"
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
       </g>
       <polyline
         ng-if="!data.selectedRegion.polygon.isClose"
         ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
-        stroke-width="{{1 / zoom.scale}}"/>
+        vector-effect="non-scaling-stroke"
+        stroke-width="1"/>
 
       <line id="inner_drag" ng-if="innerLineMode"
-        stroke-width="{{1 / zoom.scale}}"
+        vector-effect="non-scaling-stroke"
+        stroke-width="1"
         ng-attr-x1="{{innerLineMode.start.x}}" ng-attr-x2="{{innerLineMode.endPos.x}}"
         ng-attr-y1="{{innerLineMode.start.y}}" ng-attr-y2="{{innerLineMode.endPos.y}}"/>
 
@@ -63,7 +69,8 @@
         ng-mouseover="dotMouseOver(dot)"
         ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
                    'selected': selectedItem == dot}"
-        stroke-width="{{5 / zoom.scale}}"
+        vector-effect="non-scaling-stroke"
+        stroke-width="5"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
         ng-attr-r="{{5 / zoom.scale}}"/>
