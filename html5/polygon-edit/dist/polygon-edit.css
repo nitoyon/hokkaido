@@ -165,9 +165,17 @@ svg#map {
   stroke: #000;
 }
 
-#selected_polygon line {
+#selected_polygon g.outer line {
   fill: none;
-  stroke: #777;
+  stroke: #f00;
   cursor: pointer;
 }
 
+#selected_polygon g.inner line {
+  fill: none;
+  stroke: #00f;
+}
+
+#selected_polygon line#inner_drag {
+  stroke: #00f;
+}
