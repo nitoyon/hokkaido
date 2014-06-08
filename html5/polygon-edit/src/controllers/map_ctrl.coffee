@@ -36,7 +36,9 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
       region.polygon?.splitLine line, d
 
   $scope.mapClick = () -> $scope.$apply () ->
-    return unless CommonData.addingNewPolygon
+    unless CommonData.addingNewPolygon
+      $scope.selectedDot = null
+      return
 
     event = d3.event.sourceEvent
     p = Zoom.clientToWorld event.offsetX, event.offsetY
