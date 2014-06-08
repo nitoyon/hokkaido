@@ -1,11 +1,20 @@
 <!DOCTYPE html>
+<head>
 <meta charset="utf-8">
 <script src="d3.v3.js"></script>
+<script src="angular/angular.js"></script>
 <link rel="stylesheet" type="text/css" href="polygon-edit.css"/>
-<body>
+</head>
+<body ng-app="PolygonEdit">
 
-<div id="modes"></div>
-<svg id="map"></svg>
+<div id="header" header-toolbar ng-controller="HeaderCtrl"></div>
+
+<div id="main">
+  <div id="left">
+    <region-list ng-controller="ListCtrl"/>
+  </div>
+  <region-map ng-controller="MapCtrl"/>
+</div>
 
 <script src="polygon-edit.js"></script>
 </body>

@@ -2,108 +2,9 @@
 require('source-map-support').install()
 
 {assert} = require 'chai'
-{PolygonList} = require '../src/models/polygon'
 {Polygon} = require '../src/models/polygon'
 {Dot} = require '../src/models/dot'
 {LineFactory} = require '../src/models/line'
-
-describe 'PolygonList', ->
-  it 'should create adding polygon', ->
-    list = new PolygonList()
-    assert.isTrue list.createAddingPolygon()
-    polygon = list.addingPolygon
-    assert.isFalse polygon.isClose
-    assert.equal 1, list.list.length
-
-  it 'should close adding polygon', ->
-    list = new PolygonList()
-    list.createAddingPolygon()
-    polygon = list.addingPolygon
-
-    polygon.addDot(new Dot(2, 3))
-    polygon.addDot(new Dot(3, 4))
-    polygon.addDot(new Dot(4, 5))
-    list.closeAddingPolygon()
-
-    assert.isTrue polygon.isClose
-
-  describe 'serialize', ->
-    it 'should serialize vacant polygons', ->
-      list = new PolygonList()
-      assert.deepEqual [], list.serialize()
-
-    it 'should serialize multiple polygons', ->
-      d1 = new Dot(0, 0)
-
-      list = new PolygonList()
-      list.add(new Polygon(d1, new Dot(5, 0), new Dot(5, 5)))
-      list.add(new Polygon(d1, new Dot(3, 0), new Dot(3, 3)))
-      assert.deepEqual [
-        { dots: [[0,0], [5,0], [5,5]], inner: [] }
-        { dots: [[0,0], [3,0], [3,3]], inner: [] }
-      ], list.serialize()
-
-  describe 'deserialize', ->
-    it 'should deserialize vacant polygons', ->
-      list = new PolygonList()
-      list.deserialize([])
-      assert.equal 0, list.list.length
-
-    it 'should deserialize multiple polygons', ->
-      list = new PolygonList()
-      list.deserialize [
-        { dots: [[0,0], [1,0], [2,1], [1,2], [0,1]], inner: [] }
-        { dots: [[0,0], [1,1], [1,2], [0,3]], inner: [] }
-      ]
-      assert.equal 2, list.list.length
-      assert.strictEqual list.list[0].dots[0], list.list[1].dots[0]
-      assert.equal 5, list.list[0].dots.length
-      assert.equal 5, list.list[0].lines.length
-      assert.equal 0, list.list[0].dots[0].x
-      assert.equal 0, list.list[0].dots[0].y
-      assert.equal 4, list.list[1].dots.length
-      assert.equal 4, list.list[1].lines.length
-
-  describe 'getOuterLines', ->
-    it 'should return nothing when no polygon exists', ->
-      list = new PolygonList()
-      assert.lengthOf list.getOuterLines(), 0
-
-    it 'should return outer lines', ->
-      [d1, d2, d3, d4, d5] =
-        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
-      p1 = new Polygon(d1, d2, d3, d4)
-      p2 = new Polygon(d1, d2, d3, d5)
-
-      list = new PolygonList()
-      list.add p1
-      list.add p2
-
-      assert.sameMembers [
-        LineFactory.get d1, d2
-        LineFactory.get d2, d3
-        LineFactory.get d3, d4
-        LineFactory.get d4, d1
-        LineFactory.get d3, d5
-        LineFactory.get d5, d1
-      ], list.getOuterLines()
-
-  describe 'getDots', ->
-    it 'should return nothing when no polygon exists', ->
-      list = new PolygonList()
-      assert.lengthOf list.getDots(), 0
-
-    it 'should return all dots', ->
-      [d1, d2, d3, d4, d5] =
-        [new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
-      p1 = new Polygon(d1, d2, d3)
-      p2 = new Polygon(d2, d3, d5)
-
-      list = new PolygonList()
-      list.add p1
-      list.add p2
-
-      assert.sameMembers [d1, d2, d3, d5], list.getDots()
 
 describe 'Polygon', ->
   beforeEach ->
@@ -179,27 +80,55 @@ describe 'Polygon', ->
     assert.strictEqual LineFactory.get(d4, d5), polygon.lines[3], 'd4-d5'
     assert.strictEqual LineFactory.get(d5, d1), polygon.lines[4], 'd5-d1'
 
-  it 'should del dot', ->
-    d = new Dot()
-    polygon = new Polygon(d, new Dot(), new Dot(), new Dot())
+  describe 'del dot', ->
+    it 'should del dot', ->
+      d = new Dot()
+      polygon = new Polygon(d, new Dot(), new Dot(), new Dot())
 
-    assert.lengthOf polygon.dots, 4
-    assert.lengthOf polygon.lines, 4
+      assert.lengthOf polygon.dots, 4
+      assert.lengthOf polygon.lines, 4
 
-    polygon.delDot(d)
-    assert.lengthOf polygon.dots, 3
-    assert.lengthOf polygon.lines, 3
+      called = false
+      polygon.once 'exit', () -> called = true
 
-  it 'should split line', ->
-    [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
-    polygon = new Polygon(d1, d2, d3)
-    assert.lengthOf polygon.dots, 3
-    assert.lengthOf polygon.lines, 3
+      d.del()
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+      assert.isFalse called
 
-    polygon.splitLine(polygon.lines[0], d4)
-    assert.lengthOf polygon.lines, 4
-    assert.lengthOf polygon.dots, 4
-    assert.deepEqual [d1, d4, d2, d3], polygon.dots
+    it 'should del triangle', ->
+      d = new Dot()
+      polygon = new Polygon(d, new Dot(), new Dot())
+
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+
+      called = false
+      polygon.once 'exit', () -> called = true
+
+      d.del()
+      assert.isTrue called
+
+  describe 'splitLine', ->
+    it 'should add dot', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3)
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
+
+      polygon.splitLine(polygon.lines[0], d4)
+      assert.lengthOf polygon.lines, 4
+      assert.lengthOf polygon.dots, 4
+      assert.deepEqual [d1, d4, d2, d3], polygon.dots
+
+    it 'should add dot and new dot should be able to delete', ->
+      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3)
+      polygon.splitLine(polygon.lines[0], d4)
+      d4.del()
+
+      assert.lengthOf polygon.dots, 3
+      assert.lengthOf polygon.lines, 3
 
   describe 'addInnerLine', ->
     it 'should split into 2 groups', ->

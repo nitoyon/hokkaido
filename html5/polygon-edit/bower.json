@@ -1,0 +1,8 @@
+{
+  "name": "polygon edit",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "1.2.x"
+  }
+}

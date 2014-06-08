@@ -10,69 +10,6 @@ EventEmitter2 ?= @EventEmitter2
 _ = require('underscore')
 _ ?= @_
 
-class PolygonList
-  constructor: ->
-    @list = []
-    @addingPolygon = null
-
-  createAddingPolygon: ->
-    unless @addingPolygon is null
-      false
-    else
-      @addingPolygon = new Polygon()
-      @addingPolygon.isClose = false
-      @add(@addingPolygon)
-      return true
-
-  add: (polygon) ->
-    @list.push polygon
-    polygon.once 'exit', (p) => @del(p)
-
-  del: (polygon) ->
-    index = @list.indexOf polygon
-    if index >= 0
-      @list.splice index, 1
-
-    if @addingPolygon == polygon
-      @addingPolygon = null
-
-  getOuterLines: ->
-    _.chain @list
-      .map (p) -> p.lines
-      .flatten()
-      .uniq()
-      .value()
-
-  getDots: ->
-    _.chain @list
-      .map (p) -> p.dots
-      .flatten()
-      .uniq()
-      .value()
-
-  serialize: ->
-    @list.map (polygon) -> polygon.serialize()
-
-  deserialize: (data) ->
-    dotmap = {}
-
-    data.forEach (entry) =>
-      polygon = new Polygon()
-      return if entry.length == 0
-
-      polygon.deserialize entry, dotmap
-      @add polygon if polygon.dots.length >= 3
-
-  splitLine: (line, dot) ->
-    for p in @list
-      p.splitLine line, dot
-
-  closeAddingPolygon: ->
-    if @addingPolygon && @addingPolygon.lines.length > 0
-      @addingPolygon.close()
-    @addingPolygon = null
-
-
 class Polygon extends EventEmitter2
   @id = 1
 
@@ -143,10 +80,12 @@ class Polygon extends EventEmitter2
     @dots.push d
     @update() unless preventUpdate
 
-    d.once "exit", => @delDot d
+    d.once "exit", => @_delDot d
     @dots.length - 1
 
-  delDot: (d) ->
+  # private method
+  # Use dot.del() instead
+  _delDot: (d) ->
     index = @dots.indexOf d
     if index >= 0
       @dots.splice index, 1
@@ -232,7 +171,7 @@ class Polygon extends EventEmitter2
     else
       throw new Error('invalid polygon')
 
-    dot.once "exit", => @del(dot)
+    dot.once "exit", => @_delDot(dot)
 
     @update()
 
@@ -359,5 +298,4 @@ class Polygon extends EventEmitter2
       @innerDots = _.union @innerDots, dots
     null
 
-root.PolygonList = PolygonList
 root.Polygon = Polygon

@@ -1,4 +1,43 @@
+div#main {
+	position: relative;
+}
+
+select#pref_list option {
+	color: #999;
+}
+
+select#pref_list option.has_region {
+	color: #000;
+}
+
+#map_pathes path {
+	opacity: .1;
+}
+
+#map_pathes path.selected {
+	opacity: 1;
+}
+
+div#left {
+	position: absolute;
+	top: 0;
+	width: 200px;
+	height: 602px;
+}
+
+div#left button{
+	height: 20px;
+}
+
+select#pref_list {
+	width: 100%;
+	height: 600px;
+}
+
 svg#map {
+	position: absolute;
+	top: 0;
+	left: 210px;
 	width: 600px;
 	height: 600px;
 	border: 1px solid black;
@@ -94,17 +133,53 @@ svg#map {
   stroke: red;
 }
 
-#polygons polygon {
-  fill: blue;
-  opacity: .1;
+#all_polygon polygon {
+  stroke: #6699ff;
+  fill: none;
 }
 
-#polygons polygon.selected {
-  fill: blue;
-  opacity: 1;
+#all_dots circle {
+  fill: #6699ff;
+  cursor: pointer;
 }
 
-#polygons line {
+#all_dots circle.selected {
   stroke: black;
 }
 
+#selected_polygon circle {
+  fill: red;
+  cursor: pointer;
+}
+
+#selected_polygon circle.inner {
+  fill: blue;
+}
+
+#selected_polygon circle.selected {
+  stroke: black;
+}
+
+#selected_polygon polyline {
+  fill: none;
+  stroke: #000;
+}
+
+#selected_polygon g.outer line {
+  fill: none;
+  stroke: #f00;
+  cursor: pointer;
+}
+
+#selected_polygon g.inner line {
+  fill: none;
+  stroke: #00f;
+  cursor: pointer;
+}
+#selected_polygon g.inner line.selected {
+  stroke: black;
+}
+
+#selected_polygon line#inner_drag {
+  stroke: #00f;
+}
