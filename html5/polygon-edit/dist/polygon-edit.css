@@ -2,6 +2,14 @@ div#main {
 	position: relative;
 }
 
+select#pref_list option {
+	color: #999;
+}
+
+select#pref_list option.has_region {
+	color: #000;
+}
+
 #map_pathes path {
 	opacity: .1;
 }
