@@ -140,6 +140,11 @@ svg#map {
 
 #all_dots circle {
   fill: #6699ff;
+  cursor: pointer;
+}
+
+#all_dots circle.selected {
+  stroke: black;
 }
 
 #selected_polygon circle {

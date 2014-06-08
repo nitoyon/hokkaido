@@ -20,6 +20,9 @@
 
     <g id="all_dots">
       <circle ng-repeat="dot in data.prefs.getAllDots()"
+        ng-class="{'selected': selectedDot == dot}"
+        draggable draggable-ondrag="dotMove(dot)" draggable-onclick="dotSelect(dot)"
+        stroke-width="{{3 / zoom.scale}}"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
         ng-attr-r="{{2 / zoom.scale}}"/>

@@ -16,14 +16,13 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.dotMove = (dot) -> $scope.$apply () ->
     dot.x += d3.event.dx
     dot.y += d3.event.dy
-    $scope.data.selectedRegion.polygon.updateGroups()
+    for polygon in CommonData.prefs.getAllPolygons()
+      polygon.updateGroups() if polygon.contains dot
     CommonData.save()
 
   # click dot handler
   $scope.dotSelect = (dot) -> $scope.$apply () ->
     $scope.selectedDot = dot
-  $scope.$watch 'data.selectedRegion', () ->
-    $scope.selectedDot = null
 
   # line click handler
   $scope.lineClick = (line, event) ->
@@ -49,8 +48,7 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
       when 189 # -
         $scope.$apply () -> $scope.zoom.zoomDown()
       when 46  # del
-        region = $scope.data.selectedRegion
-        if $scope.data.selectedRegion && $scope.selectedDot?
+        if $scope.selectedDot?
           $scope.$apply () ->
             $scope.selectedDot.del()
             CommonData.save()

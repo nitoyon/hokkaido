@@ -14,6 +14,13 @@ class PrefList
     .flatten()
     .value()
 
+  getAllPolygons: () ->
+    _.chain @getAllRegions()
+    .map (region) -> region.polygon
+    .flatten()
+    .compact()
+    .value()
+
   getAllDots: () ->
     _.chain @getAllRegions()
     .map (region) -> region.polygon?.dots
