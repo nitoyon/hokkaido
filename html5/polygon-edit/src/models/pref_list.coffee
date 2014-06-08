@@ -14,6 +14,14 @@ class PrefList
     .flatten()
     .value()
 
+  getAllDots: () ->
+    _.chain @getAllRegions()
+    .map (region) -> region.polygon?.dots
+    .flatten()
+    .compact()
+    .uniq()
+    .value()
+
   serialize: ->
     ret = {}
     @list.forEach (pref) -> ret[pref.name] = pref.serialize()

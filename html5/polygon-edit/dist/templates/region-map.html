@@ -18,6 +18,13 @@
       </g>
     </g>
 
+    <g id="all_dots">
+      <circle ng-repeat="dot in data.prefs.getAllDots()"
+        ng-attr-cx="{{dot.x}}"
+        ng-attr-cy="{{dot.y}}"
+        ng-attr-r="{{2 / zoom.scale}}"/>
+    </g>
+
     <g id="selected_polygon" ng-if="data.selectedRegion.polygon">
       <g ng-if="data.selectedRegion.polygon.isClose">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"
