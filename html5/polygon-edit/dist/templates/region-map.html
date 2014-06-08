@@ -21,7 +21,7 @@
     <g id="all_dots">
       <circle ng-repeat="dot in data.prefs.getAllDots()"
         ng-class="{'selected': selectedDot == dot}"
-        draggable draggable-ondrag="dotMove(dot)" draggable-onclick="dotSelect(dot)"
+        draggable draggable-ondrag="dotMove(dot)" draggable-onclick="dotClick(dot)"
         stroke-width="{{3 / zoom.scale}}"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
@@ -41,7 +41,7 @@
         ng-attr-points="{{data.selectedRegion.polygon.toPoints()}}"
         stroke-width="{{1 / zoom.scale}}"/>
       <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
-        draggable draggable-ondrag="dotMove(dot)" draggable-onclick="dotSelect(dot)"
+        draggable draggable-ondrag="dotMove(dot)" draggable-onclick="dotClick(dot)"
         ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
                    'selected': selectedDot == dot}"
         stroke-width="{{5 / zoom.scale}}"

@@ -162,7 +162,7 @@ svg#map {
 
 #selected_polygon polyline {
   fill: none;
-  stroke: #777;
+  stroke: #000;
 }
 
 #selected_polygon line {

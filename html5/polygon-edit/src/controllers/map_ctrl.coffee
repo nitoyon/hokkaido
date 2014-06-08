@@ -21,7 +21,10 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     CommonData.save()
 
   # click dot handler
-  $scope.dotSelect = (dot) -> $scope.$apply () ->
+  $scope.dotClick = (dot) -> $scope.$apply () ->
+    if CommonData.addingNewPolygon
+      CommonData.selectedRegion.polygon.addDot dot
+
     $scope.selectedDot = dot
 
   # line click handler
