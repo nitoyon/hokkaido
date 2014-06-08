@@ -126,5 +126,4 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
 
 
 app.directive 'regionMap', () ->
-  restrict: 'E'
   templateUrl: 'templates/region-map.html'

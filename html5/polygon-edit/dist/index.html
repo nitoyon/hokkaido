@@ -10,10 +10,8 @@
 <div id="header" header-toolbar ng-controller="HeaderCtrl"></div>
 
 <div id="main">
-  <div id="left">
-    <region-list ng-controller="ListCtrl"/>
-  </div>
-  <region-map ng-controller="MapCtrl"/>
+  <div id="left" region-list ng-controller="ListCtrl"></div>
+  <div id="map_container" region-map ng-controller="MapCtrl"></div>
 </div>
 
 <script src="polygon-edit.js"></script>

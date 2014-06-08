@@ -1,13 +1,23 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+body {
+	display: flex;
+	flex-flow: column nowrap;
+}
+
+div#header {
+	height: 2em;
+}
+
 div#main {
-	position: relative;
-}
-
-select#pref_list option {
-	color: #999;
-}
-
-select#pref_list option.has_region {
-	color: #000;
+	display: flex;
+	flex-flow: row nowrap;
 }
 
 #map_pathes path {
@@ -19,28 +29,29 @@ select#pref_list option.has_region {
 }
 
 div#left {
-	position: absolute;
-	top: 0;
 	width: 200px;
-	height: 602px;
+	display: flex;
 }
 
-div#left button{
-	height: 20px;
+select#pref_list option {
+	color: #999;
+}
+
+select#pref_list option.has_region {
+	color: #000;
 }
 
 select#pref_list {
 	width: 100%;
-	height: 600px;
+}
+
+div#map_container {
+	height: 100%;
+	flex-grow: 1;
 }
 
 svg#map {
-	position: absolute;
-	top: 0;
-	left: 210px;
-	width: 600px;
-	height: 600px;
-	border: 1px solid black;
+	background: #f9f9ff;
 }
 
 #all_polygon polygon {
