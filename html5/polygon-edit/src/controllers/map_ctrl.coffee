@@ -3,7 +3,8 @@ app = angular.module 'PolygonEdit'
 app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.data = CommonData
   $scope.zoom = Zoom
-  $scope.selectedDot = null
+  # dot or inner line
+  $scope.selectedItem = null
   $scope.innerLineMode = null
 
   # drag map handler
@@ -83,19 +84,22 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     if CommonData.addingNewPolygon
       CommonData.selectedRegion.polygon.addDot dot
 
-    $scope.selectedDot = dot
+    $scope.selectedItem = dot
 
-  # line click handler
-  $scope.lineClick = (line, event) ->
+  # outer line click handler
+  $scope.outerLineClick = (line, event) ->
     p = Zoom.clientToWorld event.offsetX, event.offsetY
     d = new Dot p.x, p.y
-    $scope.selectedDot = d
+    $scope.selectedItem = d
     for region in CommonData.prefs.getAllRegions()
       region.polygon?.splitLine line, d
 
+  $scope.innerLineClick = (line) ->
+    $scope.selectedItem = line
+
   $scope.mapClick = () -> $scope.$apply () ->
     unless CommonData.addingNewPolygon
-      $scope.selectedDot = null
+      $scope.selectedItem = null
       return
 
     event = d3.event.sourceEvent
@@ -111,9 +115,13 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
       when 189 # -
         $scope.$apply () -> $scope.zoom.zoomDown()
       when 46  # del
-        if $scope.selectedDot?
+        if $scope.selectedItem?
           $scope.$apply () ->
-            $scope.selectedDot.del()
+            item = $scope.selectedItem
+            if item instanceof Dot
+              item.del()
+            else if item instanceof Line
+              $scope.data.selectedRegion?.polygon?.deleteInnerLine item
             CommonData.save()
 
 

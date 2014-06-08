@@ -20,7 +20,7 @@
 
     <g id="all_dots">
       <circle ng-repeat="dot in data.prefs.getAllDots()"
-        ng-class="{'selected': selectedDot == dot}"
+        ng-class="{'selected': selectedItem == dot}"
         draggable draggable-ondrag="dotDrag(dot)" draggable-onclick="dotClick(dot)"
         stroke-width="{{3 / zoom.scale}}"
         ng-attr-cx="{{dot.x}}"
@@ -31,13 +31,15 @@
     <g id="selected_polygon" ng-if="data.selectedRegion.polygon">
       <g class="inner">
         <line ng-repeat="l in data.selectedRegion.polygon.innerLines"
+          ng-click="innerLineClick(l)"
+          ng-class="{'selected': selectedItem == l}"
           stroke-width="{{1 / zoom.scale}}"
           ng-attr-x1="{{l.d1.x}}" ng-attr-y1="{{l.d1.y}}"
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
       </g>
       <g ng-if="data.selectedRegion.polygon.isClose" class="outer">
         <line ng-repeat="l in data.selectedRegion.polygon.lines"
-          ng-click="lineClick(l, $event)"
+          ng-click="outerLineClick(l, $event)"
           stroke-width="{{1 / zoom.scale}}"
           ng-attr-x1="{{l.d1.x}}" ng-attr-y1="{{l.d1.y}}"
           ng-attr-x2="{{l.d2.x}}" ng-attr-y2="{{l.d2.y}}"/>
@@ -60,7 +62,7 @@
         draggable-onclick="dotClick(dot)"
         ng-mouseover="dotMouseOver(dot)"
         ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
-                   'selected': selectedDot == dot}"
+                   'selected': selectedItem == dot}"
         stroke-width="{{5 / zoom.scale}}"
         ng-attr-cx="{{dot.x}}"
         ng-attr-cy="{{dot.y}}"
