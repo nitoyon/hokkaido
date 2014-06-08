@@ -21,8 +21,7 @@ class Pref
         d = data[region.id]
         region.name = d.name
         if d.polygon
-          region.polygon = new Polygon()
-          region.polygon.deserialize d.polygon, dotmap
+          region.deserialize d.polygon, dotmap
     null
 
   @createFromJson: (json, path) ->

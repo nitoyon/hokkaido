@@ -15,6 +15,15 @@ class Region
     @polygon.once 'exit', => @_delPolygon()
 
   _delPolygon: ->
-    @polygon = null
+    if @polygon != null
+      @polygon.removeAllListeners()
+      @polygon = null
+
+  deserialize: (json, dotmap) ->
+    @createPolygon()
+    @polygon.isClose = true
+    @polygon.deserialize json, dotmap
+
+    @_delPolygon() if @polygon.dots < 3
 
 root.Region = Region
