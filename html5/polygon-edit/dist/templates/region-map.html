@@ -4,8 +4,7 @@
       <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
         <path ng-repeat="region in pref.regions"
           ng-class="{selected : region == data.selectedRegion}"
-          ng-attr-d="{{region.path}}"
-          fill="{{pref.color}}"/>
+          ng-attr-d="{{region.path}}"/>
       </g>
     </g>
 

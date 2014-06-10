@@ -22,10 +22,13 @@ div#main {
 
 #map_pathes path {
 	opacity: .1;
+	stroke: white;
+	stroke-width: .1;
 }
 
 #map_pathes path.selected {
-	opacity: 1;
+	opacity: .5;
+	stroke: none;
 }
 
 div#left {

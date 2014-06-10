@@ -3,7 +3,6 @@ root = exports ? this
 
 class Pref
   constructor: (@name, @index) ->
-    @color = "#999999"
     @regions = []
 
   serialize: ->
