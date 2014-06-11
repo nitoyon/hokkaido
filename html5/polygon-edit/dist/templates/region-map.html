@@ -4,6 +4,7 @@
       <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
         <path ng-repeat="region in pref.regions"
           ng-class="{selected : region == data.selectedRegion}"
+          ng-click="regionClick(region)"
           ng-attr-d="{{region.path}}"/>
       </g>
     </g>

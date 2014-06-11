@@ -7,6 +7,10 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.selectedItem = null
   $scope.innerLineMode = null
 
+  $scope.regionClick = (region) ->
+    $scope.data.selectedRegion = region unless CommonData.addingNewPolygon
+
+
   # drag map handler
   $scope.mapDrag = () ->
     event = d3.event

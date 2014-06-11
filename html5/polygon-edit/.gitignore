@@ -4,3 +4,4 @@ dist/angular/
 src/*.js
 src/*/*.js
 *.map
+*.json
