@@ -19,8 +19,9 @@ app.service 'CommonData', ($http) ->
   @save = () =>
     localStorage.prefs = JSON.stringify(@prefs.serialize())
 
-  @load = () =>
-    @prefs.deserialize JSON.parse localStorage.prefs if localStorage.prefs?
+  @load = (value) =>
+    value = value || localStorage.prefs
+    @prefs.deserialize JSON.parse value if value
 
   $http.get 'out.geojson'
   .success (data) =>

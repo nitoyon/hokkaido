@@ -24,5 +24,15 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
     $scope.data.selectedRegion.polygon = null
     CommonData.save()
 
+  $scope.save = ->
+    dat = JSON.stringify CommonData.prefs.serialize()
+    window.open 'data:application/octet-stream,' + encodeURIComponent dat,
+      '_new_window'
+
+  $scope.load = ->
+    value = window.prompt 'Paste saved content'
+    if value != null
+      CommonData.load value
+
 app.directive 'headerToolbar', () ->
   templateUrl: 'templates/header-toolbar.html'
