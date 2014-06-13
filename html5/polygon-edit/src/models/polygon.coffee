@@ -89,12 +89,13 @@ class Polygon extends EventEmitter2
     if index >= 0
       @dots.splice index, 1
 
-      @clearInnerLines()
-
       if @dots.length <= 2
         @emit 'exit', this
       else
-        @update()
+        @updateLines()
+        @innerLines = _.reject @innerLines, (l) =>
+          l.contains(d) || @lines.indexOf(l) >= 0
+        @updateGroups()
 
   contains: (d) ->
     @dots.indexOf d >= 0
@@ -193,9 +194,6 @@ class Polygon extends EventEmitter2
     index = @innerLines.indexOf l
     @innerLines.splice index, 1
     @update()
-
-  clearInnerLines: ->
-    @innerLines = []
 
   update: ->
     @updateLines()

@@ -109,6 +109,36 @@ describe 'Polygon', ->
       d.del()
       assert.isTrue called
 
+    it 'should delete inner line when it becomes outer line', ->
+      # d1 o---o d2
+      #    | _/|
+      #    |/  |
+      # d5 o-o-o d3
+      #      d4
+      [d1, d2, d3, d4, d5] = [new Dot(), new Dot(), new Dot(), new Dot(),
+        new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5)
+      polygon.addInnerLine d2, d5
+      assert.lengthOf polygon.innerLines, 1
+
+      d3.del()
+      assert.lengthOf polygon.innerLines, 1
+
+      d4.del()
+      assert.lengthOf polygon.innerLines, 0
+
+    it 'should delete inner line when one of its node is deleted', ->
+      [d1, d2, d3, d4, d5, d6] = [new Dot(), new Dot(), new Dot(),
+        new Dot(), new Dot(), new Dot()]
+      polygon = new Polygon(d1, d2, d3, d4, d5, d6)
+      polygon.addInnerLine d1, d4
+      polygon.addInnerLine d4, d6
+      assert.lengthOf polygon.innerLines, 2
+
+      d1.del()
+      assert.lengthOf polygon.innerLines, 1
+      assert.equal polygon.innerLines[0], LineFactory.get d4, d6
+
   describe 'splitLine', ->
     it 'should add dot', ->
       [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
