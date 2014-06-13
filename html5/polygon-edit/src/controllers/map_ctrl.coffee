@@ -49,6 +49,8 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.dotDragEnd = (dot) ->
     if $scope.innerLineMode?
       $scope.$apply -> innerLineMoveEnd()
+    else
+      CommonData.save()
 
   $scope.dotMouseOver = (dot) ->
     if $scope.innerLineMode?
@@ -59,7 +61,6 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     dot.y += d3.event.dy
     for polygon in CommonData.prefs.getAllPolygons()
       polygon.updateGroups() if polygon.contains dot
-    CommonData.save()
 
   innerLineMove = ->
     mode = $scope.innerLineMode
