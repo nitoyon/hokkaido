@@ -1,0 +1,7 @@
+node_modules
+polygon-edit.js
+dist/angular/
+src/*.js
+src/*/*.js
+*.map
+*.json

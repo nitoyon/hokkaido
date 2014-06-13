@@ -1,0 +1,10 @@
+<select id="pref_list" multiple ng-model="selectedIds" ng-disabled="data.addingNewPolygon">
+  <optgroup ng-repeat="pref in data.prefs.list" label="{{pref.name}}">
+    <option ng-repeat="region in pref.regions"
+      value="{{region.id}}"
+      ng-click="regionClick(region)"
+      ng-class="{'has_region': region.polygon}">
+      {{region.name}} ({{region.count}})
+    </option>
+  </optgroup>
+</selecct>
