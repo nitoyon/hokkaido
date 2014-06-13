@@ -19,7 +19,6 @@ class Polygon extends EventEmitter2
     @groups = []
     @innerLines = []
     @innerDots = []
-    @selectedInnerLine = null
     @lastDot = null
     @id = @constructor.id++
     @isClose = true
@@ -96,9 +95,6 @@ class Polygon extends EventEmitter2
         @emit 'exit', this
       else
         @update()
-
-  del: ->
-    @deleteInnerLine @selectedInnerLine if @selectedInnerLine?
 
   contains: (d) ->
     @dots.indexOf d >= 0
@@ -199,18 +195,7 @@ class Polygon extends EventEmitter2
     @update()
 
   clearInnerLines: ->
-    @unselectInnerLine()
     @innerLines = []
-
-  selectInnerLine: (l) ->
-    throw new Error 'not an inner line' unless @containsInnerLine l
-    @unselectInnerLine()
-    l.isSelected = true
-    @selectedInnerLine = l
-
-  unselectInnerLine: ->
-    @selectedInnerLine?.isSelected = false
-    @selectedInnerLine = null
 
   update: ->
     @updateLines()
