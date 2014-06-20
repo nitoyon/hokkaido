@@ -277,8 +277,17 @@ class Polygon extends EventEmitter2
 
     @innerDots = []
     for group in @groups
+      # update inner dots
       dots = _.difference group, @constructor.getConvexHull group
       @innerDots = _.union @innerDots, dots
+
+      # reorder dots to be clockwise
+      if dots.length == 0
+        [d1, d2, d3] = [group[0], group[1], group[2]]
+        crossProduct =
+          (d2.x - d1.x) * (d3.y - d2.y) - (d3.x - d2.x) * (d2.y - d1.y)
+        if crossProduct < 0
+          group.reverse()
     null
 
 root.Polygon = Polygon
