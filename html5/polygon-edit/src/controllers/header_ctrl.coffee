@@ -39,6 +39,7 @@ app.controller 'HeaderCtrl', ($scope, CommonData) ->
     value = window.prompt 'Paste saved content'
     if value != null
       CommonData.load value
+      CommonData.save()
 
 app.directive 'headerToolbar', () ->
   templateUrl: 'templates/header-toolbar.html'

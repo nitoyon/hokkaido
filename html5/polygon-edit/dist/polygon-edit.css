@@ -58,6 +58,11 @@ svg#map {
 	background: #f9f9ff;
 }
 
+canvas#preview {
+	width: 400px;
+	height: 400px;
+}
+
 #all_polygon polygon {
   stroke: #6699ff;
   fill: none;
