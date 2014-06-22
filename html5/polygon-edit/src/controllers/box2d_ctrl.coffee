@@ -13,7 +13,7 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
   b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
   b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
-  SCALE = 100
+  SCALE = 10
 
   world = new b2World new b2Vec2(0, 10), true
 
@@ -52,8 +52,6 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
   addRegionBody = (polygon) ->
     bodyDef = new b2BodyDef()
     bodyDef.type = b2Body.b2_dynamicBody
-    bodyDef.position.x = 4
-    bodyDef.position.y = 3
     regionBody = world.CreateBody bodyDef
 
     fixDef = new b2FixtureDef()
@@ -61,22 +59,21 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
     fixDef.friction = 0.1
     fixDef.restitution = 0.9
 
-    vertices = []
-    dots = polygon.groups[0]
-    [px, py] = [0, 0]
-    for dot in dots
-      px += dot.x
-      py += dot.y
-    px /= dots.length
-    py /= dots.length
-    for dot in dots
-      vertices.push new b2Vec2 (dot.x - px) + 8, (dot.y - py)
+    # create polygon
+    for group in polygon.groups
+      vertices = []
+      for dot in group
+        vertices.push new b2Vec2 dot.x / SCALE, dot.y / SCALE
 
-    shape = new b2PolygonShape()
-    shape.SetAsVector vertices, vertices.length
+      shape = new b2PolygonShape()
+      shape.SetAsVector vertices, vertices.length
+      fixDef.shape = shape
+      regionBody.CreateFixture fixDef
 
-    fixDef.shape = shape
-    regionBody.CreateFixture fixDef
+    # move body so that its center is placed at (4, 3)
+    center = regionBody.GetLocalCenter()
+    newPos = new b2Vec2(-center.x + 4, -center.y + 3)
+    regionBody.SetPosition newPos
 
   step = () ->
     world.Step 1 / 60, 10, 10
