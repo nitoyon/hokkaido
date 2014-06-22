@@ -3,6 +3,7 @@ app = angular.module('PolygonEdit')
 app.service 'CommonData', ($http) ->
   @prefs = new PrefList()
   @selectedRegion = null
+  @previewing = false
   @addingNewPolygon = false
 
   @updateSelectedRegion = (selectedIds) =>
