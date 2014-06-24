@@ -2,20 +2,23 @@ app = angular.module('PolygonEdit')
 
 app.service 'CommonData', ($http) ->
   @prefs = new PrefList()
+  @selectedRegions = []
   @selectedRegion = null
   @previewing = false
   @addingNewPolygon = false
 
   @updateSelectedRegion = (selectedIds) =>
-    if selectedIds.length == 0
-      @selectedRegion = null
-    else
-      id = selectedIds[0]
+    @selectedRegions = []
+    @selectedRegion = null
 
+    allRegions = @prefs.getAllRegions()
+    for id in selectedIds
       # find selected region
       p = _.filter @prefs.getAllRegions(), (region) ->
         region.id == id
-      @selectedRegion = if p.length > 0 then p[0] else null
+      @selectedRegions.push p[0] if p.length > 0
+
+    @selectedRegion = @selectedRegions[0] if @selectedRegions.length > 0
 
   @save = () =>
     localStorage.prefs = JSON.stringify(@prefs.serialize())

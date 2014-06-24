@@ -9,7 +9,8 @@ app.controller 'ListCtrl', ($scope, CommonData) ->
 
   $scope.$watch 'data.selectedRegion', (newValue, oldValue) ->
     if newValue?
-      $scope.selectedIds = [newValue.id]
+      if $scope.selectedIds.length != 1 || $scope.selectedIds[0] != newValue.id
+        $scope.selectedIds = [newValue.id]
     else
       $scope.selectedIds = []
 
