@@ -49,7 +49,19 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
     debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
     world.SetDebugDraw debugDraw
 
-  addRegionBody = (polygon) ->
+  getCenterOfPolygons = (polygons) ->
+    [minX, minY] = [Number.MAX_VALUE, Number.MAX_VALUE]
+    [maxX, maxY] = [Number.MIN_VALUE, Number.MIN_VALUE]
+    for polygon in polygons
+      for group in polygon.groups
+        for dot in group
+          minX = dot.x if dot.x < minX
+          minY = dot.y if dot.y < minY
+          maxX = dot.x if dot.x > maxX
+          maxY = dot.y if dot.y > maxY
+    return new Dot (minX + maxX) / 2, (minY + maxY) / 2
+
+  addRegionBody = (polygon, center) ->
     bodyDef = new b2BodyDef()
     bodyDef.type = b2Body.b2_dynamicBody
     regionBody = world.CreateBody bodyDef
@@ -63,27 +75,27 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
     for group in polygon.groups
       vertices = []
       for dot in group
-        vertices.push new b2Vec2 dot.x / SCALE, dot.y / SCALE
+        vertices.push new b2Vec2 (dot.x - center.x) / SCALE + 8,
+          (dot.y - center.y) / SCALE + 2
 
       shape = new b2PolygonShape()
       shape.SetAsVector vertices, vertices.length
       fixDef.shape = shape
       regionBody.CreateFixture fixDef
 
-    # move body so that its center is placed at (4, 3)
-    center = regionBody.GetLocalCenter()
-    newPos = new b2Vec2(-center.x + 4, -center.y + 3)
-    regionBody.SetPosition newPos
-
   step = () ->
     world.Step 1 / 60, 10, 10
     world.DrawDebugData()
 
-  $scope.$watch 'data.selectedRegion', ->
-    polygon = CommonData.selectedRegion?.polygon
-    return unless polygon
+  $scope.$watch 'data.selectedRegions', ->
+    polygons = _.chain CommonData.selectedRegions
+    .map (r) -> r.polygon
+    .compact()
+    .value()
 
-    addRegionBody polygon
+    center = getCenterOfPolygons polygons
+    for polygon in polygons
+      addRegionBody polygon, center
 
   $scope.$on '$destroy', ->
     clearInterval timer
