@@ -93,6 +93,11 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
     .compact()
     .value()
 
+    body = world.GetBodyList()
+    while body
+      world.DestroyBody body if body.GetType() == b2Body.b2_dynamicBody
+      body = body.m_next
+
     center = getCenterOfPolygons polygons
     for polygon in polygons
       addRegionBody polygon, center
