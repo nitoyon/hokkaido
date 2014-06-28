@@ -33,9 +33,9 @@ app.controller 'Box2dCtrl', ($scope, $document, CommonData) ->
     fixDef.shape = new b2PolygonShape()
     fixDef.shape.SetAsEdge new b2Vec2(-8, 0), new b2Vec2(8, 0)
     body.CreateFixture fixDef
-    fixDef.shape.SetAsEdge new b2Vec2(-8, 0), new b2Vec2(-8, -10)
+    fixDef.shape.SetAsEdge new b2Vec2(-8, 0), new b2Vec2(-8, -20)
     body.CreateFixture fixDef
-    fixDef.shape.SetAsEdge new b2Vec2(8, 0), new b2Vec2(8, -10)
+    fixDef.shape.SetAsEdge new b2Vec2(8, 0), new b2Vec2(8, -20)
     body.CreateFixture fixDef
 
   # setup debug draw
