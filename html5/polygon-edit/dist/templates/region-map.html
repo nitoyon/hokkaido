@@ -67,6 +67,7 @@
         draggable-ondragend="dotDragEnd(dot)"
         draggable-onclick="dotClick(dot)"
         ng-mouseover="dotMouseOver(dot)"
+        ng-mouseout="dotMouseOut(dot)"
         ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
                    'selected': selectedItem == dot}"
         vector-effect="non-scaling-stroke"

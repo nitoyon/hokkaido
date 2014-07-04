@@ -39,11 +39,11 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
           candidate: polygon.getInnerLineCandidates dot
 
   # drag dot handler
-  $scope.dotDrag = (dot) -> $scope.$apply () ->
+  $scope.dotDrag = (dot) ->
     if $scope.innerLineMode?
       innerLineMove()
     else
-      dotMove dot
+      $scope.$apply () -> dotMove dot
 
   # drag end dot handler
   $scope.dotDragEnd = (dot) ->
@@ -55,6 +55,10 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.dotMouseOver = (dot) ->
     if $scope.innerLineMode?
       $scope.innerLineMode.end = dot
+
+  $scope.dotMouseOut = (dot) ->
+    if $scope.innerLineMode?
+      $scope.innerLineMode.end = null
 
   dotMove = (dot) ->
     dot.x += d3.event.dx
@@ -73,6 +77,11 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     else
       mode.endPos.x = mode.endCur.x
       mode.endPos.y = mode.endCur.y
+
+    d3.select '#inner_drag'
+    .attr
+      x2: mode.endPos.x
+      y2: mode.endPos.y
     return
 
   innerLineMoveEnd = ->
