@@ -243,6 +243,24 @@ describe 'Polygon', ->
       assert.lengthOf g, 3
       assert.deepEqual [d3, d4, d5], g
 
+    # FIX ME: it's difficult to fix this bug (Knwon issue)
+    #it 'should be valid when inner group exists', ->
+    #  #       d2
+    #  # d1 o--o--o d3
+    #  #    | / \ |
+    #  #    |/   \|
+    #  # d6 o-----o d4
+    #  #     \   /
+    #  #      --o d5
+    #  [d1, d2, d3, d4, d5, d6] =
+    #    [new Dot(), new Dot(), new Dot(), new Dot(), new Dot(), new Dot()]
+    #  polygon = new Polygon(d1, d2, d3, d4, d5, d6)
+    #  polygon.addInnerLine(d2, d4)
+    #  polygon.addInnerLine(d4, d6)
+    #  polygon.addInnerLine(d6, d2)
+    #
+    #  assert.lengthOf polygon.groups, 4
+
   describe 'getInnerLineCandidates', ->
     it 'should be valid when no inner lines exist', ->
       # d1  d2  d3
