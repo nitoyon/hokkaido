@@ -3,15 +3,17 @@
 <meta charset="utf-8">
 <script src="d3.v3.js"></script>
 <script src="angular/angular.js"></script>
+<script src="Box2dWeb-2.1.a.3.min.js"></script>
 <link rel="stylesheet" type="text/css" href="polygon-edit.css"/>
 </head>
 <body ng-app="PolygonEdit">
 
 <div id="header" header-toolbar ng-controller="HeaderCtrl"></div>
 
-<div id="main">
+<div id="main" ng-controller="MainCtrl">
   <div id="left" region-list ng-controller="ListCtrl"></div>
-  <div id="map_container" region-map ng-controller="MapCtrl"></div>
+  <div id="map_container" region-map ng-controller="MapCtrl" ng-if="!data.previewing"></div>
+  <div id="box2d_container" box2d ng-controller="Box2dCtrl" ng-if="data.previewing"></div>
 </div>
 
 <script src="polygon-edit.js"></script>

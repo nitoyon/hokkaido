@@ -186,7 +186,8 @@ describe 'Polygon', ->
       #    |     |
       #    |     |
       # d4 o-----o d3
-      [d1, d2, d3, d4] = [new Dot(), new Dot(), new Dot(), new Dot()]
+      [d1, d2, d3, d4] = [new Dot(0, 0), new Dot(10, 0), new Dot(10, 10),
+        new Dot(0, 10)]
       polygon = new Polygon(d1, d2, d3, d4)
 
       assert.lengthOf polygon.groups, 1
@@ -194,6 +195,21 @@ describe 'Polygon', ->
       g = polygon.groups[0]
       assert.lengthOf g, 4
       assert.deepEqual [d1, d2, d3, d4], g
+
+    it 'should be clockwise', ->
+      # d1 o-----o d4
+      #    |     |
+      #    |     |
+      # d2 o-----o d3
+      [d1, d2, d3, d4] = [new Dot(0, 0), new Dot(0, 10), new Dot(10, 10),
+        new Dot(10, 0)]
+      polygon = new Polygon(d1, d2, d3, d4)
+
+      assert.lengthOf polygon.groups, 1
+
+      g = polygon.groups[0]
+      assert.lengthOf g, 4
+      assert.deepEqual [d4, d3, d2, d1], g
 
     it 'should be two when one inner line exists', ->
       # d1 o-----o d2

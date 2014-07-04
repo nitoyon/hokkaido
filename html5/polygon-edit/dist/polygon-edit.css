@@ -18,6 +18,7 @@ div#header {
 div#main {
 	display: flex;
 	flex-flow: row nowrap;
+	flex-grow: 1;
 }
 
 #map_pathes path {
@@ -48,13 +49,18 @@ select#pref_list {
 	width: 100%;
 }
 
+div#box2d_container,
 div#map_container {
-	height: 100%;
 	flex-grow: 1;
 }
 
 svg#map {
 	background: #f9f9ff;
+}
+
+canvas#preview {
+	width: 400px;
+	height: 400px;
 }
 
 #all_polygon polygon {

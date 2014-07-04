@@ -3,7 +3,7 @@
     <g id="map_pathes">
       <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
         <path ng-repeat="region in pref.regions"
-          ng-class="{selected : region == data.selectedRegion}"
+          ng-class="{selected : data.selectedRegions.indexOf(region) != -1}"
           ng-click="regionClick(region)"
           ng-attr-d="{{region.path}}"/>
       </g>

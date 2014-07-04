@@ -8,7 +8,8 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.innerLineMode = null
 
   $scope.regionClick = (region) ->
-    $scope.data.selectedRegion = region unless CommonData.addingNewPolygon
+    unless CommonData.addingNewPolygon
+      $scope.data.updateSelectedRegions([region])
 
 
   # drag map handler
