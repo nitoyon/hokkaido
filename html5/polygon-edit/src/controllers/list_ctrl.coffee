@@ -5,14 +5,20 @@ app.controller 'ListCtrl', ($scope, CommonData) ->
   $scope.selectedIds = []
 
   $scope.$watch 'selectedIds', (newValue, oldValue) ->
-    CommonData.updateSelectedRegion(newValue)
+    allRegions = CommonData.prefs.getAllRegions()
+    regions = []
+    for id in newValue
+      # find selected region
+      p = _.filter allRegions, (region) ->
+        region.id == id
+      regions.push p[0] if p.length > 0
+    CommonData.updateSelectedRegions regions
 
-  $scope.$watch 'data.selectedRegion', (newValue, oldValue) ->
+  $scope.$watch 'data.selectedRegions', (newValue, oldValue) ->
+    $scope.selectedIds.length = 0
     if newValue?
-      if $scope.selectedIds.length != 1 || $scope.selectedIds[0] != newValue.id
-        $scope.selectedIds = [newValue.id]
-    else
-      $scope.selectedIds = []
+      for region in newValue
+        $scope.selectedIds.push region.id
 
 app.directive 'regionList', () ->
   templateUrl: 'templates/region-list.html'

@@ -7,18 +7,12 @@ app.service 'CommonData', ($http) ->
   @previewing = false
   @addingNewPolygon = false
 
-  @updateSelectedRegion = (selectedIds) =>
-    @selectedRegions = []
-    @selectedRegion = null
-
-    allRegions = @prefs.getAllRegions()
-    for id in selectedIds
-      # find selected region
-      p = _.filter @prefs.getAllRegions(), (region) ->
-        region.id == id
-      @selectedRegions.push p[0] if p.length > 0
-
-    @selectedRegion = @selectedRegions[0] if @selectedRegions.length > 0
+  @updateSelectedRegions = (regions) =>
+    @selectedRegions = regions
+    if regions.length > 0
+      @selectedRegion = regions[0]
+    else
+      @selectedRegion = null
 
   @save = () =>
     localStorage.prefs = JSON.stringify(@prefs.serialize())
