@@ -19,14 +19,17 @@ app.directive 'draggable', () ->
 
   link: (scope, element, attrs, controller) ->
     dragging = dragMoved = false
+    originalDragStartEvent = null
 
     drag = d3.behavior.drag()
     .on "dragstart", () ->
       dragging = dragMoved = false
+      originalDragStartEvent = d3.event
 
       # drag the most foreground draggable object
       d3.event.sourceEvent.stopPropagation()
     .on "dragend", (d, i) =>
+      originalDragStartEvent = null
       if !dragMoved
         scope.onClick()
       else
@@ -39,7 +42,10 @@ app.directive 'draggable', () ->
       else if !dragMoved
         # trigger onDragStart on first move
         dragMoved = true
+        originalMoveEvent = d3.event
+        d3.event = originalDragStartEvent
         scope.onDragStart()
+        d3.event = originalMoveEvent
       scope.onDrag()
 
     d3.select(element[0]).call drag
