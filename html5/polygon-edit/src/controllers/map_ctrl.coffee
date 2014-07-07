@@ -7,6 +7,8 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   $scope.selectedItem = null
   $scope.innerLineMode = null
 
+  draggingDotElement = null
+
   $scope.regionClick = (region) ->
     unless CommonData.addingNewPolygon
       $scope.data.updateSelectedRegions([region])
@@ -24,6 +26,7 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   # with Alt key
   $scope.dotDragStart = (dot) ->
     event = d3.event.sourceEvent
+    draggingDotElement = event.target
     polygon = $scope.data.selectedRegion?.polygon
     if polygon? && polygon.contains(dot) && event.altKey
       $scope.$apply ->
@@ -44,14 +47,17 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     if $scope.innerLineMode?
       innerLineMove()
     else
-      $scope.$apply () -> dotMove dot
+      dotMove dot
 
   # drag end dot handler
-  $scope.dotDragEnd = (dot) ->
+  $scope.dotDragEnd = (dot) -> $scope.$apply ->
+    draggingDotElement = null
     if $scope.innerLineMode?
-      $scope.$apply -> innerLineMoveEnd()
+      innerLineMoveEnd()
     else
       CommonData.save()
+      for polygon in CommonData.prefs.getAllPolygons()
+        polygon.updateGroups() if polygon.contains dot
 
   $scope.dotMouseOver = (dot) ->
     if $scope.innerLineMode?
@@ -64,8 +70,10 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
   dotMove = (dot) ->
     dot.x += d3.event.dx
     dot.y += d3.event.dy
-    for polygon in CommonData.prefs.getAllPolygons()
-      polygon.updateGroups() if polygon.contains dot
+    d3.select(draggingDotElement)
+    .attr
+      cx: dot.x
+      cy: dot.y
 
   innerLineMove = ->
     mode = $scope.innerLineMode
