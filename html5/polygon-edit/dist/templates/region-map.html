@@ -61,13 +61,23 @@
         ng-attr-y1="{{innerLineMode.start.y}}" ng-attr-y2="{{innerLineMode.endPos.y}}"/>
 
       <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
-        ng-if="innerLineMode && innerLineMode.candidate.indexOf(dot) != -1 || !innerLineMode"
+        ng-if="innerLineMode && innerLineMode.candidate.indexOf(dot) != -1"
+        ng-mouseover="dotMouseOver(dot)"
+        ng-mouseout="dotMouseOut(dot)"
+        ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
+                   'selected': selectedItem == dot}"
+        vector-effect="non-scaling-stroke"
+        stroke-width="5"
+        ng-attr-cx="{{dot.x}}"
+        ng-attr-cy="{{dot.y}}"
+        ng-attr-r="{{5 / zoom.scale}}"/>
+
+      <circle ng-repeat="dot in data.selectedRegion.polygon.dots"
+        ng-if="!innerLineMode"
         draggable draggable-ondrag="dotDrag(dot)"
         draggable-ondragstart="dotDragStart(dot)"
         draggable-ondragend="dotDragEnd(dot)"
         draggable-onclick="dotClick(dot)"
-        ng-mouseover="dotMouseOver(dot)"
-        ng-mouseout="dotMouseOut(dot)"
         ng-class="{'inner': data.selectedRegion.polygon.innerDots.indexOf(dot) != -1,
                    'selected': selectedItem == dot}"
         vector-effect="non-scaling-stroke"
