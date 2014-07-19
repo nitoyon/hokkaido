@@ -13,13 +13,17 @@ app.controller 'MapCtrl', ($scope, $document, CommonData, Zoom) ->
     unless CommonData.addingNewPolygon
       $scope.data.updateSelectedRegions([region])
 
-
   # drag map handler
   $scope.mapDrag = () ->
     event = d3.event
     p = Zoom.clientToWorld event.x, event.y
-    $scope.$apply () ->
-      $scope.zoom.move event.dx, event.dy
+    $scope.zoom.move event.dx, event.dy
+
+    # update the DOM (for performance improvement)
+    z = $scope.zoom
+    d3.select('#canvas')
+    .attr('transform',
+      'translate(' + z.x + ',' + z.y + ') scale(' + z.scale + ')')
 
   # drag start dot handler
   # enter "inner line" mode when a dot of the selected region is dragged
