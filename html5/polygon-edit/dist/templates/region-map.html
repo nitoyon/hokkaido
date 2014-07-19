@@ -1,4 +1,7 @@
 <svg id="map" draggable draggable-ondrag="mapDrag()" draggable-onclick="mapClick()">
+  <!--without this rect, mousedown event isn't raised in sea (Chrome 36 bug?)-->
+  <rect width="100%" height="100%" fill="transparent"/>
+
   <g id="canvas" ng-attr-transform="translate({{zoom.x}},{{zoom.y}}) scale({{zoom.scale}})">
     <g id="map_pathes">
       <g ng-repeat="pref in data.prefs.list" ng-class="pref.name">
