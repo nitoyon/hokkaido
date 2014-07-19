@@ -52,9 +52,11 @@ select#pref_list {
 div#box2d_container,
 div#map_container {
 	flex-grow: 1;
+	display: flex;
 }
 
 svg#map {
+	width: 100%;
 	background: #f9f9ff;
 }
 
